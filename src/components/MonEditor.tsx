@@ -7,7 +7,7 @@ import {
   speciesByInternalId,
   typeName,
 } from "../save/gamedata";
-import type { Dvs, MonRecord } from "../save/pokemon";
+import { makePpByte, maxPp, ppCurrent, ppUps, type Dvs, type MonRecord } from "../save/pokemon";
 import type { MonNames } from "../save/savefile";
 import { Button, Field, NumberInput, Segmented, Select, TextInput } from "./ui/ui";
 import { Sprite } from "./Sprite";
@@ -53,7 +53,12 @@ export function MonEditor({
     patch((d) => {
       d.dvs = { atk: 15, def: 15, spd: 15, spc: 15 };
       d.statExp = { hp: 65535, atk: 65535, def: 65535, spd: 65535, spc: 65535 };
-      d.pp = d.moves.map((id) => (id ? (moveInfo(id)?.pp ?? 0) : 0)) as MonRecord["pp"];
+      // Full PP with 3 PP Ups on every move.
+      d.pp = d.moves.map((id) => {
+        if (!id) return 0;
+        const base = moveInfo(id)?.pp ?? 0;
+        return makePpByte(maxPp(base, 3), 3);
+      }) as MonRecord["pp"];
       d.status = 0;
       d.currentHp = 0xffff; // recalc clamps to the new max HP (full heal)
     });
@@ -150,8 +155,15 @@ export function MonEditor({
 
       {tab === "moves" && (
         <div className="mon-editor__section">
+          <p className="hint-line">
+            PP is stored as current PP plus a PP Up count (0–3). Max PP grows with PP Ups.
+          </p>
           {[0, 1, 2, 3].map((i) => {
             const info = moveInfo(mon.moves[i]);
+            const byte = mon.pp[i];
+            const ups = ppUps(byte);
+            const current = ppCurrent(byte);
+            const max = info ? maxPp(info.pp, ups) : 0;
             return (
               <div className="move-row" key={i}>
                 <Select
@@ -160,7 +172,8 @@ export function MonEditor({
                     const id = Number(e.target.value);
                     patch((d) => {
                       d.moves[i] = id;
-                      d.pp[i] = id ? (moveInfo(id)?.pp ?? 0) : 0;
+                      // Reset to full PP with no PP Ups for the newly chosen move.
+                      d.pp[i] = id ? makePpByte(moveInfo(id)?.pp ?? 0, 0) : 0;
                     }, false);
                   }}
                 >
@@ -181,14 +194,44 @@ export function MonEditor({
                     <span className="move-row__empty">empty slot</span>
                   )}
                 </div>
-                <NumberInput
-                  className="move-row__pp"
-                  value={mon.pp[i]}
-                  min={0}
-                  max={63}
-                  onValue={(n) => patch((d) => (d.pp[i] = n), false)}
-                  aria-label={`Move ${i + 1} PP`}
-                />
+                {info ? (
+                  <div className="move-row__pp">
+                    <label className="move-pp">
+                      <span className="move-pp__cap">PP</span>
+                      <NumberInput
+                        className="move-pp__cur"
+                        value={current}
+                        min={0}
+                        max={max}
+                        onValue={(n) => patch((d) => (d.pp[i] = makePpByte(n, ups)), false)}
+                        aria-label={`Move ${i + 1} current PP`}
+                      />
+                      <span className="move-pp__max mono">/ {max}</span>
+                    </label>
+                    <label className="move-pp move-pp--ups">
+                      <span className="move-pp__cap">PP Ups</span>
+                      <Select
+                        value={ups}
+                        aria-label={`Move ${i + 1} PP Ups`}
+                        onChange={(e) => {
+                          const nextUps = Number(e.target.value);
+                          patch((d) => {
+                            // Refill to the new max so the count stays consistent.
+                            d.pp[i] = makePpByte(maxPp(info.pp, nextUps), nextUps);
+                          }, false);
+                        }}
+                      >
+                        {[0, 1, 2, 3].map((u) => (
+                          <option key={u} value={u}>
+                            {u}
+                          </option>
+                        ))}
+                      </Select>
+                    </label>
+                  </div>
+                ) : (
+                  <span />
+                )}
               </div>
             );
           })}
