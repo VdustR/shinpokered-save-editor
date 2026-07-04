@@ -51,6 +51,7 @@ export function PickerDialog<T>({
     if (open && !dlg.open) {
       dlg.showModal();
       setActive(0);
+      listRef.current?.scrollTo(0, 0); // reset any preserved scroll on reopen
       // Focus the search box once the dialog is shown.
       requestAnimationFrame(() => searchRef.current?.focus());
     } else if (!open && dlg.open) {
@@ -58,9 +59,10 @@ export function PickerDialog<T>({
     }
   }, [open]);
 
-  // Keep the active row in range and scrolled into view as results change.
+  // Reset the highlight to the first result whenever the result set changes
+  // (a new query, filter, or sort), so it never points at a stale row.
   useEffect(() => {
-    setActive((a) => Math.min(a, Math.max(0, items.length - 1)));
+    setActive(0);
   }, [items]);
 
   useEffect(() => {
@@ -69,6 +71,7 @@ export function PickerDialog<T>({
   }, [active]);
 
   function onKeyDown(e: React.KeyboardEvent) {
+    if (items.length === 0) return;
     if (e.key === "ArrowDown") {
       e.preventDefault();
       setActive((a) => Math.min(a + 1, items.length - 1));
@@ -119,7 +122,6 @@ export function PickerDialog<T>({
               className={`picker__row ${i === active ? "picker__row--active" : ""} ${
                 isSelected?.(item) ? "picker__row--selected" : ""
               }`}
-              onMouseEnter={() => setActive(i)}
               onClick={() => onPick(item)}
             >
               {renderRow(item, i === active)}

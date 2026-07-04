@@ -123,7 +123,8 @@
   color: var(--ink);
   text-align: left;
 }
-.picker__row--active {
+.picker__row--active,
+.picker__row:hover {
   background: var(--surface-2);
 }
 .picker__row--selected {
