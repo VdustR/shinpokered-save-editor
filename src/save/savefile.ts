@@ -529,7 +529,13 @@ export function switchCurrentBox(bytes: Uint8Array, newIndex: number): void {
   if (old === newIndex) return;
 
   if ((bytes[OFFSETS.currentBoxNum] & 0x80) === 0) {
-    for (let i = 0; i < NUM_BOXES; i++) initializeBox(bytes, storedBoxOffset(i));
+    // The game's EmptyAllSRAMBoxes wipes everything here, but the editor can
+    // have written real boxes before the first switch; only raw-fill slots
+    // get initialized so those edits survive.
+    for (let i = 0; i < NUM_BOXES; i++) {
+      const base = storedBoxOffset(i);
+      if (!isBoxInitialized(bytes, base)) initializeBox(bytes, base);
+    }
   }
   // Persist the cache into the old box's stored slot.
   bytes.copyWithin(storedBoxOffset(old), OFFSETS.currentBox, OFFSETS.currentBox + BOX_DATA_SIZE);

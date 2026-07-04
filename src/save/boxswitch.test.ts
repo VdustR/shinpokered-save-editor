@@ -74,3 +74,19 @@ describe("switchCurrentBox", () => {
     expect(Array.from(bytes)).toEqual(Array.from(before));
   });
 });
+
+describe("first switch with editor-written boxes", () => {
+  it("preserves boxes the editor initialized before the first switch", () => {
+    const bytes = freshSave();
+    writeBoxMon(bytes, 0, 0, mon(0x99, 5), { nickname: "AAA", otName: "RED" });
+    // Edit a non-current box while bit 7 is still clear.
+    writeBoxMon(bytes, 6, 0, mon(0xb0, 15), { nickname: "CCC", otName: "RED" });
+
+    switchCurrentBox(bytes, 4);
+
+    // The edited box survived the first-switch initialization.
+    expect(readBox(bytes, 6).mons[0].mon.species).toBe(0xb0);
+    // Untouched raw slots still got initialized.
+    expect(bytes[storedBoxOffset(7)]).toBe(0);
+  });
+});
