@@ -106,6 +106,24 @@ test("party DV edits persist and one-click Max fills values", async ({ page }) =
   await expect(atk).toHaveValue("15");
 });
 
+test("changing species on a non-nicknamed mon does not leak the old species name", async ({ page }) => {
+  await loadFixture(page);
+  await page.locator(".sidenav__item", { hasText: "Party" }).click();
+  await page.getByRole("button", { name: "Add Pokémon" }).first().click();
+
+  const nick = page.locator(".field", { hasText: "Nickname" }).locator("input");
+  await expect(nick).toHaveValue(""); // not custom -> placeholder only
+  await expect(nick).toHaveAttribute("placeholder", "BULBASAUR");
+
+  // Change species without touching the nickname; it must follow the new species.
+  await page.locator(".field", { hasText: "Species" }).locator("select").selectOption({ label: "#004 CHARMANDER" });
+  await expect(nick).toHaveValue("");
+  await expect(nick).toHaveAttribute("placeholder", "CHARMANDER");
+
+  // The slot label should read CHARMANDER, not the old BULBASAUR.
+  await expect(page.locator(".slot__name").first()).toHaveText("CHARMANDER");
+});
+
 test("encyclopedia fuzzy-searches moves and filters by type", async ({ page }) => {
   await loadFixture(page);
   await page.locator(".sidenav__item", { hasText: "Encyclopedia" }).click();

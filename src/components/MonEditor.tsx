@@ -36,14 +36,16 @@ export function MonEditor({
   // A non-nicknamed Gen 1 mon stores its species name; treat that (and an
   // empty field) as "not custom" so the input shows a placeholder rather than
   // a pre-filled value. The commit path writes the species name when blank.
-  const isCustomNickname = names.nickname !== "" && names.nickname !== species?.name;
+  // Compare case-insensitively so any casing of the stored name still matches.
+  const isCustomNickname =
+    names.nickname !== "" && names.nickname.toUpperCase() !== (species?.name ?? "").toUpperCase();
 
   /** Apply a mutation to a clone, recalc derived fields, and persist. */
-  function patch(fn: (draft: MonRecord) => void, recalc = true) {
+  function patch(fn: (draft: MonRecord) => void, recalc = true, namesOverride?: MonNames) {
     const draft: MonRecord = structuredClone(mon);
     fn(draft);
     if (recalc) recalcDerivedFields(draft);
-    onChange(draft, names);
+    onChange(draft, namesOverride ?? names);
   }
 
   /** Perfect DVs + full stat EXP, refill PP, and fully heal. */
@@ -67,14 +69,22 @@ export function MonEditor({
               value={mon.species}
               onChange={(e) => {
                 const id = Number(e.target.value);
-                patch((d) => {
-                  d.species = id;
-                  const nb = baseStatsOf(id);
-                  if (nb) {
-                    d.types = [nb.types[0], nb.types[1]];
-                    d.catchRate = nb.catchRate;
-                  }
-                });
+                // If the mon isn't custom-nicknamed, let the name follow the new
+                // species: forward an empty nickname so the commit fallback fills
+                // the new species name instead of keeping the old one.
+                const nextNames = isCustomNickname ? names : { ...names, nickname: "" };
+                patch(
+                  (d) => {
+                    d.species = id;
+                    const nb = baseStatsOf(id);
+                    if (nb) {
+                      d.types = [nb.types[0], nb.types[1]];
+                      d.catchRate = nb.catchRate;
+                    }
+                  },
+                  true,
+                  nextNames,
+                );
               }}
             >
               {DEX_SPECIES.map((s) => (
