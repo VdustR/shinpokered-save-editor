@@ -88,6 +88,7 @@ export function TrainerPage() {
           <div className="form-grid">
             <Field label="Money" offset={OFFSETS.money} onJump={jump} hint={`0 – ${MAX_MONEY.toLocaleString()}`}>
               <NumberInput
+                data-testid="money-input"
                 value={getMoney(bytes)}
                 min={0}
                 max={MAX_MONEY}

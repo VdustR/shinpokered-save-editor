@@ -12,7 +12,10 @@
     "test:watch": "vitest",
     "gen:data": "node scripts/generate-data.mjs",
     "gen:sprites": "node scripts/fetch-sprites.mjs",
-    "gen:icons": "node scripts/make-icons.mjs"
+    "gen:icons": "node scripts/make-icons.mjs",
+    "e2e": "playwright test",
+    "smoke": "tsx scripts/emulator-smoke.ts",
+    "make:fixture": "node scripts/make-fixture.mjs"
   },
   "dependencies": {
     "react": "^19.2.7",
@@ -28,6 +31,7 @@
     "@vitest/ui": "^4.1.9",
     "oxlint": "^1.71.0",
     "serverboy": "^0.0.7",
+    "tsx": "^4.23.0",
     "typescript": "~6.0.2",
     "vite": "^8.1.1",
     "vite-plugin-pwa": "^1.3.0",

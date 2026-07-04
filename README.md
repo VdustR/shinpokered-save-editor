@@ -24,13 +24,44 @@ Your save file never leaves the browser: no upload, no account, no backend.
 
 ```bash
 pnpm install
-pnpm dev        # dev server
-pnpm test       # unit tests (vitest)
-pnpm e2e        # browser e2e tests (playwright)
-pnpm build      # production build
+pnpm gen:sprites  # download Gen 1 sprites into public/sprites (once; needs network)
+pnpm dev          # dev server
+pnpm test         # unit tests (vitest)
+pnpm e2e          # browser e2e tests (playwright)
+pnpm build        # production build (also regenerates the PWA service worker)
+```
+
+Sprites are not committed (they are © Nintendo/Creatures/GAME FREAK). Run
+`pnpm gen:sprites` once; the PWA then precaches them for offline use. App icons
+are original artwork and are committed, but can be regenerated with
+`pnpm gen:icons`.
+
+Game data is generated from the shinpokered source:
+
+```bash
+pnpm gen:data  # regenerate src/gen/gamedata.json (clones the pinned 1.25.0 tag)
 ```
 
 See [DESIGN.md](DESIGN.md) for the design system and architecture notes.
+
+## Testing & verification
+
+The correctness strategy has four layers, from cheapest to strongest:
+
+1. **Unit tests** (`pnpm test`) — checksum vectors, Gen 1 text/BCD codecs,
+   Pokémon record round-trips, stat/EXP formulas, and field accessors.
+2. **Real fixture** — `tests/fixtures/newgame.sav` is a genuine battery save
+   produced by scripting the game's intro in a headless emulator
+   (`SHINPOKERED_ROM=… pnpm make:fixture`). The suite asserts it parses and
+   round-trips byte-for-byte.
+3. **Browser e2e** (`pnpm e2e`) — loads the fixture, edits it, exports, and
+   asserts the downloaded bytes: correct field values, a valid main checksum,
+   and no unrelated bytes changed.
+4. **Emulator smoke test** (`SHINPOKERED_ROM=… pnpm smoke`) — the release gate.
+   Edits a save through the real save-core, boots the ROM with it, chooses
+   CONTINUE, reaches the overworld, and asserts the game's own WRAM reflects the
+   edits. This proves exported saves are loadable by the game, not merely
+   well-formed. It is skipped when `SHINPOKERED_ROM` is unset.
 
 ## Credits
 
