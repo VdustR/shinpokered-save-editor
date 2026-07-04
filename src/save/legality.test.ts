@@ -45,4 +45,14 @@ describe("learnableMoves", () => {
     expect(set.has(move("TACKLE"))).toBe(true);
     expect(set.has(move("THUNDERBOLT"))).toBe(false);
   });
+
+  it("is transitive across the whole evolution line and stable across calls", () => {
+    const bulba = learnableMoves(id("BULBASAUR"));
+    const venu1 = learnableMoves(id("VENUSAUR"));
+    const venu2 = learnableMoves(id("VENUSAUR"));
+    // Venusaur (3rd stage) inherits everything Bulbasaur (1st stage) can learn.
+    for (const m of bulba) expect(venu1.has(m)).toBe(true);
+    // Cached result is complete and identical on repeat.
+    expect([...venu2].sort()).toEqual([...venu1].sort());
+  });
 });

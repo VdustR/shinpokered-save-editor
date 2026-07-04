@@ -27,10 +27,13 @@ for (const species of SPECIES) {
   }
 }
 
-const learnsetCache = new Map<number, Map<number, LearnSource>>();
+const directCache = new Map<number, Map<number, LearnSource>>();
+const fullCache = new Map<number, Map<number, LearnSource>>();
 
 /** Moves this species learns directly (its own level-up + TM/HM), best source first. */
 function directLearnset(internalId: number): Map<number, LearnSource> {
+  const cached = directCache.get(internalId);
+  if (cached) return cached;
   const learn = new Map<number, LearnSource>();
   const base = baseStatsOf(internalId);
   const species = speciesByInternalId(internalId);
@@ -43,23 +46,31 @@ function directLearnset(internalId: number): Map<number, LearnSource> {
       learn.set(moveId, n <= 50 ? "tm" : "hm");
     }
   }
+  directCache.set(internalId, learn);
   return learn;
 }
 
-/** Full legal move pool for a species, including inherited pre-evolution moves. */
-function fullLearnset(internalId: number, seen: Set<number> = new Set()): Map<number, LearnSource> {
-  const cached = learnsetCache.get(internalId);
+/**
+ * Full legal move pool for a species: its own direct learnset plus every
+ * pre-evolution's direct moves (labelled "prevo"). Uses a per-call visited set
+ * over the pre-evo closure — computed only from the always-complete direct
+ * learnsets — so the cached result is always complete and cycle-safe.
+ */
+function fullLearnset(internalId: number): Map<number, LearnSource> {
+  const cached = fullCache.get(internalId);
   if (cached) return cached;
-  if (seen.has(internalId)) return new Map();
-  seen.add(internalId);
 
-  const learn = directLearnset(internalId);
-  for (const preId of preEvoMap.get(internalId) ?? []) {
-    for (const [moveId] of fullLearnset(preId, seen)) {
-      if (!learn.has(moveId)) learn.set(moveId, "prevo");
-    }
+  const learn = new Map<number, LearnSource>(directLearnset(internalId));
+  const visited = new Set<number>([internalId]);
+  const queue = [...(preEvoMap.get(internalId) ?? [])];
+  while (queue.length > 0) {
+    const preId = queue.shift()!;
+    if (visited.has(preId)) continue;
+    visited.add(preId);
+    for (const [moveId] of directLearnset(preId)) if (!learn.has(moveId)) learn.set(moveId, "prevo");
+    for (const grandPre of preEvoMap.get(preId) ?? []) queue.push(grandPre);
   }
-  learnsetCache.set(internalId, learn);
+  fullCache.set(internalId, learn);
   return learn;
 }
 
