@@ -5,6 +5,7 @@ import type { MonRecord } from "../save/pokemon";
 import {
   getParty,
   removePartyMon,
+  reorderParty,
   setPartyMon,
   type MonNames,
 } from "../save/savefile";
@@ -14,7 +15,9 @@ import { Button } from "../components/ui/ui";
 import { EmptyLine } from "../components/EmptyLine";
 import { MonEditor } from "../components/MonEditor";
 import { PageHeader } from "../components/PageHeader";
+import { ReorderControls } from "../components/ReorderControls";
 import { Sprite } from "../components/Sprite";
+import { useDragReorder } from "../components/useDragReorder";
 
 const BULBASAUR = DEX_SPECIES[0]?.internalId ?? 0x99;
 
@@ -47,6 +50,14 @@ export function PartyPage() {
     setSelected((s) => Math.max(0, Math.min(s, party.length - 2)));
   }
 
+  function reorder(from: number, to: number) {
+    mutate((b) => reorderParty(b, from, to));
+    // Keep the same mon selected as it moves.
+    setSelected((s) => (s === from ? to : s > from && s <= to ? s - 1 : s < from && s >= to ? s + 1 : s));
+  }
+
+  const drag = useDragReorder(reorder, party.length);
+
   return (
     <div className="page">
       <PageHeader
@@ -71,18 +82,22 @@ export function PartyPage() {
             {party.map((slot, i) => {
               const sp = speciesByInternalId(slot.mon.species);
               return (
-                <button
-                  key={i}
-                  type="button"
-                  className={`slot ${i === selected ? "slot--active" : ""}`}
-                  onClick={() => setSelected(i)}
-                >
-                  <Sprite dexNo={sp?.dexNo ?? 0} size={40} alt={sp?.name ?? ""} />
-                  <span className="slot__text">
-                    <span className="slot__name">{slot.nickname || sp?.name}</span>
-                    <span className="slot__meta mono">Lv{slot.mon.level} · {sp?.name}</span>
-                  </span>
-                </button>
+                <div key={i} className={`slot ${i === selected ? "slot--active" : ""}`} {...drag.rowProps(i)}>
+                  <ReorderControls
+                    index={i}
+                    count={party.length}
+                    label={slot.nickname || sp?.name || "slot"}
+                    gripProps={drag.gripProps(i)}
+                    onMove={(d) => drag.moveBy(i, d)}
+                  />
+                  <button type="button" className="slot__btn" onClick={() => setSelected(i)}>
+                    <Sprite dexNo={sp?.dexNo ?? 0} size={40} alt={sp?.name ?? ""} />
+                    <span className="slot__text">
+                      <span className="slot__name">{slot.nickname || sp?.name}</span>
+                      <span className="slot__meta mono">Lv{slot.mon.level} · {sp?.name}</span>
+                    </span>
+                  </button>
+                </div>
               );
             })}
           </aside>

@@ -7,6 +7,7 @@ import {
   getCurrentBoxIndex,
   readBox,
   removeBoxMon,
+  reorderBoxMon,
   writeBoxMon,
   type MonNames,
 } from "../save/savefile";
@@ -16,6 +17,7 @@ import { EmptyLine } from "../components/EmptyLine";
 import { MonEditor } from "../components/MonEditor";
 import { PageHeader } from "../components/PageHeader";
 import { Sprite } from "../components/Sprite";
+import { useDragReorder } from "../components/useDragReorder";
 
 const BULBASAUR = DEX_SPECIES[0]?.internalId ?? 0x99;
 
@@ -47,6 +49,13 @@ export function BoxesPage() {
     mutate((b) => removeBoxMon(b, box, index));
     setSlot((s) => Math.max(0, Math.min(s, contents.mons.length - 2)));
   }
+
+  function reorder(from: number, to: number) {
+    mutate((b) => reorderBoxMon(b, box, from, to));
+    setSlot((s) => (s === from ? to : s > from && s <= to ? s - 1 : s < from && s >= to ? s + 1 : s));
+  }
+
+  const drag = useDragReorder(reorder, contents.mons.length);
 
   return (
     <div className="page">
@@ -99,8 +108,10 @@ export function BoxesPage() {
                       key={i}
                       type="button"
                       className={`box-cell ${i === slot ? "box-cell--active" : ""}`}
-                      title={`${m.nickname || sp?.name} · Lv${m.mon.level}`}
+                      title={`${m.nickname || sp?.name} · Lv${m.mon.level} · drag to reorder`}
                       onClick={() => setSlot(i)}
+                      {...drag.gripProps(i)}
+                      {...drag.rowProps(i)}
                     >
                       <Sprite dexNo={sp?.dexNo ?? 0} size={44} alt={sp?.name ?? ""} />
                       <span className="box-cell__lv mono">Lv{m.mon.level}</span>

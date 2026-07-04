@@ -8,12 +8,15 @@ import {
   setPcItems,
   type ItemStack,
 } from "../save/savefile";
+import { autoSortItems, moveInArray } from "../save/reorder";
 import { useNav } from "../state/nav";
 import { useSaveStore } from "../state/store";
 import { Button, NumberInput, OffsetChip, Panel, PickerTrigger } from "../components/ui/ui";
 import { EmptyLine } from "../components/EmptyLine";
 import { ItemPicker } from "../components/ItemPicker";
 import { PageHeader } from "../components/PageHeader";
+import { ReorderControls } from "../components/ReorderControls";
+import { useDragReorder } from "../components/useDragReorder";
 
 const DEFAULT_ITEM = ITEMS[0]?.id ?? 1;
 
@@ -43,6 +46,7 @@ function ItemList({
   function remove(index: number) {
     onChange(items.filter((_, i) => i !== index));
   }
+  const drag = useDragReorder((from, to) => onChange(moveInArray(items, from, to)), items.length);
 
   return (
     <Panel
@@ -52,9 +56,20 @@ function ItemList({
         </span>
       }
       actions={
-        <span className="mono muted">
-          {items.length} / {capacity}
-        </span>
+        <div className="btn-row">
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => onChange(autoSortItems(items))}
+            disabled={items.length < 2}
+            title="Sort into the game's built-in bag order"
+          >
+            Auto-sort
+          </Button>
+          <span className="mono muted">
+            {items.length} / {capacity}
+          </span>
+        </div>
       }
     >
       {items.length === 0 ? (
@@ -62,7 +77,14 @@ function ItemList({
       ) : (
         <div className="item-list">
           {items.map((item, i) => (
-            <div className="item-row" key={i}>
+            <div className="item-row" key={i} {...drag.rowProps(i)}>
+              <ReorderControls
+                index={i}
+                count={items.length}
+                label={itemName(item.id)}
+                gripProps={drag.gripProps(i)}
+                onMove={(d) => drag.moveBy(i, d)}
+              />
               <PickerTrigger label={itemName(item.id)} ariaLabel="Item" onOpen={() => setOpenRow(i)} />
               <NumberInput
                 className="item-row__count"

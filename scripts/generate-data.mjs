@@ -286,6 +286,26 @@ for (let tm = 0; tm < 50; tm++) {
   items.push({ id: 0xc9 + tm, name: `TM${String(tm + 1).padStart(2, "0")} ${moveNameById.get(moveId)}`, tm: tm + 1, moveId });
 }
 
+// --- Item auto-sort order (ItemSortList in custom_functions/func_bag.asm) ----------------
+const itemSortOrder = [];
+{
+  let inList = false;
+  for (const line of asmLines("custom_functions/func_bag.asm")) {
+    if (/^ItemSortList:+$/.test(line)) {
+      inList = true;
+      continue;
+    }
+    if (!inList) continue;
+    const db = line.match(/^db\s+([A-Za-z0-9_]+)$/);
+    if (db) {
+      itemSortOrder.push(resolveToken(db[1], itemConsts));
+      continue;
+    }
+    if (/^[A-Za-z_][A-Za-z0-9_]*:+/.test(line)) break; // next label ends the list
+  }
+}
+if (itemSortOrder.length < 50) throw new Error(`ItemSortList too short: ${itemSortOrder.length}`);
+
 // --- Types ---------------------------------------------------------------------------
 const typeNameLines = asmLines("text/type_names.asm");
 const typePointerOrder = [];
@@ -337,7 +357,7 @@ const pokemon = [...pokemonByDex.values()].sort((a, b) => a.dexNo - b.dexNo);
 
 writeFileSync(
   path.join(outDir, "gamedata.json"),
-  JSON.stringify({ meta, species, pokemon, moves, items, typeNames, tmMoves, charmap }, null, 1),
+  JSON.stringify({ meta, species, pokemon, moves, items, typeNames, tmMoves, itemSortOrder, charmap }, null, 1),
 );
 
 console.log(`Generated src/gen/gamedata.json from ${meta.source}@${PINNED_TAG} (${commit.slice(0, 12)})`);
