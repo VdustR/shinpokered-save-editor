@@ -411,6 +411,43 @@ const nuzlockeAreas = [];
 }
 if (nuzlockeAreas.length < 40) throw new Error(`Suspiciously few nuzlocke areas: ${nuzlockeAreas.length}`);
 
+// --- Missable item balls (constants/hide_show_constants.asm + mapObjects) -----------------
+// wMissableObjectFlags is a bit array indexed by the HS_* constant value; a
+// set bit hides the object. HS names ending in _ITEM(_N) are overworld item
+// balls; the N-th SPRITE_BALL object line in that map's object file carries
+// the item id, so labels can say what the ball contains.
+const missableBalls = [];
+{
+  const hsConsts = parseConstFile("constants/hide_show_constants.asm");
+  // map file key ("route2") -> ordered list of ball item tokens.
+  const ballsByMap = new Map();
+  for (const file of collectAsmFiles("data/mapObjects")) {
+    const key = path.basename(file, ".asm").toLowerCase();
+    const balls = [];
+    for (const line of asmLines(file)) {
+      const ball = line.match(/^object\s+SPRITE_BALL,\s*\d+,\s*\d+,\s*[A-Z_]+,\s*[A-Z_]+,\s*\d+,\s*([A-Z0-9_]+)$/);
+      if (ball) balls.push(ball[1]);
+    }
+    if (balls.length) ballsByMap.set(key, balls);
+  }
+  for (const [name, index] of hsConsts) {
+    const match = name.match(/^HS_(.+?)_ITEM(?:_(\d+))?$/);
+    if (!match) continue;
+    const mapKey = match[1].toLowerCase().replace(/_/g, "");
+    const ordinal = match[2] ? Number(match[2]) : 1;
+    // Floor suffixes differ between HS names and file names (SILPH_CO_3F ->
+    // silphco3.asm); retry without the trailing "f" after a digit.
+    const balls = ballsByMap.get(mapKey) ?? ballsByMap.get(mapKey.replace(/(\d)f$/, "$1"));
+    const token = balls?.[ordinal - 1];
+    missableBalls.push({
+      index,
+      map: match[1],
+      item: token && itemConsts.has(token) ? itemConsts.get(token) : null,
+    });
+  }
+}
+if (missableBalls.length < 80) throw new Error(`Suspiciously few missable balls: ${missableBalls.length}`);
+
 // --- Maps (constants/map_constants.asm) ----------------------------------------------------
 // `mapconst NAME, height, width` in id order; ids are sequential from 0.
 const maps = [];
@@ -566,6 +603,7 @@ writeFileSync(
       eventFlagUsage,
       nuzlockeAreas,
       maps,
+      missableBalls,
       hiddenItems,
       hiddenCoins,
       charmap,
