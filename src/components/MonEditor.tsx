@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { recalcDerivedFields } from "../save/derive";
 import { baseStatsOf, moveInfo, moveName, speciesByInternalId, typeName } from "../save/gamedata";
+import { moveLegality } from "../save/legality";
 import { makePpByte, maxPp, ppCurrent, ppUps, type Dvs, type MonRecord } from "../save/pokemon";
 import type { MonNames } from "../save/savefile";
 import { Button, Field, NumberInput, PickerTrigger, Segmented, Select, TextInput } from "./ui/ui";
@@ -163,12 +164,20 @@ export function MonEditor({
             const max = info ? maxPp(info.pp, ups) : 0;
             return (
               <div className="move-row" key={i}>
-                <PickerTrigger
-                  label={mon.moves[i] ? moveName(mon.moves[i]) : "Empty slot"}
-                  empty={!mon.moves[i]}
-                  ariaLabel={`Move ${i + 1}`}
-                  onOpen={() => setOpenMoveSlot(i)}
-                />
+                <div className="move-row__pick">
+                  <PickerTrigger
+                    label={mon.moves[i] ? moveName(mon.moves[i]) : "Empty slot"}
+                    empty={!mon.moves[i]}
+                    ariaLabel={`Move ${i + 1}`}
+                    onOpen={() => setOpenMoveSlot(i)}
+                  />
+                  {/* Kept outside .move-row__meta so the warning stays visible on mobile. */}
+                  {mon.moves[i] && !moveLegality(mon.species, mon.moves[i]) ? (
+                    <span className="move-row__illegal" title="Not normally learnable by this Pokémon">
+                      Illegal
+                    </span>
+                  ) : null}
+                </div>
                 <div className="move-row__meta mono">
                   {info ? (
                     <>
@@ -225,6 +234,7 @@ export function MonEditor({
             open={openMoveSlot !== null}
             selectedId={openMoveSlot !== null ? mon.moves[openMoveSlot] : 0}
             monTypes={base ? [base.types[0], base.types[1]] : undefined}
+            speciesId={mon.species}
             onClose={() => setOpenMoveSlot(null)}
             onSelect={(id) => {
               const slot = openMoveSlot;

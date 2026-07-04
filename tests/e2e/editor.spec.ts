@@ -173,6 +173,45 @@ test("move picker searches, filters by type, and assigns the chosen move", async
   await expect(page.locator(".move-row .picker-trigger__label").first()).toHaveText("Empty slot");
 });
 
+test("move picker labels legality and can filter to learnable moves", async ({ page }) => {
+  await loadFixture(page);
+  await page.locator(".sidenav__item", { hasText: "Party" }).click();
+  await page.getByRole("button", { name: "Add Pokémon" }).first().click(); // Bulbasaur
+  await page.getByRole("button", { name: "Moves" }).click();
+  await page.locator(".move-row .picker-trigger").first().click();
+  const dialog = page.locator("dialog.picker[open]");
+
+  // Thunderbolt is illegal for Bulbasaur; Tackle is legal.
+  await dialog.getByLabel("Search").fill("thunderbolt");
+  await expect(dialog.locator(".picker__row").filter({ hasText: "THUNDERBOLT" }).locator(".picker__illegal")).toBeVisible();
+  await dialog.getByLabel("Search").fill("tackle");
+  await expect(dialog.locator(".picker__row").filter({ hasText: "TACKLE" }).locator(".picker__legal")).toBeVisible();
+
+  // "Learnable" filter hides illegal moves.
+  await dialog.getByLabel("Search").fill("");
+  await dialog.getByLabel("Legality filter").getByText("Learnable").click();
+  const illegalCount = await dialog.locator(".picker__illegal").count();
+  expect(illegalCount).toBe(0);
+});
+
+test("an illegal assigned move stays flagged on mobile", async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  await loadFixture(page);
+  await page.locator(".sidenav__item", { hasText: "Party" }).click();
+  await page.getByRole("button", { name: "Add Pokémon" }).first().click(); // Bulbasaur
+  await page.getByRole("button", { name: "Moves" }).click();
+
+  // Assign Thunderbolt (illegal for Bulbasaur) to the first slot.
+  await page.locator(".move-row .picker-trigger").first().click();
+  const dialog = page.locator("dialog.picker[open]");
+  await dialog.getByLabel("Search").fill("thunderbolt");
+  await dialog.locator(".picker__row").filter({ hasText: "THUNDERBOLT" }).click();
+
+  // The Illegal flag must remain visible at mobile width (it lives outside the
+  // hidden meta column).
+  await expect(page.locator(".move-row__illegal").first()).toBeVisible();
+});
+
 test("species picker searches and filters, and updates the mon", async ({ page }) => {
   await loadFixture(page);
   await page.locator(".sidenav__item", { hasText: "Party" }).click();

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { formatMoveEffect } from "../save/describe";
 import { TYPE_NAMES, typeName, type MoveEntry } from "../save/gamedata";
+import { LEARN_SOURCE_LABEL, moveLegality } from "../save/legality";
 import { searchMoves, type MoveSort, type SortDir } from "../save/search";
 import { PickerDialog } from "./PickerDialog";
 import { Segmented, Select } from "./ui/ui";
@@ -25,6 +26,7 @@ export function MovePicker({
   open,
   selectedId,
   monTypes,
+  speciesId,
   onSelect,
   onClose,
 }: {
@@ -32,6 +34,8 @@ export function MovePicker({
   selectedId: number;
   /** The editing mon's types, for a STAB hint. */
   monTypes?: [number, number];
+  /** The editing mon's species (internal id), for legality checks. */
+  speciesId?: number;
   onSelect: (moveId: number) => void;
   onClose: () => void;
 }) {
@@ -39,6 +43,7 @@ export function MovePicker({
   const [type, setType] = useState<number | "">("");
   const [sort, setSort] = useState<MoveSort>("name");
   const [dir, setDir] = useState<SortDir>("asc");
+  const [learnableOnly, setLearnableOnly] = useState(false);
 
   // Start each open from a clean slate so a prior filter doesn't linger.
   useEffect(() => {
@@ -47,14 +52,19 @@ export function MovePicker({
       setType("");
       setSort("name");
       setDir("asc");
+      setLearnableOnly(false);
     }
   }, [open]);
 
+  const legalityOf = (moveId: number) =>
+    speciesId && moveId ? moveLegality(speciesId, moveId) : null;
+
   const items = useMemo(() => {
-    const results = searchMoves({ query, type: type === "" ? undefined : type, sort, dir });
+    let results = searchMoves({ query, type: type === "" ? undefined : type, sort, dir });
+    if (learnableOnly && speciesId) results = results.filter((m) => moveLegality(speciesId, m.id) !== null);
     // Offer "no move" (clears the slot) at the top whenever not name-searching.
     return query.trim() === "" ? [NO_MOVE, ...results] : results;
-  }, [query, type, sort, dir]);
+  }, [query, type, sort, dir, learnableOnly, speciesId]);
 
   const controls = (
     <>
@@ -84,6 +94,17 @@ export function MovePicker({
         >
           {dir === "asc" ? "Asc ▲" : "Desc ▼"}
         </button>
+      )}
+      {speciesId && (
+        <Segmented
+          ariaLabel="Legality filter"
+          value={learnableOnly ? "learnable" : "all"}
+          onChange={(v) => setLearnableOnly(v === "learnable")}
+          options={[
+            { value: "all", label: "All" },
+            { value: "learnable", label: "Learnable" },
+          ]}
+        />
       )}
     </>
   );
@@ -115,11 +136,23 @@ export function MovePicker({
           );
         }
         const stab = monTypes?.includes(m.type);
+        const legality = legalityOf(m.id);
         return (
           <>
             <span className="picker__name">{m.name}</span>
             <span className={`type-tag type-${m.type}`}>{typeName(m.type)}</span>
             {stab ? <span className="picker__stab" title="Same-type attack bonus">STAB</span> : null}
+            {speciesId ? (
+              legality ? (
+                <span className="picker__legal" title={`Learnable via ${LEARN_SOURCE_LABEL[legality.source]}`}>
+                  {LEARN_SOURCE_LABEL[legality.source]}
+                </span>
+              ) : (
+                <span className="picker__illegal" title="Not normally learnable by this Pokémon">
+                  Illegal
+                </span>
+              )
+            ) : null}
             <span className="picker__stats mono">
               {m.power ? `${m.power} pow` : "—"} · {m.accuracy ? `${m.accuracy}%` : "—"} · {m.pp} PP
             </span>

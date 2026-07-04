@@ -56,6 +56,8 @@ export const POKEMON: readonly PokemonEntry[] = gamedata.pokemon as PokemonEntry
 export const MOVES: readonly MoveEntry[] = gamedata.moves as MoveEntry[];
 export const ITEMS: readonly ItemEntry[] = gamedata.items as ItemEntry[];
 export const TYPE_NAMES: Record<number, string> = gamedata.typeNames as Record<number, string>;
+/** Move id for each TM/HM slot: index 0-49 = TM1-50, index 50-54 = HM1-5. */
+export const TM_MOVES: readonly number[] = gamedata.tmMoves as number[];
 export const GAMEDATA_META = gamedata.meta;
 export const PROFILE_LABEL = `Gen 1 · Shin ${gamedata.meta.tag}`;
 
