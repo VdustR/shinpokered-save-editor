@@ -351,6 +351,10 @@
   color: var(--ink-faint);
   font-style: italic;
 }
+.move-row__illegal {
+  color: var(--danger);
+  font-weight: 600;
+}
 .move-row__pp {
   display: flex;
   gap: var(--space-4);

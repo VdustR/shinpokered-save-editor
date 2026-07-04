@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { recalcDerivedFields } from "../save/derive";
 import { baseStatsOf, moveInfo, moveName, speciesByInternalId, typeName } from "../save/gamedata";
+import { moveLegality } from "../save/legality";
 import { makePpByte, maxPp, ppCurrent, ppUps, type Dvs, type MonRecord } from "../save/pokemon";
 import type { MonNames } from "../save/savefile";
 import { Button, Field, NumberInput, PickerTrigger, Segmented, Select, TextInput } from "./ui/ui";
@@ -175,6 +176,11 @@ export function MonEditor({
                       <span title="Type">{typeName(info.type)}</span>
                       <span title="Power">{info.power || "—"} pow</span>
                       <span title="Accuracy">{info.accuracy || "—"}%</span>
+                      {mon.moves[i] && !moveLegality(mon.species, mon.moves[i]) ? (
+                        <span className="move-row__illegal" title="Not normally learnable by this Pokémon">
+                          Illegal
+                        </span>
+                      ) : null}
                     </>
                   ) : (
                     <span className="move-row__empty">empty slot</span>
@@ -225,6 +231,7 @@ export function MonEditor({
             open={openMoveSlot !== null}
             selectedId={openMoveSlot !== null ? mon.moves[openMoveSlot] : 0}
             monTypes={base ? [base.types[0], base.types[1]] : undefined}
+            speciesId={mon.species}
             onClose={() => setOpenMoveSlot(null)}
             onSelect={(id) => {
               const slot = openMoveSlot;
