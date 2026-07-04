@@ -7,7 +7,7 @@
  * "not a Gen 1 save at all" and word the user-facing alert accordingly.
  */
 import { computeChecksum } from "./checksum";
-import { MONS_PER_BOX, NUM_BOXES, OFFSETS, PARTY_LENGTH } from "./layout";
+import { MONS_PER_BOX, NAME_LENGTH, NUM_BOXES, OFFSETS, PARTY_LENGTH, SAVE_SIZE } from "./layout";
 import { decodeName } from "./text";
 
 export type SaveVerdict = "valid" | "suspect" | "invalid";
@@ -20,6 +20,16 @@ export interface SaveAssessment {
 }
 
 export function assessSave(bytes: Uint8Array): SaveAssessment {
+  // parseSave rejects short files before this runs, but keep assessSave safe
+  // as a standalone API: undersized input can never be a Gen 1 save.
+  if (bytes.length < SAVE_SIZE) {
+    return {
+      verdict: "invalid",
+      mainChecksumValid: false,
+      issues: ["File is too small to be a Gen 1 save"],
+    };
+  }
+
   const mainChecksumValid =
     bytes[OFFSETS.mainChecksum] ===
     computeChecksum(bytes, OFFSETS.playerName, OFFSETS.mainChecksum - OFFSETS.playerName);
@@ -40,7 +50,7 @@ export function assessSave(bytes: Uint8Array): SaveAssessment {
   }
 
   // Player name: non-empty and fully decodable with the game's charmap.
-  const name = decodeName(bytes.subarray(OFFSETS.playerName, OFFSETS.playerName + 11));
+  const name = decodeName(bytes.subarray(OFFSETS.playerName, OFFSETS.playerName + NAME_LENGTH));
   if (name.length > 0 && !name.includes("<$")) {
     structuralPasses += 1;
   } else {

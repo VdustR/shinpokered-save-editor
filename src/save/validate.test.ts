@@ -30,6 +30,12 @@ describe("assessSave", () => {
     expect(a.verdict).toBe("invalid");
   });
 
+  it("rejects undersized input as invalid without reading out of bounds", () => {
+    const a = assessSave(new Uint8Array(1024));
+    expect(a.verdict).toBe("invalid");
+    expect(a.issues[0]).toMatch(/too small/i);
+  });
+
   it("rejects random bytes as invalid", () => {
     const bytes = new Uint8Array(SAVE_SIZE);
     // Deterministic pseudo-random fill (no Math.random in tests).
