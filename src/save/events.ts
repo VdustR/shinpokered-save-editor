@@ -11,10 +11,12 @@ export const EVENT_FLAGS_BYTES = 320;
 export interface EventFlag {
   index: number;
   name: string;
+  /** Precomputed display label so list renders don't re-derive it. */
+  label: string;
 }
 
 export const EVENT_FLAGS: readonly EventFlag[] = (gamedata.eventFlags as [number, string][]).map(
-  ([index, name]) => ({ index, name }),
+  ([index, name]) => ({ index, name, label: eventFlagLabel(name) }),
 );
 
 export function eventFlagByteOffset(index: number): number {

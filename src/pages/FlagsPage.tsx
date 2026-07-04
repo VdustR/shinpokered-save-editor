@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { EVENT_FLAGS, eventFlagByteOffset, eventFlagLabel, getEventFlag, setEventFlag } from "../save/events";
+import { EVENT_FLAGS, eventFlagByteOffset, getEventFlag, setEventFlag } from "../save/events";
 import { fuzzyScore } from "../save/search";
 import { useNav } from "../state/nav";
 import { useSaveStore } from "../state/store";
@@ -22,13 +22,14 @@ export function FlagsPage() {
   const [onlySet, setOnlySet] = useState(false);
 
   const matches = useMemo(() => {
+    if (query.trim() === "") return EVENT_FLAGS;
     const scored: { flag: (typeof EVENT_FLAGS)[number]; score: number }[] = [];
     for (const flag of EVENT_FLAGS) {
-      const score = fuzzyScore(query, flag.name.replace(/^EVENT_/, "").replace(/_/g, " "));
+      const score = fuzzyScore(query, flag.label);
       if (score === null) continue;
       scored.push({ flag, score });
     }
-    if (query.trim() !== "") scored.sort((a, b) => a.score - b.score || a.flag.index - b.flag.index);
+    scored.sort((a, b) => a.score - b.score || a.flag.index - b.flag.index);
     return scored.map((s) => s.flag);
   }, [query]);
 
@@ -66,7 +67,7 @@ export function FlagsPage() {
             <div className="flag-row" key={flag.index}>
               <Toggle
                 checked={value}
-                label={eventFlagLabel(flag.name)}
+                label={flag.label}
                 onChange={(v) => mutate((b) => setEventFlag(b, flag.index, v))}
               />
               <span className="flag-row__meta mono">
