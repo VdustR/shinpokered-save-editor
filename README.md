@@ -4,6 +4,8 @@ A local-first, offline-capable web save editor for
 [Shin Pokémon Red/Blue](https://github.com/jojobear13/shinpokered)
 (and vanilla Gen 1 Red/Blue) battery saves (`.sav` / `.srm`).
 
+**Live:** <https://vdustr.dev/shinpokered-save-editor/>
+
 Your save file never leaves the browser: no upload, no account, no backend.
 
 ## Features
