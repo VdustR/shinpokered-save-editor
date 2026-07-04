@@ -122,6 +122,26 @@ describe("uninitialized boxes (never written by the game)", () => {
   });
 });
 
+describe("current box with an uninitialized stored mirror", () => {
+  it("seeds the mirror from the cache so higher slots stay writable", () => {
+    const bytes = emptySave(); // current box = 0; cache at OFFSETS.currentBox
+    // Two mons in the cache, stored slot left as raw 0xff fill.
+    writeBoxMon(bytes, 0, 0, mon(0x99, 5), { nickname: "AAA", otName: "RED" });
+    writeBoxMon(bytes, 0, 1, mon(0x54, 10), { nickname: "BBB", otName: "RED" });
+    const stored = storedBoxOffset(0);
+    bytes.fill(0xff, stored, stored + BOX_DATA_SIZE);
+
+    // Appending at slot 2 must not throw against the wiped mirror.
+    writeBoxMon(bytes, 0, 2, mon(0xb0, 15), { nickname: "CCC", otName: "RED" });
+
+    const box = readBox(bytes, 0);
+    expect(box.mons.map((m) => m.mon.species)).toEqual([0x99, 0x54, 0xb0]);
+    // The stored mirror now equals the cache block.
+    const cache = bytes.slice(OFFSETS.currentBox, OFFSETS.currentBox + BOX_DATA_SIZE);
+    expect(Array.from(bytes.slice(stored, stored + BOX_DATA_SIZE))).toEqual(Array.from(cache));
+  });
+});
+
 describe("reorderBoxMon", () => {
   it("reorders a box's records and names", () => {
     const bytes = emptySave(); // current box = 0

@@ -460,8 +460,19 @@ export function readBox(bytes: Uint8Array, boxIndex: number): BoxContents {
 }
 
 export function writeBoxMon(bytes: Uint8Array, boxIndex: number, slot: number, mon: MonRecord, names: MonNames): void {
-  for (const base of boxBases(bytes, boxIndex)) {
-    if (!isBoxInitialized(bytes, base)) initializeBox(bytes, base);
+  const bases = boxBases(bytes, boxIndex);
+  const primary = bases[0];
+  for (const base of bases) {
+    if (!isBoxInitialized(bytes, base)) {
+      // For the current box the stored mirror can be raw fill while the
+      // cache holds mons; seed it from the primary copy so slot indexes stay
+      // valid, and only fall back to an empty box when nothing exists yet.
+      if (base !== primary && isBoxInitialized(bytes, primary)) {
+        bytes.copyWithin(base, primary, primary + BOX_DATA_SIZE);
+      } else {
+        initializeBox(bytes, base);
+      }
+    }
     const count = Math.min(bytes[base + BOX.count], MONS_PER_BOX);
     if (slot < 0 || slot > count || slot >= MONS_PER_BOX) {
       throw new RangeError(`Invalid box slot ${slot} for box of ${count}`);
