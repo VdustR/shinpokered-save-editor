@@ -351,9 +351,23 @@
   color: var(--ink-faint);
   font-style: italic;
 }
+.move-row__pick {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+}
+.move-row__pick .picker-trigger {
+  flex: 1 1 auto;
+}
 .move-row__illegal {
-  color: var(--danger);
+  flex: 0 0 auto;
+  font-size: var(--text-xs);
   font-weight: 600;
+  color: var(--danger);
+  background: var(--danger-soft);
+  border-radius: var(--radius-pill);
+  padding: 1px var(--space-2);
 }
 .move-row__pp {
   display: flex;

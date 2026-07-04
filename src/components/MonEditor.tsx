@@ -164,23 +164,26 @@ export function MonEditor({
             const max = info ? maxPp(info.pp, ups) : 0;
             return (
               <div className="move-row" key={i}>
-                <PickerTrigger
-                  label={mon.moves[i] ? moveName(mon.moves[i]) : "Empty slot"}
-                  empty={!mon.moves[i]}
-                  ariaLabel={`Move ${i + 1}`}
-                  onOpen={() => setOpenMoveSlot(i)}
-                />
+                <div className="move-row__pick">
+                  <PickerTrigger
+                    label={mon.moves[i] ? moveName(mon.moves[i]) : "Empty slot"}
+                    empty={!mon.moves[i]}
+                    ariaLabel={`Move ${i + 1}`}
+                    onOpen={() => setOpenMoveSlot(i)}
+                  />
+                  {/* Kept outside .move-row__meta so the warning stays visible on mobile. */}
+                  {mon.moves[i] && !moveLegality(mon.species, mon.moves[i]) ? (
+                    <span className="move-row__illegal" title="Not normally learnable by this Pokémon">
+                      Illegal
+                    </span>
+                  ) : null}
+                </div>
                 <div className="move-row__meta mono">
                   {info ? (
                     <>
                       <span title="Type">{typeName(info.type)}</span>
                       <span title="Power">{info.power || "—"} pow</span>
                       <span title="Accuracy">{info.accuracy || "—"}%</span>
-                      {mon.moves[i] && !moveLegality(mon.species, mon.moves[i]) ? (
-                        <span className="move-row__illegal" title="Not normally learnable by this Pokémon">
-                          Illegal
-                        </span>
-                      ) : null}
                     </>
                   ) : (
                     <span className="move-row__empty">empty slot</span>
