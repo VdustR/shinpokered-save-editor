@@ -1,5 +1,6 @@
 import { useCallback, useRef, useState } from "react";
 import { useSaveStore } from "../state/store";
+import { AppFooter } from "./AppFooter";
 import { Button } from "./ui/ui";
 import "./file-dropzone.css";
 
@@ -48,8 +49,9 @@ export function FileDropzone() {
         </div>
         <h2 className="dropzone__title">Open a save file</h2>
         <p className="dropzone__hint">
-          Drop a Gen 1 <span className="mono">.sav</span> / <span className="mono">.srm</span> file here, or
-          choose one. It stays in your browser: nothing is uploaded.
+          Drop a <strong>Shin Pokémon</strong> Red/Blue/Green <span className="mono">.sav</span> /{" "}
+          <span className="mono">.srm</span> here, or choose one. Vanilla Gen 1 Red/Blue saves work too. It
+          stays in your browser: nothing is uploaded.
         </p>
         <Button variant="primary" onClick={() => inputRef.current?.click()}>
           Choose save file
@@ -72,6 +74,7 @@ export function FileDropzone() {
           </p>
         )}
       </div>
+      <AppFooter />
     </div>
   );
 }

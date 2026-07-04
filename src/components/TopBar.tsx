@@ -22,11 +22,11 @@ export function TopBar({ onExport }: { onExport: () => void }) {
   return (
     <header className="topbar">
       <div className="topbar__left">
-        <div className="brand" aria-label="Shin Pokémon Red Save Editor">
+        <div className="brand" aria-label="Shin Pokémon Save Editor">
           <span className="brand__mark" aria-hidden>
             ●
           </span>
-          <span className="brand__name">Shin Red</span>
+          <span className="brand__name">Shin Pokémon</span>
           <span className="brand__sub">Save Editor</span>
         </div>
         {fileName && (
