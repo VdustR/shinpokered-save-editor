@@ -432,6 +432,24 @@ test("visited-town toggles unlock fly bits in the exported save", async ({ page 
   expect(bytes[MAIN_CKSUM]).toBe(gen1MainChecksum(bytes));
 });
 
+test("hidden item toggle persists and all flags can be shown", async ({ page }) => {
+  await loadFixture(page);
+  await page.locator(".sidenav__item", { hasText: "Story Flags" }).click();
+
+  // First HiddenItemCoords row: Viridian Forest potion -> bit 0 of 0x299c.
+  await page.getByRole("switch", { name: /Viridian Forest — POTION/ }).click();
+
+  // Full list renders without a display cap; unnamed bits are opt-in.
+  await page.getByRole("switch", { name: "Show unnamed bits" }).click();
+  await expect(page.locator(".flags-controls .mono")).toContainText("/ 2560");
+  await page.getByLabel("Search flags").fill("unnamed $00");
+  await expect(page.locator(".flag-row").first()).toContainText("Unnamed $00");
+
+  const bytes = await exportBytes(page);
+  expect(bytes[0x299c] & 0b1).toBe(1);
+  expect(bytes[MAIN_CKSUM]).toBe(gen1MainChecksum(bytes));
+});
+
 test("story flags search and toggle persist into the exported save", async ({ page }) => {
   await loadFixture(page);
   await page.locator(".sidenav__item", { hasText: "Story Flags" }).click();

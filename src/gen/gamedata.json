@@ -16121,6 +16121,502 @@
    "EVENT_BEAT_ARTICUNO"
   ]
  ],
+ "hiddenItems": [
+  {
+   "map": "VIRIDIAN_FOREST",
+   "y": 18,
+   "x": 1,
+   "item": 20
+  },
+  {
+   "map": "VIRIDIAN_FOREST",
+   "y": 42,
+   "x": 16,
+   "item": 11
+  },
+  {
+   "map": "MT_MOON_3",
+   "y": 12,
+   "x": 18,
+   "item": 10
+  },
+  {
+   "map": "ROUTE_25",
+   "y": 3,
+   "x": 38,
+   "item": 80
+  },
+  {
+   "map": "ROUTE_9",
+   "y": 7,
+   "x": 14,
+   "item": 80
+  },
+  {
+   "map": "SS_ANNE_6",
+   "y": 9,
+   "x": 13,
+   "item": 3
+  },
+  {
+   "map": "SS_ANNE_10",
+   "y": 1,
+   "x": 3,
+   "item": 18
+  },
+  {
+   "map": "ROUTE_10",
+   "y": 17,
+   "x": 9,
+   "item": 19
+  },
+  {
+   "map": "ROUTE_10",
+   "y": 53,
+   "x": 16,
+   "item": 81
+  },
+  {
+   "map": "ROCKET_HIDEOUT_1",
+   "y": 15,
+   "x": 21,
+   "item": 79
+  },
+  {
+   "map": "ROCKET_HIDEOUT_3",
+   "y": 17,
+   "x": 27,
+   "item": 49
+  },
+  {
+   "map": "ROCKET_HIDEOUT_4",
+   "y": 1,
+   "x": 25,
+   "item": 19
+  },
+  {
+   "map": "POKEMONTOWER_5",
+   "y": 12,
+   "x": 4,
+   "item": 82
+  },
+  {
+   "map": "ROUTE_13",
+   "y": 14,
+   "x": 1,
+   "item": 79
+  },
+  {
+   "map": "ROUTE_13",
+   "y": 13,
+   "x": 16,
+   "item": 39
+  },
+  {
+   "map": "MANSION_4",
+   "y": 9,
+   "x": 1,
+   "item": 40
+  },
+  {
+   "map": "SAFARI_ZONE_ENTRANCE",
+   "y": 5,
+   "x": 5,
+   "item": 49
+  },
+  {
+   "map": "SAFARI_ZONE_WEST",
+   "y": 5,
+   "x": 6,
+   "item": 53
+  },
+  {
+   "map": "SILPH_CO_5F",
+   "y": 3,
+   "x": 12,
+   "item": 82
+  },
+  {
+   "map": "SILPH_CO_9F",
+   "y": 15,
+   "x": 2,
+   "item": 17
+  },
+  {
+   "map": "COPYCATS_HOUSE_2F",
+   "y": 1,
+   "x": 1,
+   "item": 49
+  },
+  {
+   "map": "UNKNOWN_DUNGEON_1",
+   "y": 11,
+   "x": 14,
+   "item": 40
+  },
+  {
+   "map": "UNKNOWN_DUNGEON_3",
+   "y": 3,
+   "x": 27,
+   "item": 2
+  },
+  {
+   "map": "POWER_PLANT",
+   "y": 16,
+   "x": 17,
+   "item": 83
+  },
+  {
+   "map": "POWER_PLANT",
+   "y": 1,
+   "x": 12,
+   "item": 79
+  },
+  {
+   "map": "SEAFOAM_ISLANDS_3",
+   "y": 15,
+   "x": 15,
+   "item": 49
+  },
+  {
+   "map": "SEAFOAM_ISLANDS_5",
+   "y": 17,
+   "x": 25,
+   "item": 2
+  },
+  {
+   "map": "MANSION_1",
+   "y": 16,
+   "x": 8,
+   "item": 10
+  },
+  {
+   "map": "MANSION_3",
+   "y": 9,
+   "x": 1,
+   "item": 54
+  },
+  {
+   "map": "ROUTE_23",
+   "y": 44,
+   "x": 9,
+   "item": 16
+  },
+  {
+   "map": "ROUTE_23",
+   "y": 70,
+   "x": 19,
+   "item": 2
+  },
+  {
+   "map": "ROUTE_23",
+   "y": 90,
+   "x": 8,
+   "item": 81
+  },
+  {
+   "map": "VICTORY_ROAD_2",
+   "y": 2,
+   "x": 5,
+   "item": 2
+  },
+  {
+   "map": "VICTORY_ROAD_2",
+   "y": 7,
+   "x": 26,
+   "item": 16
+  },
+  {
+   "map": "UNUSED_MAP_6F",
+   "y": 11,
+   "x": 14,
+   "item": null
+  },
+  {
+   "map": "VIRIDIAN_CITY",
+   "y": 4,
+   "x": 14,
+   "item": 20
+  },
+  {
+   "map": "ROUTE_11",
+   "y": 5,
+   "x": 48,
+   "item": 29
+  },
+  {
+   "map": "ROUTE_12",
+   "y": 63,
+   "x": 2,
+   "item": 18
+  },
+  {
+   "map": "ROUTE_17",
+   "y": 14,
+   "x": 15,
+   "item": 40
+  },
+  {
+   "map": "ROUTE_17",
+   "y": 45,
+   "x": 8,
+   "item": 16
+  },
+  {
+   "map": "ROUTE_17",
+   "y": 72,
+   "x": 17,
+   "item": 79
+  },
+  {
+   "map": "ROUTE_17",
+   "y": 91,
+   "x": 4,
+   "item": 54
+  },
+  {
+   "map": "ROUTE_17",
+   "y": 121,
+   "x": 8,
+   "item": 83
+  },
+  {
+   "map": "UNDERGROUND_PATH_NS",
+   "y": 4,
+   "x": 3,
+   "item": 16
+  },
+  {
+   "map": "UNDERGROUND_PATH_NS",
+   "y": 34,
+   "x": 4,
+   "item": 68
+  },
+  {
+   "map": "UNDERGROUND_PATH_WE",
+   "y": 2,
+   "x": 12,
+   "item": 49
+  },
+  {
+   "map": "UNDERGROUND_PATH_WE",
+   "y": 5,
+   "x": 21,
+   "item": 82
+  },
+  {
+   "map": "CELADON_CITY",
+   "y": 15,
+   "x": 48,
+   "item": 79
+  },
+  {
+   "map": "ROUTE_25",
+   "y": 1,
+   "x": 10,
+   "item": 82
+  },
+  {
+   "map": "MT_MOON_3",
+   "y": 9,
+   "x": 33,
+   "item": 80
+  },
+  {
+   "map": "SEAFOAM_ISLANDS_4",
+   "y": 16,
+   "x": 9,
+   "item": 83
+  },
+  {
+   "map": "VERMILION_CITY",
+   "y": 11,
+   "x": 14,
+   "item": 81
+  },
+  {
+   "map": "CERULEAN_CITY",
+   "y": 8,
+   "x": 15,
+   "item": 40
+  },
+  {
+   "map": "ROUTE_4",
+   "y": 3,
+   "x": 40,
+   "item": 3
+  },
+  {
+   "map": "VERMILION_DOCK",
+   "y": 0,
+   "x": 21,
+   "item": 7
+  },
+  {
+   "map": "VERMILION_DOCK",
+   "y": 1,
+   "x": 1,
+   "item": 49
+  },
+  {
+   "map": "VERMILION_DOCK",
+   "y": 10,
+   "x": 27,
+   "item": 215
+  },
+  {
+   "map": "CELADON_CITY",
+   "y": 7,
+   "x": 48,
+   "item": 18
+  },
+  {
+   "map": "CELADON_CITY",
+   "y": 34,
+   "x": 48,
+   "item": 54
+  },
+  {
+   "map": "DIGLETTS_CAVE",
+   "y": 13,
+   "x": 30,
+   "item": 49
+  },
+  {
+   "map": "DIGLETTS_CAVE",
+   "y": 19,
+   "x": 20,
+   "item": 10
+  },
+  {
+   "map": "ROUTE_22",
+   "y": 2,
+   "x": 35,
+   "item": 20
+  },
+  {
+   "map": "VIRIDIAN_CITY",
+   "y": 4,
+   "x": 6,
+   "item": 20
+  },
+  {
+   "map": "PEWTER_CITY",
+   "y": 3,
+   "x": 6,
+   "item": 30
+  },
+  {
+   "map": "PEWTER_CITY",
+   "y": 2,
+   "x": 24,
+   "item": 30
+  },
+  {
+   "map": "ROUTE_6",
+   "y": 4,
+   "x": 3,
+   "item": 3
+  },
+  {
+   "map": "ROUTE_6",
+   "y": 4,
+   "x": 17,
+   "item": 51
+  },
+  {
+   "map": "ROUTE_11",
+   "y": 17,
+   "x": 55,
+   "item": 54
+  },
+  {
+   "map": "ROUTE_8",
+   "y": 4,
+   "x": 51,
+   "item": 2
+  },
+  {
+   "map": "ROUTE_4",
+   "y": 3,
+   "x": 62,
+   "item": 10
+  }
+ ],
+ "hiddenCoins": [
+  {
+   "map": "GAME_CORNER",
+   "y": 8,
+   "x": 0,
+   "item": null
+  },
+  {
+   "map": "GAME_CORNER",
+   "y": 16,
+   "x": 1,
+   "item": null
+  },
+  {
+   "map": "GAME_CORNER",
+   "y": 11,
+   "x": 3,
+   "item": null
+  },
+  {
+   "map": "GAME_CORNER",
+   "y": 14,
+   "x": 3,
+   "item": null
+  },
+  {
+   "map": "GAME_CORNER",
+   "y": 12,
+   "x": 4,
+   "item": null
+  },
+  {
+   "map": "GAME_CORNER",
+   "y": 12,
+   "x": 9,
+   "item": null
+  },
+  {
+   "map": "GAME_CORNER",
+   "y": 15,
+   "x": 9,
+   "item": null
+  },
+  {
+   "map": "GAME_CORNER",
+   "y": 14,
+   "x": 16,
+   "item": null
+  },
+  {
+   "map": "GAME_CORNER",
+   "y": 16,
+   "x": 10,
+   "item": null
+  },
+  {
+   "map": "GAME_CORNER",
+   "y": 7,
+   "x": 11,
+   "item": null
+  },
+  {
+   "map": "GAME_CORNER",
+   "y": 8,
+   "x": 15,
+   "item": null
+  },
+  {
+   "map": "GAME_CORNER",
+   "y": 16,
+   "x": 12,
+   "item": null
+  }
+ ],
  "charmap": {
   "5": "ガ",
   "6": "ギ",
