@@ -1,4 +1,7 @@
 .dropzone-wrap {
+  /* The empty app body is a flex row; fill it so the grid centering below
+     centers in the viewport instead of hugging the content width. */
+  flex: 1 1 auto;
   display: grid;
   place-items: center;
   min-height: 100%;
