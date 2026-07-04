@@ -116,7 +116,11 @@ test("changing species on a non-nicknamed mon does not leak the old species name
   await expect(nick).toHaveAttribute("placeholder", "BULBASAUR");
 
   // Change species without touching the nickname; it must follow the new species.
-  await page.locator(".field", { hasText: "Species" }).locator("select").selectOption({ label: "#004 CHARMANDER" });
+  await page.locator(".field", { hasText: "Species" }).locator(".picker-trigger").click();
+  const dialog = page.locator("dialog.picker[open]");
+  await dialog.getByLabel("Search").fill("charmander");
+  await dialog.locator(".picker__row").filter({ hasText: "CHARMANDER" }).click();
+  await expect(dialog).toBeHidden();
   await expect(nick).toHaveValue("");
   await expect(nick).toHaveAttribute("placeholder", "CHARMANDER");
 
@@ -146,17 +150,17 @@ test("move picker searches, filters by type, and assigns the chosen move", async
   await page.getByRole("button", { name: "Moves" }).click();
 
   await page.locator(".move-row .picker-trigger").first().click();
-  const dialog = page.locator("dialog.picker");
+  const dialog = page.locator("dialog.picker[open]");
   await expect(dialog).toBeVisible();
 
   // Fuzzy search.
   await dialog.getByLabel("Search").fill("thunderbolt");
-  await expect(page.locator(".picker__row .picker__name").first()).toHaveText("THUNDERBOLT");
+  await expect(dialog.locator(".picker__row .picker__name").first()).toHaveText("THUNDERBOLT");
 
   // Type filter narrows to electric moves only.
   await dialog.getByLabel("Search").fill("");
-  await page.getByLabel("Filter by type").selectOption({ label: "ELECTRIC" });
-  await page.locator(".picker__row").filter({ hasText: "THUNDERBOLT" }).click();
+  await dialog.getByLabel("Filter by type").selectOption({ label: "ELECTRIC" });
+  await dialog.locator(".picker__row").filter({ hasText: "THUNDERBOLT" }).click();
 
   await expect(dialog).toBeHidden();
   await expect(page.locator(".move-row .picker-trigger__label").first()).toHaveText("THUNDERBOLT");
@@ -167,6 +171,25 @@ test("move picker searches, filters by type, and assigns the chosen move", async
   await dialog.locator(".picker__row").filter({ hasText: "No move" }).click();
   await expect(dialog).toBeHidden();
   await expect(page.locator(".move-row .picker-trigger__label").first()).toHaveText("Empty slot");
+});
+
+test("species picker searches and filters, and updates the mon", async ({ page }) => {
+  await loadFixture(page);
+  await page.locator(".sidenav__item", { hasText: "Party" }).click();
+  await page.getByRole("button", { name: "Add Pokémon" }).first().click();
+
+  await page.locator(".field", { hasText: "Species" }).locator(".picker-trigger").click();
+  const dialog = page.locator("dialog.picker[open]");
+  await expect(dialog).toBeVisible();
+
+  await dialog.getByLabel("Search").fill("gengar");
+  await expect(dialog.locator(".picker__row .picker__name").first()).toHaveText("GENGAR");
+  await dialog.locator(".picker__row").filter({ hasText: "GENGAR" }).click();
+
+  await expect(dialog).toBeHidden();
+  await expect(page.locator(".field", { hasText: "Species" }).locator(".picker-trigger__label")).toContainText("GENGAR");
+  // The slot list reflects the new species too.
+  await expect(page.locator(".slot__name").first()).toHaveText("GENGAR");
 });
 
 test("item picker searches and assigns the chosen item", async ({ page }) => {

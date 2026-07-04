@@ -1,5 +1,5 @@
-/** Fuzzy search + filtering over the move and item encyclopedias. */
-import { ITEMS, MOVES, type ItemEntry, type MoveEntry } from "./gamedata";
+/** Fuzzy search + filtering over the species, move, and item encyclopedias. */
+import { DEX_SPECIES, ITEMS, MOVES, baseStatsOf, type ItemEntry, type MoveEntry, type SpeciesEntry } from "./gamedata";
 
 /**
  * Subsequence fuzzy match. Returns a score (lower is better) when every query
@@ -64,6 +64,46 @@ export function searchMoves({ query = "", type, sort = "name", dir = "asc" }: Mo
     }
   });
   return scored.map((s) => s.move);
+}
+
+export type SpeciesSort = "dex" | "name" | "bst";
+
+export interface SpeciesResult extends SpeciesEntry {
+  /** Base stat total (sum of the five Gen 1 base stats), 0 if stats unknown. */
+  bst: number;
+  types: [number, number];
+}
+
+export interface SpeciesQuery {
+  query?: string;
+  type?: number;
+  sort?: SpeciesSort;
+  dir?: SortDir;
+}
+
+export function searchSpecies({ query = "", type, sort = "dex", dir = "asc" }: SpeciesQuery): SpeciesResult[] {
+  const scored: { entry: SpeciesResult; score: number }[] = [];
+  for (const species of DEX_SPECIES) {
+    const base = baseStatsOf(species.internalId);
+    if (type !== undefined && !(base && (base.types[0] === type || base.types[1] === type))) continue;
+    const score = fuzzyScore(query, species.name);
+    if (score === null) continue;
+    const bst = base ? base.hp + base.atk + base.def + base.spd + base.spc : 0;
+    scored.push({ entry: { ...species, bst, types: base ? [base.types[0], base.types[1]] : [0, 0] }, score });
+  }
+  const sign = dir === "desc" ? -1 : 1;
+  scored.sort((a, b) => {
+    if (query.trim() !== "" && sort === "dex" && a.score !== b.score) return a.score - b.score;
+    switch (sort) {
+      case "name":
+        return sign * a.entry.name.localeCompare(b.entry.name);
+      case "bst":
+        return sign * (a.entry.bst - b.entry.bst) || a.entry.dexNo - b.entry.dexNo;
+      default:
+        return sign * (a.entry.dexNo - b.entry.dexNo);
+    }
+  });
+  return scored.map((s) => s.entry);
 }
 
 export type ItemCategory = "all" | "tm" | "hm" | "regular";

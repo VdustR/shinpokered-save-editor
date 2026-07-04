@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { fuzzyScore, searchItems, searchMoves } from "./search";
+import { fuzzyScore, searchItems, searchMoves, searchSpecies } from "./search";
 
 describe("fuzzyScore", () => {
   it("matches exact and substring, returns null for no match", () => {
@@ -58,6 +58,42 @@ describe("searchMoves", () => {
     const results = searchMoves({ query: "beam", type: 21 }); // water beams (BubbleBeam)
     expect(results.every((m) => m.type === 21)).toBe(true);
     expect(results.some((m) => m.name.includes("BEAM"))).toBe(true);
+  });
+});
+
+describe("searchSpecies", () => {
+  it("returns all 151 dex species by default, dex-ordered", () => {
+    const all = searchSpecies({});
+    expect(all).toHaveLength(151);
+    expect(all[0].dexNo).toBe(1);
+    expect(all[150].dexNo).toBe(151);
+  });
+
+  it("fuzzy-matches by name", () => {
+    const r = searchSpecies({ query: "charizard" });
+    expect(r[0].name).toBe("CHARIZARD");
+  });
+
+  it("filters by type", () => {
+    const fire = searchSpecies({ type: 20 }); // FIRE
+    expect(fire.length).toBeGreaterThan(0);
+    expect(fire.some((s) => s.name === "CHARMANDER")).toBe(true);
+    expect(fire.some((s) => s.name === "SQUIRTLE")).toBe(false);
+  });
+
+  it("sorts by dex, name, and base stat total", () => {
+    const byDex = searchSpecies({ sort: "dex", dir: "asc" });
+    expect(byDex[0].dexNo).toBe(1);
+    const byName = searchSpecies({ sort: "name", dir: "asc" });
+    for (let i = 1; i < byName.length; i++) {
+      expect(byName[i - 1].name.localeCompare(byName[i].name)).toBeLessThanOrEqual(0);
+    }
+    const byBst = searchSpecies({ sort: "bst", dir: "desc" });
+    for (let i = 1; i < byBst.length; i++) {
+      expect(byBst[i - 1].bst).toBeGreaterThanOrEqual(byBst[i].bst);
+    }
+    // Mewtwo has the highest BST in Gen 1.
+    expect(byBst[0].name).toBe("MEWTWO");
   });
 });
 

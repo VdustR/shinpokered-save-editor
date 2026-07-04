@@ -1,17 +1,11 @@
 import { useState } from "react";
 import { recalcDerivedFields } from "../save/derive";
-import {
-  DEX_SPECIES,
-  baseStatsOf,
-  moveInfo,
-  moveName,
-  speciesByInternalId,
-  typeName,
-} from "../save/gamedata";
+import { baseStatsOf, moveInfo, moveName, speciesByInternalId, typeName } from "../save/gamedata";
 import { makePpByte, maxPp, ppCurrent, ppUps, type Dvs, type MonRecord } from "../save/pokemon";
 import type { MonNames } from "../save/savefile";
 import { Button, Field, NumberInput, PickerTrigger, Segmented, Select, TextInput } from "./ui/ui";
 import { MovePicker } from "./MovePicker";
+import { SpeciesPicker } from "./SpeciesPicker";
 import { Sprite } from "./Sprite";
 import { StatBars } from "./StatBars";
 
@@ -34,6 +28,24 @@ export function MonEditor({
   const base = baseStatsOf(mon.species);
   const dexNo = species?.dexNo ?? 0;
   const [openMoveSlot, setOpenMoveSlot] = useState<number | null>(null);
+  const [speciesOpen, setSpeciesOpen] = useState(false);
+
+  /** Change species, keeping types/catch rate and (for non-custom names) the nickname in sync. */
+  function changeSpecies(id: number) {
+    const nextNames = isCustomNickname ? names : { ...names, nickname: "" };
+    patch(
+      (d) => {
+        d.species = id;
+        const nb = baseStatsOf(id);
+        if (nb) {
+          d.types = [nb.types[0], nb.types[1]];
+          d.catchRate = nb.catchRate;
+        }
+      },
+      true,
+      nextNames,
+    );
+  }
   // A non-nicknamed Gen 1 mon stores its species name; treat that (and an
   // empty field) as "not custom" so the input shows a placeholder rather than
   // a pre-filled value. The commit path writes the species name when blank.
@@ -71,34 +83,11 @@ export function MonEditor({
         <Sprite dexNo={dexNo} size={72} alt={species?.name ?? "Unknown"} />
         <div className="mon-editor__id-fields">
           <Field label="Species">
-            <Select
-              value={mon.species}
-              onChange={(e) => {
-                const id = Number(e.target.value);
-                // If the mon isn't custom-nicknamed, let the name follow the new
-                // species: forward an empty nickname so the commit fallback fills
-                // the new species name instead of keeping the old one.
-                const nextNames = isCustomNickname ? names : { ...names, nickname: "" };
-                patch(
-                  (d) => {
-                    d.species = id;
-                    const nb = baseStatsOf(id);
-                    if (nb) {
-                      d.types = [nb.types[0], nb.types[1]];
-                      d.catchRate = nb.catchRate;
-                    }
-                  },
-                  true,
-                  nextNames,
-                );
-              }}
-            >
-              {DEX_SPECIES.map((s) => (
-                <option key={s.internalId} value={s.internalId}>
-                  #{String(s.dexNo).padStart(3, "0")} {s.name}
-                </option>
-              ))}
-            </Select>
+            <PickerTrigger
+              label={species ? `#${String(species.dexNo).padStart(3, "0")} ${species.name}` : "Unknown"}
+              ariaLabel="Species"
+              onOpen={() => setSpeciesOpen(true)}
+            />
           </Field>
           <Field label="Nickname" hint="Blank keeps the species name.">
             <TextInput
@@ -113,6 +102,13 @@ export function MonEditor({
           </Field>
         </div>
       </div>
+
+      <SpeciesPicker
+        open={speciesOpen}
+        selectedId={mon.species}
+        onClose={() => setSpeciesOpen(false)}
+        onSelect={changeSpecies}
+      />
 
       {base && (
         <div className="mon-editor__types">

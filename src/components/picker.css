@@ -133,6 +133,9 @@
 .picker__name {
   font-weight: 500;
   white-space: nowrap;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .picker__stab {
   font-size: var(--text-xs);
@@ -183,7 +186,19 @@
   .picker__effect {
     display: none;
   }
+  /* Wrap each option: name + badges on the first line, stats drop below,
+     so long move names never force the list to scroll horizontally. */
+  .picker__row {
+    flex-wrap: wrap;
+  }
+  .picker__name {
+    flex: 1 1 auto;
+  }
   .picker__stats {
+    flex-basis: 100%;
+    margin-left: 0;
+  }
+  .picker__id {
     margin-left: auto;
   }
 }
