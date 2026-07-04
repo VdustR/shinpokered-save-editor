@@ -7,8 +7,8 @@ describe("missable item balls", () => {
     expect(MISSABLES_OFFSET).toBe(0x2852);
   });
 
-  it("exposes the 104 item balls with items joined from map objects", () => {
-    expect(MISSABLE_BALLS.length).toBe(104);
+  it("exposes the 106 item balls with items joined from map objects", () => {
+    expect(MISSABLE_BALLS.length).toBe(106);
     // HS_ROUTE_2_ITEM_1 is bit 25 and holds a Moon Stone.
     const first = MISSABLE_BALLS.find((b) => b.index === 25);
     expect(first?.map).toBe("ROUTE_2");
@@ -24,5 +24,21 @@ describe("missable item balls", () => {
     expect(bytes[0x2852 + 3]).toBe(0b0000_0010);
     setMissable(bytes, 25, false);
     expect(bytes[0x2852 + 3]).toBe(0);
+  });
+});
+
+describe("label fixups and compact-name balls", () => {
+  it("prettifies known map-name quirks", () => {
+    expect(ballLabel({ index: 0, map: "SS_ANNE_8", item: 1 })).toContain("S.S. Anne 8");
+    expect(ballLabel({ index: 0, map: "SILPH_CO_3F", item: 1 })).toContain("Silph Co. 3F");
+    expect(ballLabel({ index: 0, map: "MT_MOON_1", item: 1 })).toContain("Mt. Moon 1");
+  });
+
+  it("includes Shin-only balls whose constants embed the item name", () => {
+    const mgene = MISSABLE_BALLS.find((b) => b.index === 0xe6);
+    expect(mgene?.map).toBe("UNDPATHWE");
+    expect(ballLabel(mgene!)).toContain("Underground Path (W-E)");
+    const tm12 = MISSABLE_BALLS.find((b) => b.index === 0xe7);
+    expect(tm12?.map).toBe("MUSEUM");
   });
 });

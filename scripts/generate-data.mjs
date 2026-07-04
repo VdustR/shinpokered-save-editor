@@ -430,20 +430,41 @@ const missableBalls = [];
     }
     if (balls.length) ballsByMap.set(key, balls);
   }
+  // Items keyed by their constant name without underscores (M_GENE -> MGENE),
+  // for Shin-only HS constants that embed the item instead of "_ITEM". Only
+  // items that actually appear inside a SPRITE_BALL qualify, so an NPC
+  // constant whose suffix happens to be an item name can't slip in.
+  const ballItemTokens = new Set([...ballsByMap.values()].flat());
+  const itemsByCompactName = new Map();
+  for (const [itemToken, id] of itemConsts) {
+    if (ballItemTokens.has(itemToken)) itemsByCompactName.set(itemToken.replace(/_/g, ""), id);
+  }
+
   for (const [name, index] of hsConsts) {
     const match = name.match(/^HS_(.+?)_ITEM(?:_(\d+))?$/);
-    if (!match) continue;
-    const mapKey = match[1].toLowerCase().replace(/_/g, "");
-    const ordinal = match[2] ? Number(match[2]) : 1;
-    // Floor suffixes differ between HS names and file names (SILPH_CO_3F ->
-    // silphco3.asm); retry without the trailing "f" after a digit.
-    const balls = ballsByMap.get(mapKey) ?? ballsByMap.get(mapKey.replace(/(\d)f$/, "$1"));
-    const token = balls?.[ordinal - 1];
-    missableBalls.push({
-      index,
-      map: match[1],
-      item: token && itemConsts.has(token) ? itemConsts.get(token) : null,
-    });
+    if (match) {
+      const mapKey = match[1].toLowerCase().replace(/_/g, "");
+      const ordinal = match[2] ? Number(match[2]) : 1;
+      // Floor suffixes differ between HS names and file names (SILPH_CO_3F ->
+      // silphco3.asm); retry without the trailing "f" after a digit.
+      const balls = ballsByMap.get(mapKey) ?? ballsByMap.get(mapKey.replace(/(\d)f$/, "$1"));
+      const token = balls?.[ordinal - 1];
+      missableBalls.push({
+        index,
+        map: match[1],
+        item: token && itemConsts.has(token) ? itemConsts.get(token) : null,
+      });
+      continue;
+    }
+    // Shin-only balls like HS_UNDPATHWE_MGENE name the item directly.
+    const parts = name.replace(/^HS_/, "").split("_");
+    for (let k = 1; k < parts.length; k++) {
+      const itemId = itemsByCompactName.get(parts.slice(-k).join(""));
+      if (itemId !== undefined) {
+        missableBalls.push({ index, map: parts.slice(0, -k).join("_"), item: itemId });
+        break;
+      }
+    }
   }
 }
 if (missableBalls.length < 80) throw new Error(`Suspiciously few missable balls: ${missableBalls.length}`);

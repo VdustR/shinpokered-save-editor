@@ -18273,6 +18273,16 @@
    "index": 213,
    "map": "VICTORY_ROAD_1",
    "item": 40
+  },
+  {
+   "index": 230,
+   "map": "UNDPATHWE",
+   "item": 50
+  },
+  {
+   "index": 231,
+   "map": "MUSEUM",
+   "item": 212
   }
  ],
  "hiddenItems": [

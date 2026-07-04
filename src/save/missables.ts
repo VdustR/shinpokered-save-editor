@@ -31,12 +31,22 @@ export function setMissable(bytes: Uint8Array, index: number, value: boolean): v
   else bytes[offset] &= ~mask;
 }
 
+/** Display fixups over the plain word-capitalized map constant. */
+const MAP_LABEL_FIXUPS: [RegExp, string][] = [
+  [/^Ss Anne/, "S.S. Anne"],
+  [/^Mt Moon/, "Mt. Moon"],
+  [/^Silph Co (\d+)f?$/, "Silph Co. $1F"],
+  [/^Undpathwe$/, "Underground Path (W-E)"],
+  [/ (\d+)f$/, " $1F"],
+];
+
 /** "ROUTE_2" + item id -> "Route 2 — MOON STONE". */
 export function ballLabel(ball: MissableBall): string {
-  const map = ball.map
+  let map = ball.map
     .toLowerCase()
     .split("_")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ");
+  for (const [pattern, replacement] of MAP_LABEL_FIXUPS) map = map.replace(pattern, replacement);
   return `${map} — ${ball.item !== null ? itemName(ball.item) : "?"}`;
 }
