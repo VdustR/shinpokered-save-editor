@@ -315,6 +315,41 @@ test("inventory auto-sort orders items by the game's built-in order", async ({ p
   await expect(bag.locator(".item-row .picker-trigger__label").first()).toHaveText("POKé BALL");
 });
 
+test("Shin feature toggles persist into the exported save", async ({ page }) => {
+  await loadFixture(page);
+  await page.locator(".sidenav__item", { hasText: "Trainer" }).click();
+  await page.getByRole("switch", { name: "Nuzlocke mode" }).click();
+  await page.getByRole("switch", { name: "Female trainer" }).click();
+  const bytes = await exportBytes(page);
+  // wUnusedD721 -> 0x29cd: bit 6 nuzlocke, bit 0 female trainer.
+  expect(bytes[0x29cd] & 0b0100_0001).toBe(0b0100_0001);
+  // Main checksum still valid after the repair pass.
+  expect(bytes[MAIN_CKSUM]).toBe(gen1MainChecksum(bytes));
+});
+
+test("gender symbol derives from the attack DV and Make shiny sets shiny DVs", async ({ page }) => {
+  await loadFixture(page);
+  await page.locator(".sidenav__item", { hasText: "Party" }).click();
+  await page.getByRole("button", { name: "Add Pokémon" }).first().click(); // Bulbasaur, atk DV 8 default? set below
+  await page.getByRole("button", { name: "DVs & EXP" }).click();
+
+  // Attack DV >= 2 -> male for Bulbasaur's band; set to 1 -> female.
+  const atkDv = page.getByLabel("ATK DV");
+  await atkDv.fill("1");
+  await atkDv.blur();
+  await expect(page.locator(".gender-tag")).toHaveText("♀");
+  await atkDv.fill("3");
+  await atkDv.blur();
+  await expect(page.locator(".gender-tag")).toHaveText("♂");
+
+  await page.getByRole("button", { name: "Make shiny" }).click();
+  await expect(page.locator(".shiny-tag")).toBeVisible();
+  // def/spd/spc pinned to 10; atk keeps bit 1 (3 stays 3).
+  await expect(page.getByLabel("DEF DV")).toHaveValue("10");
+  await expect(page.getByLabel("SPD DV")).toHaveValue("10");
+  await expect(page.getByLabel("SPC DV")).toHaveValue("10");
+});
+
 test("Expert hex view highlights an edit and can jump from a field", async ({ page }) => {
   await loadFixture(page);
   await page.locator(".sidenav__item", { hasText: "Trainer" }).click();

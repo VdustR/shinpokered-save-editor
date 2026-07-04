@@ -307,6 +307,31 @@ const itemSortOrder = [];
 }
 if (itemSortOrder.length < 50) throw new Error(`ItemSortList too short: ${itemSortOrder.length}`);
 
+// --- Gender ratio list (ListByGenderRatio in custom_functions/func_monlists.asm) ---------
+// Order matters: DetermineMonGender finds the species index in this list and
+// GetGenderRatioTarget maps index ranges to the minimum "male" attack DV.
+// Unlisted species are genderless in Shin.
+const genderList = [];
+{
+  let inList = false;
+  for (const line of asmLines("custom_functions/func_monlists.asm")) {
+    if (/^ListByGenderRatio:+$/.test(line)) {
+      inList = true;
+      continue;
+    }
+    if (!inList) continue;
+    const db = line.match(/^db\s+([A-Za-z0-9_$]+)$/);
+    if (db) {
+      const value = resolveToken(db[1], speciesConsts);
+      if (value === 0) break; // terminator: unlisted species are genderless
+      genderList.push(value);
+      continue;
+    }
+    if (/^[A-Za-z_][A-Za-z0-9_]*:+/.test(line)) break;
+  }
+}
+if (genderList.length !== 138) throw new Error(`Expected 138 gender list entries, got ${genderList.length}`);
+
 // --- Types ---------------------------------------------------------------------------
 const typeNameLines = asmLines("text/type_names.asm");
 const typePointerOrder = [];
@@ -358,7 +383,11 @@ const pokemon = [...pokemonByDex.values()].sort((a, b) => a.dexNo - b.dexNo);
 
 writeFileSync(
   path.join(outDir, "gamedata.json"),
-  JSON.stringify({ meta, species, pokemon, moves, items, typeNames, tmMoves, itemSortOrder, charmap }, null, 1),
+  JSON.stringify(
+    { meta, species, pokemon, moves, items, typeNames, tmMoves, itemSortOrder, genderList, charmap },
+    null,
+    1,
+  ),
 );
 
 console.log(`Generated src/gen/gamedata.json from ${meta.source}@${PINNED_TAG} (${commit.slice(0, 12)})`);

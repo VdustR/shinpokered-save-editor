@@ -4,6 +4,7 @@ import { baseStatsOf, moveInfo, moveName, speciesByInternalId, typeName } from "
 import { moveLegality } from "../save/legality";
 import { makePpByte, maxPp, ppCurrent, ppUps, type Dvs, type MonRecord } from "../save/pokemon";
 import { moveInArray } from "../save/reorder";
+import { genderOf, isShinyDvs, makeShinyDvs } from "../save/shin";
 import type { MonNames } from "../save/savefile";
 import { Button, Field, NumberInput, PickerTrigger, Segmented, Select, TextInput } from "./ui/ui";
 import { MovePicker } from "./MovePicker";
@@ -33,6 +34,8 @@ export function MonEditor({
   const dexNo = species?.dexNo ?? 0;
   const [openMoveSlot, setOpenMoveSlot] = useState<number | null>(null);
   const [speciesOpen, setSpeciesOpen] = useState(false);
+  const gender = genderOf(mon.species, mon.dvs.atk);
+  const shiny = isShinyDvs(mon.dvs);
 
   /** Reorder the four move slots, moving each move's PP with it. */
   const moveDrag = useDragReorder((from, to) => {
@@ -127,6 +130,19 @@ export function MonEditor({
           <span className={`type-tag type-${base.types[0]}`}>{typeName(base.types[0])}</span>
           {base.types[1] !== base.types[0] && (
             <span className={`type-tag type-${base.types[1]}`}>{typeName(base.types[1])}</span>
+          )}
+          {gender && (
+            <span
+              className={`gender-tag gender-tag--${gender}`}
+              title="Shin derives gender from the Attack DV (Gen 2 rule)"
+            >
+              {gender === "male" ? "♂" : "♀"}
+            </span>
+          )}
+          {shiny && (
+            <span className="shiny-tag" title="Shiny DVs (Gen 2 pattern): Def/Spd/Spc 10, Atk bit 1">
+              ✦ Shiny
+            </span>
           )}
           <span className="mon-editor__ot mono">OT {mon.otId.toString().padStart(5, "0")} · {names.otName}</span>
         </div>
@@ -293,6 +309,14 @@ export function MonEditor({
               <Button size="sm" variant="ghost" onClick={maximize}>
                 Maximize all
               </Button>
+              <Button
+                size="sm"
+                disabled={shiny}
+                title="Set Def/Spd/Spc DVs to 10 and Attack DV bit 1 (Gen 2 shiny pattern)"
+                onClick={() => patch((d) => (d.dvs = makeShinyDvs(d.dvs)))}
+              >
+                {shiny ? "✦ Shiny" : "Make shiny"}
+              </Button>
             </div>
           </div>
           <div className="form-grid form-grid--2">
@@ -302,6 +326,7 @@ export function MonEditor({
                   value={mon.dvs[k]}
                   min={0}
                   max={15}
+                  aria-label={`${k.toUpperCase()} DV`}
                   onValue={(n) => patch((d) => (d.dvs[k] = n))}
                 />
               </Field>
@@ -312,6 +337,7 @@ export function MonEditor({
               <Field key={k} label={`${k.toUpperCase()} Stat EXP`}>
                 <NumberInput
                   value={mon.statExp[k]}
+                  aria-label={`${k.toUpperCase()} Stat EXP`}
                   min={0}
                   max={65535}
                   onValue={(n) => patch((d) => (d.statExp[k] = n))}

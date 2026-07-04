@@ -21,6 +21,15 @@ import {
   setPlayerName,
   setRivalName,
 } from "../save/savefile";
+import {
+  RANDOMIZER_SEED_OFFSET,
+  ROM_HACK_VERSION_OFFSET,
+  getRandomizerSeed,
+  getRomHackVersion,
+  getShinFlags,
+  setRandomizerSeed,
+  setShinFlag,
+} from "../save/shin";
 import { isEncodable } from "../save/text";
 import { useNav } from "../state/nav";
 import { useSaveStore } from "../state/store";
@@ -43,6 +52,7 @@ export function TrainerPage() {
   const options = getOptions(bytes);
   const time = getPlayTime(bytes);
   const badges = getBadges(bytes);
+  const shinFlags = getShinFlags(bytes);
 
   const nameError = name && !isEncodable(name) ? "Contains characters the game can't store." : undefined;
 
@@ -156,6 +166,59 @@ export function TrainerPage() {
                 onChange={(v) => mutate((b) => setOptions(b, { ...options, battleStyleSet: v }))}
               />
             </div>
+          </div>
+        </Panel>
+
+        <Panel title="Shin features">
+          <div className="form-grid">
+            <div className="toggle-row">
+              <Toggle
+                checked={shinFlags.femaleTrainer}
+                label="Female trainer"
+                onChange={(v) => mutate((b) => setShinFlag(b, "femaleTrainer", v))}
+              />
+              <Toggle
+                checked={shinFlags.sixtyFps}
+                label="60 FPS mode"
+                onChange={(v) => mutate((b) => setShinFlag(b, "sixtyFps", v))}
+              />
+              <Toggle
+                checked={shinFlags.gbcColors}
+                label="Enhanced GBC colors"
+                onChange={(v) => mutate((b) => setShinFlag(b, "gbcColors", v))}
+              />
+              <Toggle
+                checked={shinFlags.obedienceCap}
+                label="Obedience level cap"
+                onChange={(v) => mutate((b) => setShinFlag(b, "obedienceCap", v))}
+              />
+              <Toggle
+                checked={shinFlags.nuzlocke}
+                label="Nuzlocke mode"
+                onChange={(v) => mutate((b) => setShinFlag(b, "nuzlocke", v))}
+              />
+            </div>
+            <div className="form-grid form-grid--2">
+              <Field
+                label="Randomizer seed"
+                offset={RANDOMIZER_SEED_OFFSET}
+                onJump={jump}
+                hint="Used by the wild-encounter randomizer."
+              >
+                <NumberInput
+                  value={getRandomizerSeed(bytes)}
+                  min={0}
+                  max={255}
+                  onValue={(n) => mutate((b) => setRandomizerSeed(b, n))}
+                />
+              </Field>
+              <Field label="Save format version" offset={ROM_HACK_VERSION_OFFSET} onJump={jump} hint="Set by the ROM on save.">
+                <NumberInput value={getRomHackVersion(bytes)} min={0} max={255} onValue={() => {}} disabled />
+              </Field>
+            </div>
+            <p className="hint-line">
+              Shin-only settings stored in the save (vanilla games ignore these bytes).
+            </p>
           </div>
         </Panel>
 
