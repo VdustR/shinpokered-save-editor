@@ -73,6 +73,9 @@ export function getWinStreak(bytes: Uint8Array): number {
 }
 
 export function setWinStreak(bytes: Uint8Array, streak: number): void {
+  // The UI never passes NaN (NumberInput guards on commit), but as a
+  // standalone API a NaN would otherwise silently zero the byte.
+  if (Number.isNaN(streak)) return;
   bytes[WIN_STREAK_OFFSET] = Math.min(Math.max(Math.trunc(streak), 0), 0xff);
 }
 

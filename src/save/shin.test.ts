@@ -38,6 +38,8 @@ describe("Shin flag byte (wUnusedD721)", () => {
     expect(bytes[WIN_STREAK_OFFSET]).toBe(5);
     setWinStreak(bytes, 999);
     expect(getWinStreak(bytes)).toBe(255);
+    setWinStreak(bytes, Number.NaN); // ignored instead of zeroing the byte
+    expect(getWinStreak(bytes)).toBe(255);
   });
 
   it("reads and writes individual option bits without touching others", () => {
