@@ -407,6 +407,8 @@ export function getCurrentBoxIndex(bytes: Uint8Array): number {
 export interface BoxContents {
   mons: MonSlot[];
   capacity: number;
+  /** False when the game has never written this box (raw SRAM fill). */
+  initialized: boolean;
 }
 
 /**
@@ -422,8 +424,27 @@ function boxBases(bytes: Uint8Array, boxIndex: number): number[] {
   return [stored];
 }
 
+/**
+ * The game only writes a stored box when the player switches boxes in-game,
+ * so never-used boxes still hold raw SRAM fill (0xff everywhere). A count
+ * byte above MONS_PER_BOX is that signature; treat the box as empty instead
+ * of rendering 20 phantom level-255 entries.
+ */
+function isBoxInitialized(bytes: Uint8Array, base: number): boolean {
+  return bytes[base + BOX.count] <= MONS_PER_BOX;
+}
+
+/** Reset a box block to a valid empty state (count 0, terminated species list). */
+function initializeBox(bytes: Uint8Array, base: number): void {
+  bytes.fill(0, base, base + BOX_DATA_SIZE);
+  bytes[base + BOX.species] = 0xff;
+}
+
 export function readBox(bytes: Uint8Array, boxIndex: number): BoxContents {
   const base = boxBases(bytes, boxIndex)[0];
+  if (!isBoxInitialized(bytes, base)) {
+    return { mons: [], capacity: MONS_PER_BOX, initialized: false };
+  }
   const count = Math.min(bytes[base + BOX.count], MONS_PER_BOX);
   const mons: MonSlot[] = [];
   for (let i = 0; i < count; i++) {
@@ -435,11 +456,23 @@ export function readBox(bytes: Uint8Array, boxIndex: number): BoxContents {
       ),
     });
   }
-  return { mons, capacity: MONS_PER_BOX };
+  return { mons, capacity: MONS_PER_BOX, initialized: true };
 }
 
 export function writeBoxMon(bytes: Uint8Array, boxIndex: number, slot: number, mon: MonRecord, names: MonNames): void {
-  for (const base of boxBases(bytes, boxIndex)) {
+  const bases = boxBases(bytes, boxIndex);
+  const primary = bases[0];
+  for (const base of bases) {
+    if (!isBoxInitialized(bytes, base)) {
+      // For the current box the stored mirror can be raw fill while the
+      // cache holds mons; seed it from the primary copy so slot indexes stay
+      // valid, and only fall back to an empty box when nothing exists yet.
+      if (base !== primary && isBoxInitialized(bytes, primary)) {
+        bytes.copyWithin(base, primary, primary + BOX_DATA_SIZE);
+      } else {
+        initializeBox(bytes, base);
+      }
+    }
     const count = Math.min(bytes[base + BOX.count], MONS_PER_BOX);
     if (slot < 0 || slot > count || slot >= MONS_PER_BOX) {
       throw new RangeError(`Invalid box slot ${slot} for box of ${count}`);
@@ -456,6 +489,7 @@ export function writeBoxMon(bytes: Uint8Array, boxIndex: number, slot: number, m
 
 export function removeBoxMon(bytes: Uint8Array, boxIndex: number, slot: number): void {
   for (const base of boxBases(bytes, boxIndex)) {
+    if (!isBoxInitialized(bytes, base)) continue; // nothing real to remove
     const count = Math.min(bytes[base + BOX.count], MONS_PER_BOX);
     if (slot < 0 || slot >= count) throw new RangeError(`Invalid box slot ${slot} for box of ${count}`);
     for (let i = slot; i < count - 1; i++) {
@@ -486,6 +520,7 @@ export function removeBoxMon(bytes: Uint8Array, boxIndex: number, slot: number):
 export function reorderBoxMon(bytes: Uint8Array, boxIndex: number, from: number, to: number): void {
   const bases = boxBases(bytes, boxIndex);
   const primary = bases[0]; // the bank-1 cache for the current box, else storage
+  if (!isBoxInitialized(bytes, primary)) return; // phantom entries, nothing to reorder
   const count = Math.min(bytes[primary + BOX.count], MONS_PER_BOX);
   if (from < 0 || from >= count || to < 0 || to >= count || from === to) return;
 

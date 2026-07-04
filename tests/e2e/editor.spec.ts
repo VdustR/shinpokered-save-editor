@@ -312,7 +312,7 @@ test("party members can be reordered with the up/down controls", async ({ page }
   await expect(page.locator(".slot__name").first()).toHaveText("CHARMANDER");
 });
 
-test("inventory auto-sort orders items by the game's built-in order", async ({ page }) => {
+test("inventory sort orders items by the game's built-in order", async ({ page }) => {
   await loadFixture(page);
   await page.locator(".sidenav__item", { hasText: "Inventory" }).click();
 
@@ -332,7 +332,7 @@ test("inventory auto-sort orders items by the game's built-in order", async ({ p
   await dialog.getByLabel("Search").fill("poke ball");
   await dialog.locator(".picker__row").filter({ hasText: "POKé BALL" }).first().click();
 
-  await bag.getByRole("button", { name: "Auto-sort" }).click();
+  await bag.getByRole("button", { name: "Sort", exact: true }).click();
   // Poké Ball comes before Potion in the ROM order.
   await expect(bag.locator(".item-row .picker-trigger__label").first()).toHaveText("POKé BALL");
 });
