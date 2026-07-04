@@ -3,15 +3,20 @@ import { createMon } from "../save/derive";
 import { DEX_SPECIES, speciesByInternalId } from "../save/gamedata";
 import type { MonRecord } from "../save/pokemon";
 import {
+  clearDayCare,
+  getDayCare,
   getParty,
+  getPlayerName,
   removePartyMon,
   reorderParty,
+  setDayCareMon,
   setPartyMon,
   type MonNames,
 } from "../save/savefile";
-import { PARTY_LENGTH } from "../save/layout";
+import { OFFSETS, PARTY_LENGTH } from "../save/layout";
+import { useNav } from "../state/nav";
 import { useSaveStore } from "../state/store";
-import { Button } from "../components/ui/ui";
+import { Button, OffsetChip, Panel } from "../components/ui/ui";
 import { EmptyLine } from "../components/EmptyLine";
 import { MonEditor } from "../components/MonEditor";
 import { PageHeader } from "../components/PageHeader";
@@ -121,6 +126,68 @@ export function PartyPage() {
           )}
         </div>
       )}
+
+      <DayCarePanel />
     </div>
+  );
+}
+
+/** The one boarded day-care Pokémon (box-struct record + names). */
+function DayCarePanel() {
+  const bytes = useSaveStore((s) => s.bytes)!;
+  const mutate = useSaveStore((s) => s.mutate);
+  const [tab, setTab] = useState<"summary" | "moves" | "dvs">("summary");
+
+  const dayCare = getDayCare(bytes);
+  const playerName = getPlayerName(bytes);
+
+  function board() {
+    const mon = createMon(BULBASAUR, 5);
+    mutate((b) =>
+      setDayCareMon(b, mon, {
+        nickname: speciesByInternalId(BULBASAUR)?.name ?? "",
+        otName: playerName || "RED",
+      }),
+    );
+  }
+
+  return (
+    <Panel
+      className="daycare-panel"
+      title={
+        <span className="panel-title-row">
+          Day care <OffsetChip offset={OFFSETS.dayCareInUse} onJump={useNav.getState().jumpToHex} />
+        </span>
+      }
+      actions={
+        dayCare.inUse ? (
+          <Button variant="danger" size="sm" onClick={() => mutate((b) => clearDayCare(b))}>
+            Empty day care
+          </Button>
+        ) : (
+          <Button variant="primary" size="sm" onClick={board}>
+            Board a Pokémon
+          </Button>
+        )
+      }
+    >
+      {dayCare.inUse && dayCare.mon ? (
+        <MonEditor
+          mon={dayCare.mon.mon}
+          names={{ nickname: dayCare.mon.nickname, otName: dayCare.mon.otName }}
+          tab={tab}
+          onTab={setTab}
+          onChange={(mon, names) => {
+            const nickname = names.nickname.trim() || speciesByInternalId(mon.species)?.name || "";
+            mutate((b) => setDayCareMon(b, mon, { ...names, nickname }));
+          }}
+        />
+      ) : (
+        <p className="hint-line">
+          Nothing is boarded. The day-care attendant on Route 5 holds one Pokémon; it levels up as you
+          walk.
+        </p>
+      )}
+    </Panel>
   );
 }
