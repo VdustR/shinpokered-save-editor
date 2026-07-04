@@ -18,12 +18,13 @@ export function AboutDialog({ open, onClose }: { open: boolean; onClose: () => v
   }, [open]);
 
   return (
-    <dialog ref={ref} className="about" onClose={onClose} onCancel={onClose} aria-labelledby="about-title">
+    <dialog ref={ref} className="about" onClose={onClose} aria-labelledby="about-title">
       <div className="about__head">
         <h2 className="about__title" id="about-title">
           Shin Pokémon Save Editor <span className="about__version mono">v{__APP_VERSION__}</span>
         </h2>
-        <button className="about__x" onClick={onClose} aria-label="Close">
+        {/* Close via the native dialog so the close event drives parent state exactly once. */}
+        <button type="button" className="about__x" onClick={() => ref.current?.close()} aria-label="Close">
           ✕
         </button>
       </div>

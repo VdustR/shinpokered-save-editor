@@ -9,7 +9,7 @@ export function AppFooter() {
   const [aboutOpen, setAboutOpen] = useState(false);
 
   return (
-    <div className="app-footer">
+    <footer className="app-footer">
       <span className="mono">v{__APP_VERSION__}</span>
       <span className="app-footer__sep" aria-hidden>
         ·
@@ -33,6 +33,6 @@ export function AppFooter() {
         About
       </button>
       <AboutDialog open={aboutOpen} onClose={() => setAboutOpen(false)} />
-    </div>
+    </footer>
   );
 }
