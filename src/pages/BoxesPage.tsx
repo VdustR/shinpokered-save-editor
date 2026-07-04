@@ -96,7 +96,11 @@ export function BoxesPage() {
           {contents.mons.length === 0 ? (
             <EmptyLine
               title="Empty box"
-              body="No Pokémon stored here."
+              body={
+                contents.initialized
+                  ? "No Pokémon stored here."
+                  : "The game hasn't used this box yet (raw uninitialized data); it will be set up properly on the first write."
+              }
               action={<Button variant="primary" size="sm" onClick={addMon}>Add Pokémon</Button>}
             />
           ) : (

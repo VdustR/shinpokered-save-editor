@@ -64,7 +64,7 @@ function ItemList({
             disabled={items.length < 2}
             title="Sort into the game's built-in bag order"
           >
-            Auto-sort
+            Sort
           </Button>
           <span className="mono muted">
             {items.length} / {capacity}

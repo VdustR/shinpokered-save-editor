@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { autoSortItems, moveInArray } from "./reorder";
 import { ITEMS } from "./gamedata";
-import { NAME_LENGTH, OFFSETS, SAVE_SIZE, storedBoxOffset } from "./layout";
+import { BOX_DATA_SIZE, MONS_PER_BOX, NAME_LENGTH, OFFSETS, SAVE_SIZE, storedBoxOffset } from "./layout";
 import type { MonRecord } from "./pokemon";
 import { getParty, readBox, reorderBoxMon, reorderParty, setPartyMon, writeBoxMon } from "./savefile";
 import { encodeText } from "./text";
@@ -90,6 +90,35 @@ describe("reorderParty", () => {
     expect(bytes[OFFSETS.partySpecies]).toBe(0x54);
     expect(bytes[OFFSETS.partySpecies + 2]).toBe(0x99);
     expect(bytes[OFFSETS.partySpecies + 3]).toBe(0xff);
+  });
+});
+
+describe("uninitialized boxes (never written by the game)", () => {
+  it("reads an all-0xff stored box as empty and uninitialized", () => {
+    const bytes = emptySave();
+    bytes[OFFSETS.currentBoxNum] = 0; // box 1 is current; box 2 is stored-only
+    bytes.fill(0xff, storedBoxOffset(1), storedBoxOffset(1) + 100);
+    const box = readBox(bytes, 1);
+    expect(box.initialized).toBe(false);
+    expect(box.mons).toHaveLength(0);
+  });
+
+  it("initializes an all-0xff box on first write instead of keeping garbage", () => {
+    const bytes = emptySave();
+    bytes[OFFSETS.currentBoxNum] = 0;
+    const base = storedBoxOffset(1);
+    bytes.fill(0xff, base, base + BOX_DATA_SIZE);
+
+    writeBoxMon(bytes, 1, 0, mon(0x99, 5), { nickname: "AAA", otName: "RED" });
+
+    const box = readBox(bytes, 1);
+    expect(box.initialized).toBe(true);
+    expect(box.mons).toHaveLength(1);
+    expect(box.mons[0].mon.species).toBe(0x99);
+    expect(bytes[base]).toBe(1); // count
+    expect(bytes[base + 2]).toBe(0xff); // species terminator after the one entry
+    // The garbage after the species terminator is cleared, not left as 0xff.
+    expect(bytes[base + 1 + MONS_PER_BOX]).toBe(0);
   });
 });
 
