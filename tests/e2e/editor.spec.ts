@@ -39,6 +39,29 @@ async function exportBytes(page: Page): Promise<Uint8Array> {
   return new Uint8Array(await readFile(file));
 }
 
+test("warns when the opened file is not a Gen 1 save, and not for a real one", async ({ page }) => {
+  await page.goto("/");
+  // A 32 KiB file of patterned garbage: correct size, wrong everything else.
+  const garbage = Buffer.alloc(0x8000);
+  for (let i = 0; i < garbage.length; i++) garbage[i] = (i * 37 + 11) & 0xff;
+  await page.setInputFiles('[data-testid="file-input"]', {
+    name: "garbage.sav",
+    mimeType: "application/octet-stream",
+    buffer: garbage,
+  });
+  const banner = page.getByTestId("assessment-banner");
+  await expect(banner).toBeVisible();
+  await expect(banner).toContainText("does not look like a Gen 1");
+  await banner.getByRole("button", { name: "Dismiss" }).click();
+  await expect(page.getByTestId("assessment-banner")).toHaveCount(0);
+
+  // A real save shows no banner.
+  await page.getByRole("button", { name: "Close" }).click();
+  await page.setInputFiles('[data-testid="file-input"]', fixturePath);
+  await expect(page.locator(".page-header__title")).toHaveText("Overview");
+  await expect(page.getByTestId("assessment-banner")).toHaveCount(0);
+});
+
 test("loads a save and shows the trainer name", async ({ page }) => {
   await loadFixture(page);
   await page.locator(".sidenav__item", { hasText: "Trainer" }).click();

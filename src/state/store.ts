@@ -3,6 +3,7 @@ import { listChecksumMismatches, type ChecksumGroup } from "../save/checksum";
 import { countDirtyBytes } from "../save/diff";
 import { exportSaveWithReport } from "../save/savefile";
 import { parseSave } from "../save/savefile";
+import { assessSave, type SaveAssessment } from "../save/validate";
 
 export type ThemePreference = "system" | "light" | "dark";
 
@@ -11,12 +12,15 @@ interface SaveState {
   original: Uint8Array | null;
   bytes: Uint8Array | null;
   warnings: string[];
+  /** Recognition verdict for the loaded file; null once dismissed. */
+  assessment: SaveAssessment | null;
   /** Bumped on every mutation so selectors that read raw bytes recompute. */
   revision: number;
   theme: ThemePreference;
 
   loadFile: (name: string, data: Uint8Array) => void;
   closeFile: () => void;
+  dismissAssessment: () => void;
   /** Apply an in-place mutation to a fresh clone of the working buffer. */
   mutate: (fn: (bytes: Uint8Array) => void) => void;
   revert: () => void;
@@ -36,22 +40,34 @@ export const useSaveStore = create<SaveState>((set, get) => ({
   original: null,
   bytes: null,
   warnings: [],
+  assessment: null,
   revision: 0,
   theme: initialTheme(),
 
   loadFile: (name, data) => {
     const { bytes, warnings } = parseSave(data);
+    const assessment = assessSave(bytes);
     set({
       fileName: name,
       original: Uint8Array.from(bytes),
       bytes,
       warnings,
+      assessment: assessment.verdict === "valid" ? null : assessment,
       revision: get().revision + 1,
     });
   },
 
   closeFile: () =>
-    set({ fileName: null, original: null, bytes: null, warnings: [], revision: get().revision + 1 }),
+    set({
+      fileName: null,
+      original: null,
+      bytes: null,
+      warnings: [],
+      assessment: null,
+      revision: get().revision + 1,
+    }),
+
+  dismissAssessment: () => set({ assessment: null }),
 
   mutate: (fn) => {
     const current = get().bytes;
