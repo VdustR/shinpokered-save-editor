@@ -1,5 +1,22 @@
 import { useMemo, useState } from "react";
-import { EVENT_FLAGS, eventFlagByteOffset, getEventFlag, setEventFlag } from "../save/events";
+import {
+  EVENT_FLAGS,
+  EVENT_FLAGS_BYTES,
+  eventFlagByteOffset,
+  getEventFlag,
+  setEventFlag,
+  type EventFlag,
+} from "../save/events";
+import {
+  HIDDEN_COINS,
+  HIDDEN_COINS_OFFSET,
+  HIDDEN_ITEMS,
+  HIDDEN_ITEMS_OFFSET,
+  getHiddenFlag,
+  hiddenSpotLabel,
+  setHiddenFlag,
+  type HiddenSpot,
+} from "../save/hidden";
 import { fuzzyScore } from "../save/search";
 import { TOWNS, TOWNS_VISITED_OFFSET, getTownVisited, setTownVisited } from "../save/towns";
 import { useNav } from "../state/nav";
@@ -7,13 +24,28 @@ import { useSaveStore } from "../state/store";
 import { Button, OffsetChip, Panel, Toggle } from "../components/ui/ui";
 import { PageHeader } from "../components/PageHeader";
 
-const PAGE_LIMIT = 120;
+/** Placeholder entries for the bits event_constants.asm leaves unnamed. */
+const UNNAMED_FLAGS: readonly EventFlag[] = (() => {
+  const named = new Set(EVENT_FLAGS.map((flag) => flag.index));
+  const out: EventFlag[] = [];
+  for (let i = 0; i < EVENT_FLAGS_BYTES * 8 - 1; i++) {
+    if (named.has(i)) continue;
+    const hex = i.toString(16).toUpperCase().padStart(3, "0");
+    out.push({ index: i, name: `EVENT_${hex}`, label: `Unnamed $${hex}` });
+  }
+  return out;
+})();
+
+const ALL_FLAGS: readonly EventFlag[] = [...EVENT_FLAGS, ...UNNAMED_FLAGS].sort(
+  (a, b) => a.index - b.index,
+);
 
 /**
- * Story/event flag table: the named subset of wEventFlags with fuzzy search.
- * Flags the game manages as a set (story progression) can be inconsistent if
- * toggled individually, so the page leads with a caution rather than hiding
- * the capability.
+ * Story/event flag table over wEventFlags with fuzzy search. Flags the game
+ * manages as a set (story progression) can be inconsistent if toggled
+ * individually, so the page leads with a caution rather than hiding the
+ * capability. Unnamed bits are opt-in: they have no known meaning and exist
+ * for parity with the hex view.
  */
 export function FlagsPage() {
   const bytes = useSaveStore((s) => s.bytes)!;
@@ -21,24 +53,26 @@ export function FlagsPage() {
   const jump = useNav((s) => s.jumpToHex);
   const [query, setQuery] = useState("");
   const [onlySet, setOnlySet] = useState(false);
+  const [showUnnamed, setShowUnnamed] = useState(false);
+
+  const pool = showUnnamed ? ALL_FLAGS : EVENT_FLAGS;
 
   const matches = useMemo(() => {
-    if (query.trim() === "") return EVENT_FLAGS;
-    const scored: { flag: (typeof EVENT_FLAGS)[number]; score: number }[] = [];
-    for (const flag of EVENT_FLAGS) {
+    if (query.trim() === "") return pool;
+    const scored: { flag: EventFlag; score: number }[] = [];
+    for (const flag of pool) {
       const score = fuzzyScore(query, flag.label);
       if (score === null) continue;
       scored.push({ flag, score });
     }
     scored.sort((a, b) => a.score - b.score || a.flag.index - b.flag.index);
     return scored.map((s) => s.flag);
-  }, [query]);
+  }, [query, pool]);
 
-  const visible = useMemo(
+  const shown = useMemo(
     () => (onlySet ? matches.filter((f) => getEventFlag(bytes, f.index)) : matches),
     [matches, onlySet, bytes],
   );
-  const shown = visible.slice(0, PAGE_LIMIT);
 
   return (
     <div className="page">
@@ -80,6 +114,21 @@ export function FlagsPage() {
         </div>
       </Panel>
 
+      <HiddenSpotsPanel
+        title="Hidden items"
+        spots={HIDDEN_ITEMS}
+        baseOffset={HIDDEN_ITEMS_OFFSET}
+        hint="Checked spots have been picked up; unchecking makes the hidden item findable again."
+        fallbackLabel="?"
+      />
+      <HiddenSpotsPanel
+        title="Hidden coins"
+        spots={HIDDEN_COINS}
+        baseOffset={HIDDEN_COINS_OFFSET}
+        hint="Game Corner floor coins; unchecking makes a spot findable again."
+        fallbackLabel="coins"
+      />
+
       <div className="flags-controls">
         <input
           className="control"
@@ -89,8 +138,9 @@ export function FlagsPage() {
           aria-label="Search flags"
         />
         <Toggle checked={onlySet} label="Only set flags" onChange={setOnlySet} />
+        <Toggle checked={showUnnamed} label="Show unnamed bits" onChange={setShowUnnamed} />
         <span className="mono muted">
-          {visible.length} / {EVENT_FLAGS.length}
+          {shown.length} / {pool.length}
         </span>
       </div>
 
@@ -111,11 +161,59 @@ export function FlagsPage() {
             </div>
           );
         })}
-        {visible.length > PAGE_LIMIT && (
-          <p className="hint-line">Showing the first {PAGE_LIMIT} matches — refine the search to narrow down.</p>
-        )}
-        {visible.length === 0 && <p className="hint-line">No flags match.</p>}
+        {shown.length === 0 && <p className="hint-line">No flags match.</p>}
       </div>
     </div>
+  );
+}
+
+/** Toggle grid over one hidden-pickup flag region, with a restore-all action. */
+function HiddenSpotsPanel({
+  title,
+  spots,
+  baseOffset,
+  hint,
+  fallbackLabel,
+}: {
+  title: string;
+  spots: readonly HiddenSpot[];
+  baseOffset: number;
+  hint: string;
+  fallbackLabel: string;
+}) {
+  const bytes = useSaveStore((s) => s.bytes)!;
+  const mutate = useSaveStore((s) => s.mutate);
+  const jump = useNav((s) => s.jumpToHex);
+
+  return (
+    <Panel
+      className="towns-panel"
+      title={
+        <span className="panel-title-row">
+          {title} <OffsetChip offset={baseOffset} onJump={jump} />
+        </span>
+      }
+      actions={
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={() => mutate((b) => spots.forEach((_, i) => setHiddenFlag(b, baseOffset, i, false)))}
+        >
+          Restore all
+        </Button>
+      }
+    >
+      <p className="hint-line">{hint}</p>
+      <div className="towns-grid towns-grid--wide">
+        {spots.map((spot, i) => (
+          <Toggle
+            key={i}
+            checked={getHiddenFlag(bytes, baseOffset, i)}
+            label={hiddenSpotLabel(spot, fallbackLabel)}
+            onChange={(v) => mutate((b) => setHiddenFlag(b, baseOffset, i, v))}
+          />
+        ))}
+      </div>
+    </Panel>
   );
 }

@@ -345,6 +345,86 @@ for (const [name, value] of eventConsts) {
 eventFlags.sort((a, b) => a[0] - b[0]);
 if (eventFlags.length < 400) throw new Error(`Suspiciously few named event flags: ${eventFlags.length}`);
 
+// --- Hidden items / coins (data/hidden_item_coords.asm + hidden_objects.asm) -------------
+// The pickup code finds the row index of (map,y,x) in HiddenItemCoords /
+// HiddenCoinCoords and uses it as the bit index into
+// wObtainedHiddenItemsFlags / wObtainedHiddenCoinsFlags. hidden_objects.asm
+// carries the item id for each spot, so labels can include the item name.
+function parseHiddenObjectArgs() {
+  // (map,y,x) -> arg token, for entries handled by the HiddenItems routine.
+  const lines = asmLines("data/hidden_objects.asm");
+  const maps = [];
+  const pointers = [];
+  for (const line of lines) {
+    // Accept `db MAP_CONSTANT` and raw literals like `db $6f` (unused map slots)
+    // so the two lists stay index-aligned.
+    const mapRow = line.match(/^db\s+([A-Z0-9_]+|\$[0-9a-fA-F]+)$/);
+    if (mapRow && pointers.length === 0 && !/^\$ff$/i.test(mapRow[1])) maps.push(mapRow[1]);
+    const pointer = line.match(/^dw\s+([A-Za-z0-9_]+HiddenObjects)$/);
+    if (pointer) pointers.push(pointer[1]);
+  }
+  if (maps.length !== pointers.length) {
+    throw new Error(`HiddenObjectMaps/Pointers misaligned: ${maps.length} vs ${pointers.length}`);
+  }
+  const sectionMap = new Map(); // section label -> map constant
+  pointers.forEach((label, i) => sectionMap.set(label, maps[i]));
+
+  const args = new Map(); // "MAP,y,x" -> item arg token
+  let currentMap = null;
+  let pending = null;
+  for (const line of lines) {
+    const label = line.match(/^([A-Za-z0-9_]+HiddenObjects):+$/);
+    if (label) {
+      currentMap = sectionMap.get(label[1]) ?? null;
+      pending = null;
+      continue;
+    }
+    if (!currentMap) continue;
+    const entry = line.match(/^db\s+(\$?[0-9a-fA-F]+),\s*(\$?[0-9a-fA-F]+),\s*([A-Za-z0-9_$]+)$/);
+    if (entry) {
+      pending = { y: parseNumber(entry[1]), x: parseNumber(entry[2]), arg: entry[3] };
+      continue;
+    }
+    const routine = line.match(/^dbw\s+BANK\(([A-Za-z0-9_]+)\),/);
+    if (routine && pending) {
+      if (routine[1] === "HiddenItems") {
+        args.set(`${currentMap},${pending.y},${pending.x}`, pending.arg);
+      }
+      pending = null;
+    }
+  }
+  return args;
+}
+
+function parseHiddenCoords(relPath, tableName, itemArgs) {
+  const rows = [];
+  let inTable = false;
+  for (const line of asmLines(relPath)) {
+    if (new RegExp(`^${tableName}:`).test(line)) {
+      inTable = true;
+      continue;
+    }
+    if (!inTable) continue;
+    const row = line.match(/^db\s+([A-Z][A-Z0-9_]+),\s*(\$?[0-9a-fA-F]+),\s*(\$?[0-9a-fA-F]+)$/);
+    if (row) {
+      const map = row[1];
+      const y = parseNumber(row[2]);
+      const x = parseNumber(row[3]);
+      const arg = itemArgs?.get(`${map},${y},${x}`);
+      rows.push({ map, y, x, item: arg && itemConsts.has(arg) ? itemConsts.get(arg) : null });
+      continue;
+    }
+    if (/^db\s+\$ff$/i.test(line) || /^[A-Za-z_][A-Za-z0-9_]*:/.test(line)) break;
+  }
+  return rows;
+}
+
+const hiddenObjectArgs = parseHiddenObjectArgs();
+const hiddenItems = parseHiddenCoords("data/hidden_item_coords.asm", "HiddenItemCoords", hiddenObjectArgs);
+const hiddenCoins = parseHiddenCoords("data/hidden_coins.asm", "HiddenCoinCoords", null);
+if (hiddenItems.length < 40) throw new Error(`Suspiciously few hidden items: ${hiddenItems.length}`);
+if (hiddenCoins.length < 8) throw new Error(`Suspiciously few hidden coins: ${hiddenCoins.length}`);
+
 // --- Types ---------------------------------------------------------------------------
 const typeNameLines = asmLines("text/type_names.asm");
 const typePointerOrder = [];
@@ -397,7 +477,21 @@ const pokemon = [...pokemonByDex.values()].sort((a, b) => a.dexNo - b.dexNo);
 writeFileSync(
   path.join(outDir, "gamedata.json"),
   JSON.stringify(
-    { meta, species, pokemon, moves, items, typeNames, tmMoves, itemSortOrder, genderList, eventFlags, charmap },
+    {
+      meta,
+      species,
+      pokemon,
+      moves,
+      items,
+      typeNames,
+      tmMoves,
+      itemSortOrder,
+      genderList,
+      eventFlags,
+      hiddenItems,
+      hiddenCoins,
+      charmap,
+    },
     null,
     1,
   ),
