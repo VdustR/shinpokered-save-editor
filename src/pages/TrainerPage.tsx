@@ -1,5 +1,6 @@
 import { speciesName } from "../save/gamedata";
 import { OFFSETS } from "../save/layout";
+import { MAPS, POSITION_OFFSETS, getPosition, mapName, setPosition } from "../save/position";
 import {
   BADGE_NAMES,
   MAX_COINS,
@@ -72,6 +73,10 @@ export function TrainerPage() {
   const time = getPlayTime(bytes);
   const badges = getBadges(bytes);
   const shinFlags = getShinFlags(bytes);
+  const position = getPosition(bytes);
+  const dims = MAPS[position.map];
+  const maxX = (dims?.width ?? 128) * 2 - 1;
+  const maxY = (dims?.height ?? 128) * 2 - 1;
 
   const nameError = name && !isEncodable(name) ? "Contains characters the game can't store." : undefined;
 
@@ -275,6 +280,64 @@ export function TrainerPage() {
             </div>
             <p className="hint-line">
               Shin-only settings stored in the save (vanilla games ignore these bytes).
+            </p>
+          </div>
+        </Panel>
+
+        <Panel title="Position">
+          <div className="form-grid">
+            <Field
+              label="Current map"
+              offset={POSITION_OFFSETS.map}
+              onJump={jump}
+              hint="Where the game puts you on continue — edit to escape a softlock."
+            >
+              <Select
+                value={position.map}
+                aria-label="Current map"
+                onChange={(e) => {
+                  const map = Number(e.target.value);
+                  const dims = MAPS[map];
+                  mutate((b) =>
+                    setPosition(b, {
+                      map,
+                      // Clamp into the new map's bounds so the warp lands inside it.
+                      x: Math.min(position.x, (dims?.width ?? 128) * 2 - 1),
+                      y: Math.min(position.y, (dims?.height ?? 128) * 2 - 1),
+                    }),
+                  );
+                }}
+              >
+                {MAPS.map((_m, id) => (
+                  <option key={id} value={id}>
+                    {mapName(id)} (${id.toString(16).padStart(2, "0").toUpperCase()})
+                  </option>
+                ))}
+              </Select>
+            </Field>
+            <div className="form-grid form-grid--2">
+              <Field label="X" offset={POSITION_OFFSETS.x} onJump={jump} hint={`0 – ${maxX}`}>
+                <NumberInput
+                  value={position.x}
+                  min={0}
+                  max={maxX}
+                  aria-label="X coordinate"
+                  onValue={(n) => mutate((b) => setPosition(b, { ...position, x: n }))}
+                />
+              </Field>
+              <Field label="Y" offset={POSITION_OFFSETS.y} onJump={jump} hint={`0 – ${maxY}`}>
+                <NumberInput
+                  value={position.y}
+                  min={0}
+                  max={maxY}
+                  aria-label="Y coordinate"
+                  onValue={(n) => mutate((b) => setPosition(b, { ...position, y: n }))}
+                />
+              </Field>
+            </div>
+            <p className="hint-line">
+              Coordinates are tiles from the map's top-left. Landing on a solid tile can re-strand you:
+              small values near the map centre are safest.
             </p>
           </div>
         </Panel>

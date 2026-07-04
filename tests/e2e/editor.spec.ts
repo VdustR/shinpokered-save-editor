@@ -420,6 +420,23 @@ test("gender symbol derives from the attack DV and Make shiny sets shiny DVs", a
   await expect(page.getByLabel("SPC DV")).toHaveValue("10");
 });
 
+test("warp position edits persist into the exported save", async ({ page }) => {
+  await loadFixture(page);
+  await page.locator(".sidenav__item", { hasText: "Trainer" }).click();
+  await page.getByLabel("Current map").selectOption({ label: "Pewter City ($02)" });
+  const x = page.getByLabel("X coordinate");
+  await x.fill("10");
+  await x.blur();
+  const y = page.getByLabel("Y coordinate");
+  await y.fill("5");
+  await y.blur();
+  const bytes = await exportBytes(page);
+  expect(bytes[0x260a]).toBe(2); // PEWTER_CITY
+  expect(bytes[0x260e]).toBe(10);
+  expect(bytes[0x260d]).toBe(5);
+  expect(bytes[MAIN_CKSUM]).toBe(gen1MainChecksum(bytes));
+});
+
 test("day care boards a mon that persists into the exported save", async ({ page }) => {
   await loadFixture(page);
   await page.locator(".sidenav__item", { hasText: "Party" }).click();

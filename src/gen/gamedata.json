@@ -16511,6 +16511,1248 @@
   "Viridian City",
   "Viridian Forest"
  ],
+ "maps": [
+  {
+   "name": "PALLET_TOWN",
+   "height": 9,
+   "width": 10
+  },
+  {
+   "name": "VIRIDIAN_CITY",
+   "height": 18,
+   "width": 20
+  },
+  {
+   "name": "PEWTER_CITY",
+   "height": 18,
+   "width": 20
+  },
+  {
+   "name": "CERULEAN_CITY",
+   "height": 18,
+   "width": 20
+  },
+  {
+   "name": "LAVENDER_TOWN",
+   "height": 9,
+   "width": 10
+  },
+  {
+   "name": "VERMILION_CITY",
+   "height": 18,
+   "width": 20
+  },
+  {
+   "name": "CELADON_CITY",
+   "height": 18,
+   "width": 25
+  },
+  {
+   "name": "FUCHSIA_CITY",
+   "height": 18,
+   "width": 20
+  },
+  {
+   "name": "CINNABAR_ISLAND",
+   "height": 9,
+   "width": 10
+  },
+  {
+   "name": "INDIGO_PLATEAU",
+   "height": 9,
+   "width": 10
+  },
+  {
+   "name": "SAFFRON_CITY",
+   "height": 18,
+   "width": 20
+  },
+  {
+   "name": "UNUSED_MAP_0B",
+   "height": 0,
+   "width": 0
+  },
+  {
+   "name": "ROUTE_1",
+   "height": 18,
+   "width": 10
+  },
+  {
+   "name": "ROUTE_2",
+   "height": 36,
+   "width": 10
+  },
+  {
+   "name": "ROUTE_3",
+   "height": 9,
+   "width": 35
+  },
+  {
+   "name": "ROUTE_4",
+   "height": 9,
+   "width": 45
+  },
+  {
+   "name": "ROUTE_5",
+   "height": 18,
+   "width": 10
+  },
+  {
+   "name": "ROUTE_6",
+   "height": 18,
+   "width": 10
+  },
+  {
+   "name": "ROUTE_7",
+   "height": 9,
+   "width": 10
+  },
+  {
+   "name": "ROUTE_8",
+   "height": 9,
+   "width": 30
+  },
+  {
+   "name": "ROUTE_9",
+   "height": 9,
+   "width": 30
+  },
+  {
+   "name": "ROUTE_10",
+   "height": 36,
+   "width": 10
+  },
+  {
+   "name": "ROUTE_11",
+   "height": 9,
+   "width": 30
+  },
+  {
+   "name": "ROUTE_12",
+   "height": 54,
+   "width": 10
+  },
+  {
+   "name": "ROUTE_13",
+   "height": 9,
+   "width": 30
+  },
+  {
+   "name": "ROUTE_14",
+   "height": 27,
+   "width": 10
+  },
+  {
+   "name": "ROUTE_15",
+   "height": 9,
+   "width": 30
+  },
+  {
+   "name": "ROUTE_16",
+   "height": 9,
+   "width": 20
+  },
+  {
+   "name": "ROUTE_17",
+   "height": 72,
+   "width": 10
+  },
+  {
+   "name": "ROUTE_18",
+   "height": 9,
+   "width": 25
+  },
+  {
+   "name": "ROUTE_19",
+   "height": 27,
+   "width": 10
+  },
+  {
+   "name": "ROUTE_20",
+   "height": 9,
+   "width": 50
+  },
+  {
+   "name": "ROUTE_21",
+   "height": 45,
+   "width": 10
+  },
+  {
+   "name": "ROUTE_22",
+   "height": 9,
+   "width": 20
+  },
+  {
+   "name": "ROUTE_23",
+   "height": 72,
+   "width": 10
+  },
+  {
+   "name": "ROUTE_24",
+   "height": 18,
+   "width": 10
+  },
+  {
+   "name": "ROUTE_25",
+   "height": 9,
+   "width": 30
+  },
+  {
+   "name": "REDS_HOUSE_1F",
+   "height": 4,
+   "width": 4
+  },
+  {
+   "name": "REDS_HOUSE_2F",
+   "height": 4,
+   "width": 4
+  },
+  {
+   "name": "BLUES_HOUSE",
+   "height": 4,
+   "width": 4
+  },
+  {
+   "name": "OAKS_LAB",
+   "height": 6,
+   "width": 5
+  },
+  {
+   "name": "VIRIDIAN_POKECENTER",
+   "height": 4,
+   "width": 7
+  },
+  {
+   "name": "VIRIDIAN_MART",
+   "height": 4,
+   "width": 4
+  },
+  {
+   "name": "VIRIDIAN_SCHOOL",
+   "height": 4,
+   "width": 4
+  },
+  {
+   "name": "VIRIDIAN_HOUSE",
+   "height": 4,
+   "width": 8
+  },
+  {
+   "name": "VIRIDIAN_GYM",
+   "height": 9,
+   "width": 10
+  },
+  {
+   "name": "DIGLETTS_CAVE_EXIT",
+   "height": 4,
+   "width": 4
+  },
+  {
+   "name": "VIRIDIAN_FOREST_EXIT",
+   "height": 4,
+   "width": 5
+  },
+  {
+   "name": "ROUTE_2_HOUSE",
+   "height": 4,
+   "width": 4
+  },
+  {
+   "name": "ROUTE_2_GATE",
+   "height": 4,
+   "width": 5
+  },
+  {
+   "name": "VIRIDIAN_FOREST_ENTRANCE",
+   "height": 4,
+   "width": 5
+  },
+  {
+   "name": "VIRIDIAN_FOREST",
+   "height": 24,
+   "width": 17
+  },
+  {
+   "name": "MUSEUM_1F",
+   "height": 4,
+   "width": 10
+  },
+  {
+   "name": "MUSEUM_2F",
+   "height": 4,
+   "width": 7
+  },
+  {
+   "name": "PEWTER_GYM",
+   "height": 7,
+   "width": 5
+  },
+  {
+   "name": "PEWTER_HOUSE_1",
+   "height": 4,
+   "width": 4
+  },
+  {
+   "name": "PEWTER_MART",
+   "height": 4,
+   "width": 4
+  },
+  {
+   "name": "PEWTER_HOUSE_2",
+   "height": 4,
+   "width": 4
+  },
+  {
+   "name": "PEWTER_POKECENTER",
+   "height": 4,
+   "width": 7
+  },
+  {
+   "name": "MT_MOON_1",
+   "height": 18,
+   "width": 20
+  },
+  {
+   "name": "MT_MOON_2",
+   "height": 14,
+   "width": 14
+  },
+  {
+   "name": "MT_MOON_3",
+   "height": 18,
+   "width": 20
+  },
+  {
+   "name": "TRASHED_HOUSE",
+   "height": 4,
+   "width": 4
+  },
+  {
+   "name": "CERULEAN_HOUSE_1",
+   "height": 4,
+   "width": 4
+  },
+  {
+   "name": "CERULEAN_POKECENTER",
+   "height": 4,
+   "width": 7
+  },
+  {
+   "name": "CERULEAN_GYM",
+   "height": 7,
+   "width": 5
+  },
+  {
+   "name": "BIKE_SHOP",
+   "height": 4,
+   "width": 4
+  },
+  {
+   "name": "CERULEAN_MART",
+   "height": 4,
+   "width": 4
+  },
+  {
+   "name": "MT_MOON_POKECENTER",
+   "height": 4,
+   "width": 7
+  },
+  {
+   "name": "TRASHED_HOUSE_COPY",
+   "height": 4,
+   "width": 4
+  },
+  {
+   "name": "ROUTE_5_GATE",
+   "height": 3,
+   "width": 4
+  },
+  {
+   "name": "PATH_ENTRANCE_ROUTE_5",
+   "height": 4,
+   "width": 4
+  },
+  {
+   "name": "DAYCAREM",
+   "height": 4,
+   "width": 4
+  },
+  {
+   "name": "ROUTE_6_GATE",
+   "height": 3,
+   "width": 4
+  },
+  {
+   "name": "PATH_ENTRANCE_ROUTE_6",
+   "height": 4,
+   "width": 4
+  },
+  {
+   "name": "PATH_ENTRANCE_ROUTE_6_COPY",
+   "height": 4,
+   "width": 4
+  },
+  {
+   "name": "ROUTE_7_GATE",
+   "height": 4,
+   "width": 3
+  },
+  {
+   "name": "PATH_ENTRANCE_ROUTE_7",
+   "height": 4,
+   "width": 4
+  },
+  {
+   "name": "PATH_ENTRANCE_ROUTE_7_COPY",
+   "height": 4,
+   "width": 4
+  },
+  {
+   "name": "ROUTE_8_GATE",
+   "height": 4,
+   "width": 3
+  },
+  {
+   "name": "PATH_ENTRANCE_ROUTE_8",
+   "height": 4,
+   "width": 4
+  },
+  {
+   "name": "ROCK_TUNNEL_POKECENTER",
+   "height": 4,
+   "width": 7
+  },
+  {
+   "name": "ROCK_TUNNEL_1",
+   "height": 18,
+   "width": 20
+  },
+  {
+   "name": "POWER_PLANT",
+   "height": 18,
+   "width": 20
+  },
+  {
+   "name": "ROUTE_11_GATE_1F",
+   "height": 5,
+   "width": 4
+  },
+  {
+   "name": "DIGLETTS_CAVE_ENTRANCE",
+   "height": 4,
+   "width": 4
+  },
+  {
+   "name": "ROUTE_11_GATE_2F",
+   "height": 4,
+   "width": 4
+  },
+  {
+   "name": "ROUTE_12_GATE_1F",
+   "height": 4,
+   "width": 5
+  },
+  {
+   "name": "BILLS_HOUSE",
+   "height": 4,
+   "width": 4
+  },
+  {
+   "name": "VERMILION_POKECENTER",
+   "height": 4,
+   "width": 7
+  },
+  {
+   "name": "POKEMON_FAN_CLUB",
+   "height": 4,
+   "width": 4
+  },
+  {
+   "name": "VERMILION_MART",
+   "height": 4,
+   "width": 4
+  },
+  {
+   "name": "VERMILION_GYM",
+   "height": 9,
+   "width": 5
+  },
+  {
+   "name": "VERMILION_HOUSE_1",
+   "height": 4,
+   "width": 4
+  },
+  {
+   "name": "VERMILION_DOCK",
+   "height": 6,
+   "width": 14
+  },
+  {
+   "name": "SS_ANNE_1",
+   "height": 9,
+   "width": 20
+  },
+  {
+   "name": "SS_ANNE_2",
+   "height": 9,
+   "width": 20
+  },
+  {
+   "name": "SS_ANNE_3",
+   "height": 3,
+   "width": 10
+  },
+  {
+   "name": "SS_ANNE_4",
+   "height": 4,
+   "width": 15
+  },
+  {
+   "name": "SS_ANNE_5",
+   "height": 7,
+   "width": 10
+  },
+  {
+   "name": "SS_ANNE_6",
+   "height": 8,
+   "width": 7
+  },
+  {
+   "name": "SS_ANNE_7",
+   "height": 4,
+   "width": 3
+  },
+  {
+   "name": "SS_ANNE_8",
+   "height": 8,
+   "width": 12
+  },
+  {
+   "name": "SS_ANNE_9",
+   "height": 8,
+   "width": 12
+  },
+  {
+   "name": "SS_ANNE_10",
+   "height": 8,
+   "width": 12
+  },
+  {
+   "name": "UNUSED_MAP_69",
+   "height": 0,
+   "width": 0
+  },
+  {
+   "name": "UNUSED_MAP_6A",
+   "height": 0,
+   "width": 0
+  },
+  {
+   "name": "UNUSED_MAP_6B",
+   "height": 0,
+   "width": 0
+  },
+  {
+   "name": "VICTORY_ROAD_1",
+   "height": 9,
+   "width": 10
+  },
+  {
+   "name": "UNUSED_MAP_6D",
+   "height": 0,
+   "width": 0
+  },
+  {
+   "name": "UNUSED_MAP_6E",
+   "height": 0,
+   "width": 0
+  },
+  {
+   "name": "UNUSED_MAP_6F",
+   "height": 0,
+   "width": 0
+  },
+  {
+   "name": "UNUSED_MAP_70",
+   "height": 0,
+   "width": 0
+  },
+  {
+   "name": "LANCES_ROOM",
+   "height": 13,
+   "width": 13
+  },
+  {
+   "name": "UNUSED_MAP_72",
+   "height": 0,
+   "width": 0
+  },
+  {
+   "name": "UNUSED_MAP_73",
+   "height": 0,
+   "width": 0
+  },
+  {
+   "name": "UNUSED_MAP_74",
+   "height": 0,
+   "width": 0
+  },
+  {
+   "name": "UNUSED_MAP_75",
+   "height": 0,
+   "width": 0
+  },
+  {
+   "name": "HALL_OF_FAME",
+   "height": 4,
+   "width": 5
+  },
+  {
+   "name": "UNDERGROUND_PATH_NS",
+   "height": 24,
+   "width": 4
+  },
+  {
+   "name": "CHAMPIONS_ROOM",
+   "height": 4,
+   "width": 4
+  },
+  {
+   "name": "UNDERGROUND_PATH_WE",
+   "height": 4,
+   "width": 25
+  },
+  {
+   "name": "CELADON_MART_1",
+   "height": 4,
+   "width": 10
+  },
+  {
+   "name": "CELADON_MART_2",
+   "height": 4,
+   "width": 10
+  },
+  {
+   "name": "CELADON_MART_3",
+   "height": 4,
+   "width": 10
+  },
+  {
+   "name": "CELADON_MART_4",
+   "height": 4,
+   "width": 10
+  },
+  {
+   "name": "CELADON_MART_ROOF",
+   "height": 4,
+   "width": 10
+  },
+  {
+   "name": "CELADON_MART_ELEVATOR",
+   "height": 2,
+   "width": 2
+  },
+  {
+   "name": "CELADON_MANSION_1",
+   "height": 6,
+   "width": 4
+  },
+  {
+   "name": "CELADON_MANSION_2",
+   "height": 6,
+   "width": 4
+  },
+  {
+   "name": "CELADON_MANSION_3",
+   "height": 6,
+   "width": 4
+  },
+  {
+   "name": "CELADON_MANSION_4",
+   "height": 6,
+   "width": 4
+  },
+  {
+   "name": "CELADON_MANSION_5",
+   "height": 4,
+   "width": 4
+  },
+  {
+   "name": "CELADON_POKECENTER",
+   "height": 4,
+   "width": 7
+  },
+  {
+   "name": "CELADON_GYM",
+   "height": 9,
+   "width": 5
+  },
+  {
+   "name": "GAME_CORNER",
+   "height": 9,
+   "width": 10
+  },
+  {
+   "name": "CELADON_MART_5",
+   "height": 4,
+   "width": 10
+  },
+  {
+   "name": "CELADON_PRIZE_ROOM",
+   "height": 4,
+   "width": 5
+  },
+  {
+   "name": "CELADON_DINER",
+   "height": 4,
+   "width": 5
+  },
+  {
+   "name": "CELADON_HOUSE",
+   "height": 4,
+   "width": 4
+  },
+  {
+   "name": "CELADON_HOTEL",
+   "height": 4,
+   "width": 7
+  },
+  {
+   "name": "LAVENDER_POKECENTER",
+   "height": 4,
+   "width": 7
+  },
+  {
+   "name": "POKEMONTOWER_1",
+   "height": 9,
+   "width": 10
+  },
+  {
+   "name": "POKEMONTOWER_2",
+   "height": 9,
+   "width": 10
+  },
+  {
+   "name": "POKEMONTOWER_3",
+   "height": 9,
+   "width": 10
+  },
+  {
+   "name": "POKEMONTOWER_4",
+   "height": 9,
+   "width": 10
+  },
+  {
+   "name": "POKEMONTOWER_5",
+   "height": 9,
+   "width": 10
+  },
+  {
+   "name": "POKEMONTOWER_6",
+   "height": 9,
+   "width": 10
+  },
+  {
+   "name": "POKEMONTOWER_7",
+   "height": 9,
+   "width": 10
+  },
+  {
+   "name": "LAVENDER_HOUSE_1",
+   "height": 4,
+   "width": 4
+  },
+  {
+   "name": "LAVENDER_MART",
+   "height": 4,
+   "width": 4
+  },
+  {
+   "name": "LAVENDER_HOUSE_2",
+   "height": 4,
+   "width": 4
+  },
+  {
+   "name": "FUCHSIA_MART",
+   "height": 4,
+   "width": 4
+  },
+  {
+   "name": "FUCHSIA_HOUSE_1",
+   "height": 4,
+   "width": 4
+  },
+  {
+   "name": "FUCHSIA_POKECENTER",
+   "height": 4,
+   "width": 7
+  },
+  {
+   "name": "FUCHSIA_HOUSE_2",
+   "height": 4,
+   "width": 5
+  },
+  {
+   "name": "SAFARI_ZONE_ENTRANCE",
+   "height": 3,
+   "width": 4
+  },
+  {
+   "name": "FUCHSIA_GYM",
+   "height": 9,
+   "width": 5
+  },
+  {
+   "name": "FUCHSIA_MEETING_ROOM",
+   "height": 4,
+   "width": 7
+  },
+  {
+   "name": "SEAFOAM_ISLANDS_2",
+   "height": 9,
+   "width": 15
+  },
+  {
+   "name": "SEAFOAM_ISLANDS_3",
+   "height": 9,
+   "width": 15
+  },
+  {
+   "name": "SEAFOAM_ISLANDS_4",
+   "height": 9,
+   "width": 15
+  },
+  {
+   "name": "SEAFOAM_ISLANDS_5",
+   "height": 9,
+   "width": 15
+  },
+  {
+   "name": "VERMILION_HOUSE_2",
+   "height": 4,
+   "width": 4
+  },
+  {
+   "name": "FUCHSIA_HOUSE_3",
+   "height": 4,
+   "width": 4
+  },
+  {
+   "name": "MANSION_1",
+   "height": 14,
+   "width": 15
+  },
+  {
+   "name": "CINNABAR_GYM",
+   "height": 9,
+   "width": 10
+  },
+  {
+   "name": "CINNABAR_LAB_1",
+   "height": 4,
+   "width": 9
+  },
+  {
+   "name": "CINNABAR_LAB_2",
+   "height": 4,
+   "width": 4
+  },
+  {
+   "name": "CINNABAR_LAB_3",
+   "height": 4,
+   "width": 4
+  },
+  {
+   "name": "CINNABAR_LAB_4",
+   "height": 4,
+   "width": 4
+  },
+  {
+   "name": "CINNABAR_POKECENTER",
+   "height": 4,
+   "width": 7
+  },
+  {
+   "name": "CINNABAR_MART",
+   "height": 4,
+   "width": 4
+  },
+  {
+   "name": "CINNABAR_MART_COPY",
+   "height": 4,
+   "width": 4
+  },
+  {
+   "name": "INDIGO_PLATEAU_LOBBY",
+   "height": 6,
+   "width": 8
+  },
+  {
+   "name": "COPYCATS_HOUSE_1F",
+   "height": 4,
+   "width": 4
+  },
+  {
+   "name": "COPYCATS_HOUSE_2F",
+   "height": 4,
+   "width": 4
+  },
+  {
+   "name": "FIGHTING_DOJO",
+   "height": 6,
+   "width": 5
+  },
+  {
+   "name": "SAFFRON_GYM",
+   "height": 9,
+   "width": 10
+  },
+  {
+   "name": "SAFFRON_HOUSE_1",
+   "height": 4,
+   "width": 4
+  },
+  {
+   "name": "SAFFRON_MART",
+   "height": 4,
+   "width": 4
+  },
+  {
+   "name": "SILPH_CO_1F",
+   "height": 9,
+   "width": 15
+  },
+  {
+   "name": "SAFFRON_POKECENTER",
+   "height": 4,
+   "width": 7
+  },
+  {
+   "name": "SAFFRON_HOUSE_2",
+   "height": 4,
+   "width": 4
+  },
+  {
+   "name": "ROUTE_15_GATE_1F",
+   "height": 5,
+   "width": 4
+  },
+  {
+   "name": "ROUTE_15_GATE_2F",
+   "height": 4,
+   "width": 4
+  },
+  {
+   "name": "ROUTE_16_GATE_1F",
+   "height": 7,
+   "width": 4
+  },
+  {
+   "name": "ROUTE_16_GATE_2F",
+   "height": 4,
+   "width": 4
+  },
+  {
+   "name": "ROUTE_16_HOUSE",
+   "height": 4,
+   "width": 4
+  },
+  {
+   "name": "ROUTE_12_HOUSE",
+   "height": 4,
+   "width": 4
+  },
+  {
+   "name": "ROUTE_18_GATE_1F",
+   "height": 5,
+   "width": 4
+  },
+  {
+   "name": "ROUTE_18_GATE_2F",
+   "height": 4,
+   "width": 4
+  },
+  {
+   "name": "SEAFOAM_ISLANDS_1",
+   "height": 9,
+   "width": 15
+  },
+  {
+   "name": "ROUTE_22_GATE",
+   "height": 4,
+   "width": 5
+  },
+  {
+   "name": "VICTORY_ROAD_2",
+   "height": 9,
+   "width": 15
+  },
+  {
+   "name": "ROUTE_12_GATE_2F",
+   "height": 4,
+   "width": 4
+  },
+  {
+   "name": "VERMILION_HOUSE_3",
+   "height": 4,
+   "width": 4
+  },
+  {
+   "name": "DIGLETTS_CAVE",
+   "height": 18,
+   "width": 20
+  },
+  {
+   "name": "VICTORY_ROAD_3",
+   "height": 9,
+   "width": 15
+  },
+  {
+   "name": "ROCKET_HIDEOUT_1",
+   "height": 14,
+   "width": 15
+  },
+  {
+   "name": "ROCKET_HIDEOUT_2",
+   "height": 14,
+   "width": 15
+  },
+  {
+   "name": "ROCKET_HIDEOUT_3",
+   "height": 14,
+   "width": 15
+  },
+  {
+   "name": "ROCKET_HIDEOUT_4",
+   "height": 12,
+   "width": 15
+  },
+  {
+   "name": "ROCKET_HIDEOUT_ELEVATOR",
+   "height": 4,
+   "width": 3
+  },
+  {
+   "name": "UNUSED_MAP_CC",
+   "height": 0,
+   "width": 0
+  },
+  {
+   "name": "UNUSED_MAP_CD",
+   "height": 0,
+   "width": 0
+  },
+  {
+   "name": "UNUSED_MAP_CE",
+   "height": 0,
+   "width": 0
+  },
+  {
+   "name": "SILPH_CO_2F",
+   "height": 9,
+   "width": 15
+  },
+  {
+   "name": "SILPH_CO_3F",
+   "height": 9,
+   "width": 15
+  },
+  {
+   "name": "SILPH_CO_4F",
+   "height": 9,
+   "width": 15
+  },
+  {
+   "name": "SILPH_CO_5F",
+   "height": 9,
+   "width": 15
+  },
+  {
+   "name": "SILPH_CO_6F",
+   "height": 9,
+   "width": 13
+  },
+  {
+   "name": "SILPH_CO_7F",
+   "height": 9,
+   "width": 13
+  },
+  {
+   "name": "SILPH_CO_8F",
+   "height": 9,
+   "width": 13
+  },
+  {
+   "name": "MANSION_2",
+   "height": 14,
+   "width": 15
+  },
+  {
+   "name": "MANSION_3",
+   "height": 9,
+   "width": 15
+  },
+  {
+   "name": "MANSION_4",
+   "height": 14,
+   "width": 15
+  },
+  {
+   "name": "SAFARI_ZONE_EAST",
+   "height": 13,
+   "width": 15
+  },
+  {
+   "name": "SAFARI_ZONE_NORTH",
+   "height": 18,
+   "width": 20
+  },
+  {
+   "name": "SAFARI_ZONE_WEST",
+   "height": 13,
+   "width": 15
+  },
+  {
+   "name": "SAFARI_ZONE_CENTER",
+   "height": 13,
+   "width": 15
+  },
+  {
+   "name": "SAFARI_ZONE_REST_HOUSE_1",
+   "height": 4,
+   "width": 4
+  },
+  {
+   "name": "SAFARI_ZONE_SECRET_HOUSE",
+   "height": 4,
+   "width": 4
+  },
+  {
+   "name": "SAFARI_ZONE_REST_HOUSE_2",
+   "height": 4,
+   "width": 4
+  },
+  {
+   "name": "SAFARI_ZONE_REST_HOUSE_3",
+   "height": 4,
+   "width": 4
+  },
+  {
+   "name": "SAFARI_ZONE_REST_HOUSE_4",
+   "height": 4,
+   "width": 4
+  },
+  {
+   "name": "UNKNOWN_DUNGEON_2",
+   "height": 9,
+   "width": 15
+  },
+  {
+   "name": "UNKNOWN_DUNGEON_3",
+   "height": 9,
+   "width": 15
+  },
+  {
+   "name": "UNKNOWN_DUNGEON_1",
+   "height": 9,
+   "width": 15
+  },
+  {
+   "name": "NAME_RATERS_HOUSE",
+   "height": 4,
+   "width": 4
+  },
+  {
+   "name": "CERULEAN_HOUSE_2",
+   "height": 4,
+   "width": 4
+  },
+  {
+   "name": "UNUSED_MAP_E7",
+   "height": 0,
+   "width": 0
+  },
+  {
+   "name": "ROCK_TUNNEL_2",
+   "height": 18,
+   "width": 20
+  },
+  {
+   "name": "SILPH_CO_9F",
+   "height": 9,
+   "width": 13
+  },
+  {
+   "name": "SILPH_CO_10F",
+   "height": 9,
+   "width": 8
+  },
+  {
+   "name": "SILPH_CO_11F",
+   "height": 9,
+   "width": 9
+  },
+  {
+   "name": "SILPH_CO_ELEVATOR",
+   "height": 2,
+   "width": 2
+  },
+  {
+   "name": "UNUSED_MAP_ED",
+   "height": 0,
+   "width": 0
+  },
+  {
+   "name": "UNUSED_MAP_EE",
+   "height": 0,
+   "width": 0
+  },
+  {
+   "name": "TRADE_CENTER",
+   "height": 4,
+   "width": 5
+  },
+  {
+   "name": "COLOSSEUM",
+   "height": 4,
+   "width": 5
+  },
+  {
+   "name": "UNUSED_MAP_F1",
+   "height": 0,
+   "width": 0
+  },
+  {
+   "name": "UNUSED_MAP_F2",
+   "height": 0,
+   "width": 0
+  },
+  {
+   "name": "UNUSED_MAP_F3",
+   "height": 0,
+   "width": 0
+  },
+  {
+   "name": "UNUSED_MAP_F4",
+   "height": 0,
+   "width": 0
+  },
+  {
+   "name": "LORELEIS_ROOM",
+   "height": 6,
+   "width": 5
+  },
+  {
+   "name": "BRUNOS_ROOM",
+   "height": 6,
+   "width": 5
+  },
+  {
+   "name": "AGATHAS_ROOM",
+   "height": 6,
+   "width": 5
+  }
+ ],
  "hiddenItems": [
   {
    "map": "VIRIDIAN_FOREST",
