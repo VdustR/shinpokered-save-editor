@@ -16121,6 +16121,353 @@
    "EVENT_BEAT_ARTICUNO"
   ]
  ],
+ "eventFlagUsage": {
+  "27": {
+   "files": [
+    "oakslab",
+    "items",
+    "oak_speech",
+    "func_nuzlocke"
+   ],
+   "note": "if set, the player has thrown any balls"
+  },
+  "28": {
+   "files": [
+    "oakslab",
+    "route22"
+   ]
+  },
+  "29": {
+   "files": [
+    "viridiancity",
+    "oak_speech",
+    "func_nuzlocke"
+   ],
+   "note": "nuzlocke: set a flag to indicate there is no access to pokeballs yet"
+  },
+  "270": {
+   "files": [
+    "pokemontower6",
+    "common_text",
+    "core",
+    "draw_hud_pokeball_gfx",
+    "items",
+    "main_menu",
+    "fisher_yates",
+    "func_battle",
+    "func_shiny"
+   ],
+   "note": "ghost marowak"
+  },
+  "297": {
+   "files": [
+    "lavenderhouse1"
+   ],
+   "note": "got the MGENE from showing mewtwo to Fuji?"
+  },
+  "440": {
+   "files": [
+    "celadoncity"
+   ]
+  },
+  "447": {
+   "files": [
+    "celadoncity"
+   ]
+  },
+  "679": {
+   "files": [
+    "cinnabargym"
+   ]
+  },
+  "739": {
+   "files": [
+    "lab4"
+   ],
+   "note": "gave gene sample to lab"
+  },
+  "740": {
+   "files": [
+    "cinnabarisland",
+    "lab4"
+   ],
+   "note": "for pokemon cloning"
+  },
+  "1655": {
+   "files": [
+    "rockethideout1"
+   ],
+   "note": "CheckEventHL EVENT_677\t;joenote - this is a bug."
+  },
+  "1663": {
+   "files": [
+    "celadoncity"
+   ]
+  },
+  "2240": {
+   "files": [
+    "route25",
+    "unknowndungeon3",
+    "func_enc_gen"
+   ],
+   "note": "has mew been encountered before?"
+  },
+  "2242": {
+   "files": [
+    "route25",
+    "unknowndungeon3",
+    "func_enc_gen"
+   ],
+   "note": "deactivate mew notification"
+  },
+  "2243": {
+   "files": [
+    "billshouse",
+    "diglettscave",
+    "route25"
+   ],
+   "note": "make it so you can get the mist_stone"
+  },
+  "2244": {
+   "files": [
+    "diglettscave",
+    "route25"
+   ]
+  },
+  "2245": {
+   "files": [
+    "colosseum",
+    "viridianhouse",
+    "func_battle",
+    "func_linkbattlecomms",
+    "func_overworld"
+   ]
+  },
+  "2246": {
+   "files": [
+    "route20",
+    "diploma"
+   ]
+  },
+  "2247": {
+   "files": [
+    "blueshouse",
+    "fightingdojo",
+    "func_overworld",
+    "func_transformations"
+   ],
+   "note": "event flag for this feature to run"
+  },
+  "2248": {
+   "files": [
+    "colosseum",
+    "viridianhouse",
+    "func_battle",
+    "func_linkbattlecomms",
+    "func_overworld"
+   ]
+  },
+  "2249": {
+   "files": [
+    "school",
+    "add_mon",
+    "read_trainer_party",
+    "func_overworld"
+   ]
+  },
+  "2263": {
+   "files": [
+    "oakslab",
+    "fisher_yates",
+    "func_overworld"
+   ]
+  },
+  "2264": {
+   "files": [
+    "viridianpokecenter",
+    "func_enc_gen",
+    "func_overworld"
+   ]
+  },
+  "2265": {
+   "files": [
+    "celadondiner",
+    "experience",
+    "func_overworld"
+   ]
+  },
+  "2266": {
+   "files": [
+    "route20",
+    "viridiancity",
+    "main_menu",
+    "func_overworld"
+   ],
+   "note": "check if old man has been talked to to activate the shore"
+  },
+  "2267": {
+   "files": [
+    "viridianhouse",
+    "trainer_ai",
+    "items",
+    "func_overworld"
+   ]
+  },
+  "2268": {
+   "files": [
+    "colosseum",
+    "viridianhouse",
+    "func_battle",
+    "func_linkbattlecomms",
+    "func_overworld"
+   ]
+  },
+  "2269": {
+   "files": [
+    "colosseum",
+    "viridianhouse",
+    "func_battle",
+    "func_linkbattlecomms",
+    "func_overworld"
+   ]
+  },
+  "2270": {
+   "files": [
+    "oakslab",
+    "super_rod",
+    "fisher_yates",
+    "func_overworld"
+   ]
+  },
+  "2271": {
+   "files": [
+    "undergroundpathns",
+    "read_trainer_party",
+    "func_overworld"
+   ]
+  },
+  "2312": {
+   "files": [
+    "celadoncity",
+    "celadonhouse",
+    "celadonmart3",
+    "halloffameroom",
+    "indigoplateaulobby",
+    "lavenderhouse1",
+    "oakslab",
+    "safarizoneentrance",
+    "silphco11",
+    "ssanne5",
+    "ssanne6",
+    "ssanne7",
+    "undergroundpathns",
+    "undergroundpathwe",
+    "vermilioncity",
+    "vermiliondock",
+    "items",
+    "main_menu",
+    "oak_speech",
+    "poison",
+    "func_battle"
+   ],
+   "note": "has e4 been beaten?"
+  },
+  "2313": {
+   "files": [
+    "func_overworld"
+   ]
+  },
+  "2314": {
+   "files": [
+    "undergroundpathwe",
+    "read_trainer_party",
+    "main_menu",
+    "func_overworld"
+   ],
+   "note": "random trainer flag"
+  },
+  "2315": {
+   "files": [
+    "celadonmansion3",
+    "unknowndungeon3",
+    "viridiancity",
+    "printer_pc_menu",
+    "func_enc_gen"
+   ],
+   "note": "set event that diploma has been attained"
+  },
+  "2316": {
+   "files": [
+    "oakslab",
+    "func_battle",
+    "func_enc_gen",
+    "func_extra_menu",
+    "func_overworld"
+   ]
+  },
+  "2317": {
+   "files": [
+    "ssanne6",
+    "read_trainer_party",
+    "main_menu"
+   ],
+   "note": "used for the 3-pkmn tournament"
+  },
+  "2318": {
+   "files": [
+    "oakslab",
+    "draw_hud_pokeball_gfx",
+    "status_screen",
+    "func_overworld"
+   ]
+  },
+  "2319": {
+   "files": [
+    "safarizoneentrance",
+    "func_battle",
+    "func_enc_gen",
+    "func_overworld"
+   ],
+   "note": "turn on special safari event"
+  },
+  "2320": {
+   "files": [
+    "draw_hud_pokeball_gfx",
+    "func_overworld"
+   ]
+  },
+  "2432": {
+   "files": [
+    "func_nuzlocke"
+   ],
+   "note": "load byte offset of first nuzlocke map flag"
+  },
+  "2478": {
+   "files": [
+    "func_nuzlocke"
+   ],
+   "note": "clear the flag that prevent using pokeballs"
+  },
+  "2479": {
+   "files": [
+    "func_nuzlocke"
+   ],
+   "note": "clear the map-flag-handled event for this battle"
+  },
+  "2558": {
+   "files": [
+    "save",
+    "func_overworld"
+   ]
+  },
+  "2559": {
+   "files": [
+    "save",
+    "func_overworld"
+   ],
+   "note": "set a flag to quickly indicate a save exists on file"
+  }
+ },
  "hiddenItems": [
   {
    "map": "VIRIDIAN_FOREST",

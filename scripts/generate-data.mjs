@@ -11,7 +11,7 @@
  * Without SHINPOKERED_DIR the script clones the pinned tag into .cache/.
  */
 import { execFileSync } from "node:child_process";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -345,6 +345,45 @@ for (const [name, value] of eventConsts) {
 eventFlags.sort((a, b) => a[0] - b[0]);
 if (eventFlags.length < 400) throw new Error(`Suspiciously few named event flags: ${eventFlags.length}`);
 
+// --- Usage cross-reference for placeholder event flags ------------------------------------
+// Most EVENT_XXX placeholder bits are never touched by game code (dead
+// storage), but some are used without ever being renamed (e.g. EVENT_908 is
+// "has elite 4 been beaten?"). Scanning the code for placeholder tokens lets
+// the UI show verified semantics: which files use a bit, plus the first
+// inline comment found next to a usage.
+function collectAsmFiles(dir, out = []) {
+  for (const entry of readdirSync(path.join(srcDir, dir))) {
+    const rel = `${dir}/${entry}`;
+    const stats = statSync(path.join(srcDir, rel));
+    if (stats.isDirectory()) collectAsmFiles(rel, out);
+    else if (entry.endsWith(".asm")) out.push(rel);
+  }
+  return out;
+}
+
+const eventFlagUsage = {};
+{
+  const codeFiles = ["scripts", "engine", "data", "custom_functions"].flatMap((dir) =>
+    collectAsmFiles(dir),
+  );
+  for (const file of codeFiles) {
+    const base = path.basename(file, ".asm");
+    for (const rawLine of read(file).split("\n")) {
+      const tokens = rawLine.match(/EVENT_[0-9A-F]{3}\b/g);
+      if (!tokens) continue;
+      const comment = rawLine.includes(";") ? rawLine.slice(rawLine.indexOf(";") + 1).trim() : "";
+      for (const token of tokens) {
+        const index = parseInt(token.slice(6), 16);
+        const entry = (eventFlagUsage[index] ??= { files: [] });
+        if (!entry.files.includes(base)) entry.files.push(base);
+        if (!entry.note && comment && !/^joenote\s*-?\s*$/i.test(comment)) {
+          entry.note = comment.replace(/^joenote\s*-\s*/i, "").slice(0, 80);
+        }
+      }
+    }
+  }
+}
+
 // --- Hidden items / coins (data/hidden_item_coords.asm + hidden_objects.asm) -------------
 // The pickup code finds the row index of (map,y,x) in HiddenItemCoords /
 // HiddenCoinCoords and uses it as the bit index into
@@ -488,6 +527,7 @@ writeFileSync(
       itemSortOrder,
       genderList,
       eventFlags,
+      eventFlagUsage,
       hiddenItems,
       hiddenCoins,
       charmap,

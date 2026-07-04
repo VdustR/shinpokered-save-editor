@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { EVENT_FLAGS, EVENT_FLAGS_OFFSET, eventFlagLabel, getEventFlag, setEventFlag } from "./events";
+import {
+  EVENT_FLAGS,
+  EVENT_FLAGS_OFFSET,
+  UNNAMED_EVENT_FLAGS,
+  eventFlagLabel,
+  getEventFlag,
+  setEventFlag,
+} from "./events";
 import { SAVE_SIZE } from "./layout";
 
 describe("event flags", () => {
@@ -31,6 +38,20 @@ describe("event flags", () => {
     expect(EVENT_FLAGS.length).toBeGreaterThan(400);
     const townMap = EVENT_FLAGS.find((f) => f.name === "EVENT_GOT_TOWN_MAP");
     expect(townMap?.index).toBe(24);
+  });
+
+  it("derives semantics for used-but-unnamed bits and marks the rest unused", () => {
+    // EVENT_908 is referenced all over the code with the comment "has e4 been beaten?".
+    const used = UNNAMED_EVENT_FLAGS.find((f) => f.index === 0x908);
+    expect(used?.label).toContain("$908");
+    expect(used?.label).toContain("has e4 been beaten?");
+    expect(used?.usedIn?.length).toBeGreaterThan(3);
+    // A dead bit carries the verified-unused marker.
+    const dead = UNNAMED_EVENT_FLAGS.find((f) => f.index === 0x004);
+    expect(dead?.label).toBe("Unnamed $004 (unused)");
+    expect(dead?.usedIn).toBeUndefined();
+    // Full coverage of the 320-byte array alongside the named flags.
+    expect(UNNAMED_EVENT_FLAGS.length + EVENT_FLAGS.length).toBe(2560);
   });
 
   it("prettifies constant names into readable sentence-case labels", () => {
