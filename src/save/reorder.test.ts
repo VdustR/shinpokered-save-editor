@@ -107,4 +107,25 @@ describe("reorderBoxMon", () => {
     // Current box is mirrored to storage.
     expect(bytes[storedBoxOffset(0) + 1]).toBe(0x54);
   });
+
+  it("overwrites a stale stored mirror with the reordered cache (current box)", () => {
+    const bytes = emptySave(); // current box = 0
+    writeBoxMon(bytes, 0, 0, mon(0x99, 5), { nickname: "AAA", otName: "RED" });
+    writeBoxMon(bytes, 0, 1, mon(0x54, 10), { nickname: "BBB", otName: "RED" });
+    // Simulate a stale stored slot, as after an in-game save that only wrote
+    // the cache: wipe the stored copy entirely.
+    bytes.fill(0, storedBoxOffset(0), storedBoxOffset(0) + 100);
+    bytes[storedBoxOffset(0) + 1] = 0xff;
+
+    reorderBoxMon(bytes, 0, 1, 0);
+
+    // The stored slot must equal the reordered cache, not a reorder of the
+    // stale data.
+    const stored = storedBoxOffset(0);
+    expect(bytes[stored]).toBe(2); // count
+    expect(bytes[stored + 1]).toBe(0x54);
+    expect(bytes[stored + 2]).toBe(0x99);
+    const cache = bytes.slice(OFFSETS.currentBox, OFFSETS.currentBox + 100);
+    expect(Array.from(bytes.slice(stored, stored + 100))).toEqual(Array.from(cache));
+  });
 });

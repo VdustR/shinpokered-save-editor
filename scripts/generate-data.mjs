@@ -296,9 +296,10 @@ const itemSortOrder = [];
       continue;
     }
     if (!inList) continue;
-    const db = line.match(/^db\s+([A-Za-z0-9_]+)$/);
+    // Entries are a bare item constant or an offset expression, e.g. `TM_01 + 3`.
+    const db = line.match(/^db\s+([A-Za-z0-9_]+)(?:\s*\+\s*(\d+))?$/);
     if (db) {
-      itemSortOrder.push(resolveToken(db[1], itemConsts));
+      itemSortOrder.push(resolveToken(db[1], itemConsts) + (db[2] ? Number(db[2]) : 0));
       continue;
     }
     if (/^[A-Za-z_][A-Za-z0-9_]*:+/.test(line)) break; // next label ends the list
