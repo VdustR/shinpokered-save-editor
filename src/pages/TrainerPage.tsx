@@ -1,4 +1,4 @@
-import { speciesByInternalId } from "../save/gamedata";
+import { speciesName } from "../save/gamedata";
 import { OFFSETS } from "../save/layout";
 import {
   BADGE_NAMES,
@@ -325,7 +325,7 @@ function StarterSelect({
       )}
       {STARTERS.map((id) => (
         <option key={id} value={id}>
-          {speciesByInternalId(id)?.name ?? id}
+          {speciesName(id)}
         </option>
       ))}
     </Select>
