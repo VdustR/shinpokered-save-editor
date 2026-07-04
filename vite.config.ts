@@ -4,6 +4,9 @@ import { VitePWA } from "vite-plugin-pwa";
 
 // https://vite.dev/config/
 export default defineConfig({
+  // Served from the domain root locally; GitHub Pages sets VITE_BASE to the
+  // project subpath (e.g. "/shinpokered-save-editor/") so assets resolve.
+  base: process.env.VITE_BASE || "/",
   plugins: [
     react(),
     VitePWA({
