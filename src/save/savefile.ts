@@ -104,6 +104,33 @@ export function setRivalName(bytes: Uint8Array, name: string): void {
   bytes.set(encodeText(name, NAME_LENGTH), OFFSETS.rivalName);
 }
 
+/**
+ * The rival's full teams live in ROM trainer-party data, but which of the
+ * three team variants he brings to every battle is selected from the starter
+ * he took, stored in the save (wRivalStarter d715; see scripts/gary.asm).
+ * wPlayerStarter (d717) records the player's pick and drives some dialogue.
+ * Values are species internal ids; anything other than the three starters
+ * falls through to the first team variant in the game's selection code.
+ */
+export const RIVAL_STARTER_OFFSET = 0x25a3 + (0xd715 - 0xd2f7); // 0x29c1
+export const PLAYER_STARTER_OFFSET = 0x25a3 + (0xd717 - 0xd2f7); // 0x29c3
+
+export function getRivalStarter(bytes: Uint8Array): number {
+  return bytes[RIVAL_STARTER_OFFSET];
+}
+
+export function setRivalStarter(bytes: Uint8Array, species: number): void {
+  bytes[RIVAL_STARTER_OFFSET] = species & 0xff;
+}
+
+export function getPlayerStarter(bytes: Uint8Array): number {
+  return bytes[PLAYER_STARTER_OFFSET];
+}
+
+export function setPlayerStarter(bytes: Uint8Array, species: number): void {
+  bytes[PLAYER_STARTER_OFFSET] = species & 0xff;
+}
+
 export const MAX_MONEY = 999_999;
 export const MAX_COINS = 9_999;
 

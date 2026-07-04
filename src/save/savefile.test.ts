@@ -3,6 +3,8 @@ import { repairChecksums } from "./checksum";
 import { NAME_LENGTH, OFFSETS, SAVE_SIZE, storedBoxOffset } from "./layout";
 import { writeMon, type MonRecord } from "./pokemon";
 import {
+  PLAYER_STARTER_OFFSET,
+  RIVAL_STARTER_OFFSET,
   exportSave,
   exportSaveWithReport,
   getBadges,
@@ -15,7 +17,9 @@ import {
   getPlayTime,
   getPlayerId,
   getPlayerName,
+  getPlayerStarter,
   getRivalName,
+  getRivalStarter,
   isDexOwned,
   isDexSeen,
   parseSave,
@@ -31,7 +35,9 @@ import {
   setPlayTime,
   setPlayerId,
   setPlayerName,
+  setPlayerStarter,
   setRivalName,
+  setRivalStarter,
   writeBoxMon,
 } from "./savefile";
 import { encodeText } from "./text";
@@ -125,6 +131,22 @@ describe("parseSave", () => {
     const parsed = parseSave(bytes);
     expect(parsed.checksumMismatches.map((g) => g.id)).toEqual(["main"]);
     expect(parsed.bytes[0x2600]).toBe(bytes[0x2600]); // untouched
+  });
+});
+
+describe("starters (wRivalStarter / wPlayerStarter)", () => {
+  it("maps to file offsets 0x29c1 / 0x29c3 and round-trips values", () => {
+    // d715/d717 relative to wPokedexOwned d2f7 at 0x25a3.
+    expect(RIVAL_STARTER_OFFSET).toBe(0x29c1);
+    expect(PLAYER_STARTER_OFFSET).toBe(0x29c3);
+
+    const bytes = buildTestSave();
+    setRivalStarter(bytes, 0xb1); // SQUIRTLE internal id
+    setPlayerStarter(bytes, 0x99); // BULBASAUR internal id
+    expect(getRivalStarter(bytes)).toBe(0xb1);
+    expect(getPlayerStarter(bytes)).toBe(0x99);
+    expect(bytes[0x29c1]).toBe(0xb1);
+    expect(bytes[0x29c3]).toBe(0x99);
   });
 });
 

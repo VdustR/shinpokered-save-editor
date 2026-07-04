@@ -337,6 +337,16 @@ test("inventory auto-sort orders items by the game's built-in order", async ({ p
   await expect(bag.locator(".item-row .picker-trigger__label").first()).toHaveText("POKé BALL");
 });
 
+test("changing the rival's starter persists into the exported save", async ({ page }) => {
+  await loadFixture(page);
+  await page.locator(".sidenav__item", { hasText: "Trainer" }).click();
+  await page.getByLabel("Rival's starter").selectOption({ label: "SQUIRTLE" });
+  const bytes = await exportBytes(page);
+  // wRivalStarter -> 0x29c1; SQUIRTLE internal id 0xb1.
+  expect(bytes[0x29c1]).toBe(0xb1);
+  expect(bytes[MAIN_CKSUM]).toBe(gen1MainChecksum(bytes));
+});
+
 test("Shin feature toggles persist into the exported save", async ({ page }) => {
   await loadFixture(page);
   await page.locator(".sidenav__item", { hasText: "Trainer" }).click();
