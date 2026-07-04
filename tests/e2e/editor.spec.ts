@@ -337,6 +337,39 @@ test("inventory auto-sort orders items by the game's built-in order", async ({ p
   await expect(bag.locator(".item-row .picker-trigger__label").first()).toHaveText("POKé BALL");
 });
 
+test("party nickname/OT export to the game's name regions without touching records", async ({ page }) => {
+  await loadFixture(page);
+  await page.locator(".sidenav__item", { hasText: "Party" }).click();
+  // Two mons so we can prove slot 0's names don't bleed into slot 1's record.
+  await page.getByRole("button", { name: "Add Pokémon" }).first().click();
+  await page.getByRole("button", { name: "Add Pokémon" }).first().click();
+  await page.locator(".slot__btn").first().click();
+  const nick = page.locator(".field", { hasText: "Nickname" }).locator("input");
+  await nick.fill("LEAFY");
+  await nick.blur();
+
+  const bytes = await exportBytes(page);
+  const PARTY_MONS = 0x2f34;
+  const OTS = 0x303c; // d273: after all six 44-byte records
+  const NICKS = 0x307e; // d2b5
+  // "LEAFY" in Gen 1 text: L=0x8b E=0x84 A=0x80 F=0x85 Y=0x98 then 0x50.
+  expect(Array.from(bytes.slice(NICKS, NICKS + 6))).toEqual([0x8b, 0x84, 0x80, 0x85, 0x98, 0x50]);
+  expect(bytes[OTS]).not.toBe(0); // OT written in the real region
+  // Slot 1's record must still hold its own species/level, not name bytes.
+  expect(bytes[PARTY_MONS + 44]).toBe(0x99); // Bulbasaur internal id
+  expect(bytes[PARTY_MONS + 44 + 0x21]).toBe(5); // its level, not a letter
+
+  // Reload the exported file: the nickname survives the round trip.
+  await page.getByRole("button", { name: "Close" }).click();
+  await page.setInputFiles('[data-testid="file-input"]', {
+    name: "roundtrip.sav",
+    mimeType: "application/octet-stream",
+    buffer: Buffer.from(bytes),
+  });
+  await page.locator(".sidenav__item", { hasText: "Party" }).click();
+  await expect(page.locator(".slot__name").first()).toHaveText("LEAFY");
+});
+
 test("changing the rival's starter persists into the exported save", async ({ page }) => {
   await loadFixture(page);
   await page.locator(".sidenav__item", { hasText: "Trainer" }).click();
