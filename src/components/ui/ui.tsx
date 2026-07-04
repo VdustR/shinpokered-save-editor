@@ -138,6 +138,36 @@ export function NumberInput({
   );
 }
 
+/** A select-styled button that opens a modal picker; shows the current label. */
+export function PickerTrigger({
+  label,
+  empty,
+  onOpen,
+  ariaLabel,
+}: {
+  label: string;
+  empty?: boolean;
+  onOpen: () => void;
+  ariaLabel?: string;
+}) {
+  return (
+    <button
+      type="button"
+      className="picker-trigger"
+      onClick={onOpen}
+      // Keep the visible label inside the accessible name (WCAG 2.5.3): the
+      // extra context (e.g. "Move 1") is prefixed, not a replacement.
+      aria-label={ariaLabel ? `${ariaLabel}: ${label}` : undefined}
+      aria-haspopup="dialog"
+    >
+      <span className={`picker-trigger__label ${empty ? "picker-trigger__label--empty" : ""}`}>{label}</span>
+      <svg viewBox="0 0 12 12" width="12" height="12" fill="none" aria-hidden className="picker-trigger__caret">
+        <path d="M2.5 4.5 6 8l3.5-3.5" stroke="currentColor" strokeWidth="1.4" />
+      </svg>
+    </button>
+  );
+}
+
 /** A number field with an inline "Max" button that sets it to `max`. */
 export function NumberWithMax({
   value,

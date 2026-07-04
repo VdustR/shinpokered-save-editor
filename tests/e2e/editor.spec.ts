@@ -139,6 +139,50 @@ test("encyclopedia fuzzy-searches moves and filters by type", async ({ page }) =
   }
 });
 
+test("move picker searches, filters by type, and assigns the chosen move", async ({ page }) => {
+  await loadFixture(page);
+  await page.locator(".sidenav__item", { hasText: "Party" }).click();
+  await page.getByRole("button", { name: "Add Pokémon" }).first().click();
+  await page.getByRole("button", { name: "Moves" }).click();
+
+  await page.locator(".move-row .picker-trigger").first().click();
+  const dialog = page.locator("dialog.picker");
+  await expect(dialog).toBeVisible();
+
+  // Fuzzy search.
+  await dialog.getByLabel("Search").fill("thunderbolt");
+  await expect(page.locator(".picker__row .picker__name").first()).toHaveText("THUNDERBOLT");
+
+  // Type filter narrows to electric moves only.
+  await dialog.getByLabel("Search").fill("");
+  await page.getByLabel("Filter by type").selectOption({ label: "ELECTRIC" });
+  await page.locator(".picker__row").filter({ hasText: "THUNDERBOLT" }).click();
+
+  await expect(dialog).toBeHidden();
+  await expect(page.locator(".move-row .picker-trigger__label").first()).toHaveText("THUNDERBOLT");
+
+  // The picker can also clear a slot back to empty (regression guard).
+  await page.locator(".move-row .picker-trigger").first().click();
+  await expect(dialog).toBeVisible();
+  await dialog.locator(".picker__row").filter({ hasText: "No move" }).click();
+  await expect(dialog).toBeHidden();
+  await expect(page.locator(".move-row .picker-trigger__label").first()).toHaveText("Empty slot");
+});
+
+test("item picker searches and assigns the chosen item", async ({ page }) => {
+  await loadFixture(page);
+  await page.locator(".sidenav__item", { hasText: "Inventory" }).click();
+  // Add a bag item so there is a row regardless of the fixture's contents.
+  await page.getByRole("button", { name: "Add item" }).first().click();
+  await page.locator(".item-row .picker-trigger").first().click();
+  const dialog = page.locator("dialog.picker[open]");
+  await expect(dialog).toBeVisible();
+  await dialog.getByLabel("Search").fill("max potion");
+  await dialog.locator(".picker__row").filter({ hasText: "MAX POTION" }).first().click();
+  await expect(dialog).toBeHidden();
+  await expect(page.locator(".item-row .picker-trigger__label").first()).toHaveText("MAX POTION");
+});
+
 test("Expert hex view highlights an edit and can jump from a field", async ({ page }) => {
   await loadFixture(page);
   await page.locator(".sidenav__item", { hasText: "Trainer" }).click();

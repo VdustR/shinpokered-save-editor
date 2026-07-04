@@ -1,4 +1,5 @@
-import { ITEMS } from "../save/gamedata";
+import { useState } from "react";
+import { ITEMS, itemName } from "../save/gamedata";
 import { BAG_CAPACITY, OFFSETS, PC_ITEM_CAPACITY } from "../save/layout";
 import {
   getBagItems,
@@ -9,8 +10,9 @@ import {
 } from "../save/savefile";
 import { useNav } from "../state/nav";
 import { useSaveStore } from "../state/store";
-import { Button, NumberInput, OffsetChip, Panel, Select } from "../components/ui/ui";
+import { Button, NumberInput, OffsetChip, Panel, PickerTrigger } from "../components/ui/ui";
 import { EmptyLine } from "../components/EmptyLine";
+import { ItemPicker } from "../components/ItemPicker";
 import { PageHeader } from "../components/PageHeader";
 
 const DEFAULT_ITEM = ITEMS[0]?.id ?? 1;
@@ -29,6 +31,7 @@ function ItemList({
   onChange: (items: ItemStack[]) => void;
 }) {
   const jump = useNav((s) => s.jumpToHex);
+  const [openRow, setOpenRow] = useState<number | null>(null);
 
   function update(index: number, patch: Partial<ItemStack>) {
     onChange(items.map((it, i) => (i === index ? { ...it, ...patch } : it)));
@@ -60,13 +63,7 @@ function ItemList({
         <div className="item-list">
           {items.map((item, i) => (
             <div className="item-row" key={i}>
-              <Select value={item.id} onChange={(e) => update(i, { id: Number(e.target.value) })} aria-label="Item">
-                {ITEMS.map((opt) => (
-                  <option key={opt.id} value={opt.id}>
-                    {opt.name}
-                  </option>
-                ))}
-              </Select>
+              <PickerTrigger label={itemName(item.id)} ariaLabel="Item" onOpen={() => setOpenRow(i)} />
               <NumberInput
                 className="item-row__count"
                 value={item.count}
@@ -83,6 +80,14 @@ function ItemList({
           <Button variant="default" size="sm" onClick={add} disabled={items.length >= capacity}>
             Add item
           </Button>
+          <ItemPicker
+            open={openRow !== null}
+            selectedId={openRow !== null ? items[openRow]?.id ?? 0 : 0}
+            onClose={() => setOpenRow(null)}
+            onSelect={(id) => {
+              if (openRow !== null) update(openRow, { id });
+            }}
+          />
         </div>
       )}
     </Panel>

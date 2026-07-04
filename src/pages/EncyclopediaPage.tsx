@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { formatMoveEffect } from "../save/describe";
 import { TYPE_NAMES, typeName } from "../save/gamedata";
 import {
   searchItems,
@@ -133,7 +134,7 @@ function MoveSearch({ query, setQuery }: { query: string; setQuery: (v: string) 
                 <td className="num mono">{m.power || "—"}</td>
                 <td className="num mono">{m.accuracy || "—"}</td>
                 <td className="num mono">{m.pp}</td>
-                <td className="enc-effect">{formatEffect(m.effect)}</td>
+                <td className="enc-effect">{formatMoveEffect(m.effect)}</td>
               </tr>
             ))}
           </tbody>
@@ -189,18 +190,6 @@ function ItemSearch({ query, setQuery }: { query: string; setQuery: (v: string) 
       </div>
     </>
   );
-}
-
-/** Turn an ASM effect constant like PARALYZE_SIDE_EFFECT1 into readable text. */
-function formatEffect(effect: string): string {
-  if (effect === "NO_ADDITIONAL_EFFECT") return "—";
-  return effect
-    .toLowerCase()
-    .replace(/_/g, " ")
-    .replace(/\beffect\b\d*/g, "")
-    .replace(/\s+/g, " ")
-    .trim()
-    .replace(/^\w/, (c) => c.toUpperCase());
 }
 
 function SearchIcon() {
