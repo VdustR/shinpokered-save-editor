@@ -1,21 +1,21 @@
+import { useState } from "react";
 import { recalcDerivedFields } from "../save/derive";
 import {
   DEX_SPECIES,
-  MOVES,
   baseStatsOf,
   moveInfo,
+  moveName,
   speciesByInternalId,
   typeName,
 } from "../save/gamedata";
 import { makePpByte, maxPp, ppCurrent, ppUps, type Dvs, type MonRecord } from "../save/pokemon";
 import type { MonNames } from "../save/savefile";
-import { Button, Field, NumberInput, Segmented, Select, TextInput } from "./ui/ui";
+import { Button, Field, NumberInput, PickerTrigger, Segmented, Select, TextInput } from "./ui/ui";
+import { MovePicker } from "./MovePicker";
 import { Sprite } from "./Sprite";
 import { StatBars } from "./StatBars";
 
 type Tab = "summary" | "moves" | "dvs";
-
-const MOVE_OPTIONS = [{ id: 0, name: "—" }, ...MOVES];
 
 export function MonEditor({
   mon,
@@ -33,6 +33,7 @@ export function MonEditor({
   const species = speciesByInternalId(mon.species);
   const base = baseStatsOf(mon.species);
   const dexNo = species?.dexNo ?? 0;
+  const [openMoveSlot, setOpenMoveSlot] = useState<number | null>(null);
   // A non-nicknamed Gen 1 mon stores its species name; treat that (and an
   // empty field) as "not custom" so the input shows a placeholder rather than
   // a pre-filled value. The commit path writes the species name when blank.
@@ -166,25 +167,12 @@ export function MonEditor({
             const max = info ? maxPp(info.pp, ups) : 0;
             return (
               <div className="move-row" key={i}>
-                <Select
-                  value={mon.moves[i]}
-                  onChange={(e) => {
-                    const id = Number(e.target.value);
-                    patch((d) => {
-                      d.moves[i] = id;
-                      // Reset to full PP with no PP Ups for the newly chosen move;
-                      // an unknown id becomes an empty slot (PP 0).
-                      const chosen = id ? moveInfo(id) : undefined;
-                      d.pp[i] = chosen ? makePpByte(chosen.pp, 0) : 0;
-                    }, false);
-                  }}
-                >
-                  {MOVE_OPTIONS.map((m) => (
-                    <option key={m.id} value={m.id}>
-                      {m.name}
-                    </option>
-                  ))}
-                </Select>
+                <PickerTrigger
+                  label={mon.moves[i] ? moveName(mon.moves[i]) : "Empty slot"}
+                  empty={!mon.moves[i]}
+                  ariaLabel={`Move ${i + 1}`}
+                  onOpen={() => setOpenMoveSlot(i)}
+                />
                 <div className="move-row__meta mono">
                   {info ? (
                     <>
@@ -237,6 +225,21 @@ export function MonEditor({
               </div>
             );
           })}
+          <MovePicker
+            open={openMoveSlot !== null}
+            selectedId={openMoveSlot !== null ? mon.moves[openMoveSlot] : 0}
+            monTypes={base ? [base.types[0], base.types[1]] : undefined}
+            onClose={() => setOpenMoveSlot(null)}
+            onSelect={(id) => {
+              const slot = openMoveSlot;
+              if (slot === null) return;
+              patch((d) => {
+                d.moves[slot] = id;
+                const chosen = id ? moveInfo(id) : undefined;
+                d.pp[slot] = chosen ? makePpByte(chosen.pp, 0) : 0;
+              }, false);
+            }}
+          />
         </div>
       )}
 
