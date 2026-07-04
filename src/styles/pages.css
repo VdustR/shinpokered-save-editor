@@ -776,3 +776,8 @@
   content-visibility: auto;
   contain-intrinsic-size: auto 37px;
 }
+
+/* --- Day care ---------------------------------------------------------------- */
+.daycare-panel {
+  margin-top: var(--space-6);
+}

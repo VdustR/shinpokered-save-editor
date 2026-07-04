@@ -420,6 +420,26 @@ test("gender symbol derives from the attack DV and Make shiny sets shiny DVs", a
   await expect(page.getByLabel("SPC DV")).toHaveValue("10");
 });
 
+test("day care boards a mon that persists into the exported save", async ({ page }) => {
+  await loadFixture(page);
+  await page.locator(".sidenav__item", { hasText: "Party" }).click();
+  await page.getByRole("button", { name: "Board a Pokémon" }).click();
+  // Editable via the shared mon editor inside the panel.
+  const panel = page.locator(".daycare-panel");
+  await expect(panel.locator(".picker-trigger__label").first()).toContainText("BULBASAUR");
+
+  const bytes = await exportBytes(page);
+  expect(bytes[0x2cf4]).toBe(1); // wDayCareInUse
+  expect(bytes[0x2d0b]).toBe(0x99); // boarded species: Bulbasaur
+  expect(bytes[MAIN_CKSUM]).toBe(gen1MainChecksum(bytes));
+
+  // Emptying clears the record.
+  await page.getByRole("button", { name: "Empty day care" }).click();
+  const cleared = await exportBytes(page);
+  expect(cleared[0x2cf4]).toBe(0);
+  expect(cleared[0x2d0b]).toBe(0);
+});
+
 test("visited-town toggles unlock fly bits in the exported save", async ({ page }) => {
   await loadFixture(page);
   await page.locator(".sidenav__item", { hasText: "Story Flags" }).click();

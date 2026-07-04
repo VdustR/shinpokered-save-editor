@@ -547,6 +547,21 @@ export interface DayCare {
   mon?: MonSlot;
 }
 
+/** Board a mon at the day care: sets the in-use byte, box record, and names. */
+export function setDayCareMon(bytes: Uint8Array, mon: MonRecord, names: MonNames): void {
+  bytes[OFFSETS.dayCareInUse] = 1;
+  writeMon(bytes, OFFSETS.dayCareMon, mon, false);
+  bytes.set(encodeText(names.nickname, NAME_LENGTH), OFFSETS.dayCareMonName);
+  bytes.set(encodeText(names.otName, NAME_LENGTH), OFFSETS.dayCareMonOt);
+}
+
+/** Empty the day care: clear the in-use byte and wipe the record and names. */
+export function clearDayCare(bytes: Uint8Array): void {
+  bytes[OFFSETS.dayCareInUse] = 0;
+  bytes.fill(0, OFFSETS.dayCareMonName, OFFSETS.dayCareMonName + NAME_LENGTH * 2); // name + OT
+  bytes.fill(0, OFFSETS.dayCareMon, OFFSETS.dayCareMon + BOX_MON_SIZE);
+}
+
 export function getDayCare(bytes: Uint8Array): DayCare {
   const inUse = bytes[OFFSETS.dayCareInUse] !== 0;
   if (!inUse) return { inUse };
