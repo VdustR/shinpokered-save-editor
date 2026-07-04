@@ -14,6 +14,7 @@ import {
 } from "./checksum";
 import {
   BAG_CAPACITY,
+  BOX_DATA_SIZE,
   BOX_MON_SIZE,
   MONS_PER_BOX,
   NAME_LENGTH,
@@ -26,6 +27,7 @@ import {
   storedBoxOffset,
 } from "./layout";
 import { readMon, writeMon, type MonRecord } from "./pokemon";
+import { moveInArray } from "./reorder";
 import { decodeName, encodeText } from "./text";
 
 // --- Parse / export -----------------------------------------------------------
@@ -340,6 +342,27 @@ export function removePartyMon(bytes: Uint8Array, slot: number): void {
   bytes[OFFSETS.partySpecies + newCount] = 0xff;
 }
 
+/** Move a party member from one slot to another, keeping records/species/names aligned. */
+export function reorderParty(bytes: Uint8Array, from: number, to: number): void {
+  const count = Math.min(bytes[OFFSETS.partyCount], PARTY_LENGTH);
+  if (from < 0 || from >= count || to < 0 || to >= count || from === to) return;
+
+  const order = moveInArray(
+    Array.from({ length: count }, (_, i) => i),
+    from,
+    to,
+  );
+  const mons = order.map((i) => bytes.slice(OFFSETS.partyMons + i * PARTY_MON_SIZE, OFFSETS.partyMons + (i + 1) * PARTY_MON_SIZE));
+  const ots = order.map((i) => bytes.slice(OFFSETS.partyMonOts + i * NAME_LENGTH, OFFSETS.partyMonOts + (i + 1) * NAME_LENGTH));
+  const nicks = order.map((i) => bytes.slice(OFFSETS.partyMonNicks + i * NAME_LENGTH, OFFSETS.partyMonNicks + (i + 1) * NAME_LENGTH));
+  const species = order.map((i) => bytes[OFFSETS.partySpecies + i]);
+
+  mons.forEach((rec, i) => bytes.set(rec, OFFSETS.partyMons + i * PARTY_MON_SIZE));
+  ots.forEach((rec, i) => bytes.set(rec, OFFSETS.partyMonOts + i * NAME_LENGTH));
+  nicks.forEach((rec, i) => bytes.set(rec, OFFSETS.partyMonNicks + i * NAME_LENGTH));
+  species.forEach((sp, i) => (bytes[OFFSETS.partySpecies + i] = sp));
+}
+
 // --- Boxes -----------------------------------------------------------------------------------
 
 const BOX = {
@@ -430,6 +453,29 @@ export function removeBoxMon(bytes: Uint8Array, boxIndex: number, slot: number):
     bytes[base + BOX.count] = newCount;
     bytes[base + BOX.species + newCount] = 0xff;
   }
+}
+
+/** Move a stored Pokémon within a box, keeping records/species/names aligned. */
+export function reorderBoxMon(bytes: Uint8Array, boxIndex: number, from: number, to: number): void {
+  const bases = boxBases(bytes, boxIndex);
+  const primary = bases[0]; // the bank-1 cache for the current box, else storage
+  const count = Math.min(bytes[primary + BOX.count], MONS_PER_BOX);
+  if (from < 0 || from >= count || to < 0 || to >= count || from === to) return;
+
+  const order = moveInArray(Array.from({ length: count }, (_, i) => i), from, to);
+  const mons = order.map((i) => bytes.slice(primary + BOX.mons + i * BOX_MON_SIZE, primary + BOX.mons + (i + 1) * BOX_MON_SIZE));
+  const ots = order.map((i) => bytes.slice(primary + BOX.ots + i * NAME_LENGTH, primary + BOX.ots + (i + 1) * NAME_LENGTH));
+  const nicks = order.map((i) => bytes.slice(primary + BOX.nicks + i * NAME_LENGTH, primary + BOX.nicks + (i + 1) * NAME_LENGTH));
+  const species = order.map((i) => bytes[primary + BOX.species + i]);
+  mons.forEach((rec, i) => bytes.set(rec, primary + BOX.mons + i * BOX_MON_SIZE));
+  ots.forEach((rec, i) => bytes.set(rec, primary + BOX.ots + i * NAME_LENGTH));
+  nicks.forEach((rec, i) => bytes.set(rec, primary + BOX.nicks + i * NAME_LENGTH));
+  species.forEach((sp, i) => (bytes[primary + BOX.species + i] = sp));
+
+  // Mirror the reordered box wholesale to the other location (the stored slot
+  // for the current box) so the cache and storage stay identical, even if the
+  // stored copy was stale before the reorder.
+  for (const other of bases.slice(1)) bytes.copyWithin(other, primary, primary + BOX_DATA_SIZE);
 }
 
 // --- Day care -------------------------------------------------------------------------------

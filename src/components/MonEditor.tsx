@@ -3,12 +3,15 @@ import { recalcDerivedFields } from "../save/derive";
 import { baseStatsOf, moveInfo, moveName, speciesByInternalId, typeName } from "../save/gamedata";
 import { moveLegality } from "../save/legality";
 import { makePpByte, maxPp, ppCurrent, ppUps, type Dvs, type MonRecord } from "../save/pokemon";
+import { moveInArray } from "../save/reorder";
 import type { MonNames } from "../save/savefile";
 import { Button, Field, NumberInput, PickerTrigger, Segmented, Select, TextInput } from "./ui/ui";
 import { MovePicker } from "./MovePicker";
+import { ReorderControls } from "./ReorderControls";
 import { SpeciesPicker } from "./SpeciesPicker";
 import { Sprite } from "./Sprite";
 import { StatBars } from "./StatBars";
+import { useDragReorder } from "./useDragReorder";
 
 type Tab = "summary" | "moves" | "dvs";
 
@@ -30,6 +33,14 @@ export function MonEditor({
   const dexNo = species?.dexNo ?? 0;
   const [openMoveSlot, setOpenMoveSlot] = useState<number | null>(null);
   const [speciesOpen, setSpeciesOpen] = useState(false);
+
+  /** Reorder the four move slots, moving each move's PP with it. */
+  const moveDrag = useDragReorder((from, to) => {
+    patch((d) => {
+      d.moves = moveInArray(d.moves, from, to) as MonRecord["moves"];
+      d.pp = moveInArray(d.pp, from, to) as MonRecord["pp"];
+    }, false);
+  }, 4);
 
   /** Change species, keeping types/catch rate and (for non-custom names) the nickname in sync. */
   function changeSpecies(id: number) {
@@ -163,7 +174,14 @@ export function MonEditor({
             const current = ppCurrent(byte);
             const max = info ? maxPp(info.pp, ups) : 0;
             return (
-              <div className="move-row" key={i}>
+              <div className="move-row" key={i} {...moveDrag.rowProps(i)}>
+                <ReorderControls
+                  index={i}
+                  count={4}
+                  label={`move ${i + 1}`}
+                  gripProps={moveDrag.gripProps(i)}
+                  onMove={(d) => moveDrag.moveBy(i, d)}
+                />
                 <div className="move-row__pick">
                   <PickerTrigger
                     label={mon.moves[i] ? moveName(mon.moves[i]) : "Empty slot"}
@@ -178,12 +196,16 @@ export function MonEditor({
                     </span>
                   ) : null}
                 </div>
-                <div className="move-row__meta mono">
+                <div className="move-row__meta">
                   {info ? (
                     <>
-                      <span title="Type">{typeName(info.type)}</span>
-                      <span title="Power">{info.power || "—"} pow</span>
-                      <span title="Accuracy">{info.accuracy || "—"}%</span>
+                      <span className={`type-tag type-${info.type}`}>{typeName(info.type)}</span>
+                      <span className="move-row__stat mono" title="Power">
+                        {info.power || "—"}<small>pow</small>
+                      </span>
+                      <span className="move-row__stat mono" title="Accuracy">
+                        {info.accuracy || "—"}<small>%</small>
+                      </span>
                     </>
                   ) : (
                     <span className="move-row__empty">empty slot</span>

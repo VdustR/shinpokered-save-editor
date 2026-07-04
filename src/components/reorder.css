@@ -1,0 +1,54 @@
+.reorder {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex: 0 0 auto;
+}
+.reorder--v {
+  flex-direction: row;
+}
+.reorder__grip {
+  display: inline-grid;
+  place-items: center;
+  width: 18px;
+  height: 24px;
+  color: var(--ink-faint);
+  cursor: grab;
+  border-radius: 4px;
+}
+.reorder__grip:hover {
+  color: var(--ink-muted);
+  background: var(--surface-2);
+}
+.reorder__grip:active {
+  cursor: grabbing;
+}
+.reorder__btn {
+  width: 20px;
+  height: 20px;
+  display: inline-grid;
+  place-items: center;
+  border: none;
+  background: none;
+  color: var(--ink-faint);
+  border-radius: 4px;
+  font-size: 9px;
+  line-height: 1;
+}
+.reorder__btn:hover:not(:disabled) {
+  color: var(--ink);
+  background: var(--surface-2);
+}
+.reorder__btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* Drop-target feedback applied to the row via data attributes. */
+[data-dragging] {
+  opacity: 0.5;
+}
+[data-drag-over] {
+  outline: 2px dashed var(--primary);
+  outline-offset: -2px;
+}

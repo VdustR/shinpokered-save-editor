@@ -250,6 +250,48 @@ test("item picker searches and assigns the chosen item", async ({ page }) => {
   await expect(page.locator(".item-row .picker-trigger__label").first()).toHaveText("MAX POTION");
 });
 
+test("party members can be reordered with the up/down controls", async ({ page }) => {
+  await loadFixture(page);
+  await page.locator(".sidenav__item", { hasText: "Party" }).click();
+  await page.getByRole("button", { name: "Add Pokémon" }).first().click(); // slot 0 Bulbasaur
+  // Add a second, distinct species.
+  await page.getByRole("button", { name: "Add Pokémon" }).first().click(); // slot 1 Bulbasaur
+  await page.locator(".slot__btn").nth(1).click();
+  await page.locator(".field", { hasText: "Species" }).locator(".picker-trigger").click();
+  const dialog = page.locator("dialog.picker[open]");
+  await dialog.getByLabel("Search").fill("charmander");
+  await dialog.locator(".picker__row").filter({ hasText: "CHARMANDER" }).click();
+
+  await expect(page.locator(".slot__name").nth(1)).toHaveText("CHARMANDER");
+  await page.locator(".slot").nth(1).getByLabel(/Move .* up/).click();
+  await expect(page.locator(".slot__name").first()).toHaveText("CHARMANDER");
+});
+
+test("inventory auto-sort orders items by the game's built-in order", async ({ page }) => {
+  await loadFixture(page);
+  await page.locator(".sidenav__item", { hasText: "Inventory" }).click();
+
+  // Add a few items and set them so a Poké Ball sorts before a Potion.
+  const bag = page.locator(".panel", { hasText: "Bag" });
+  await bag.getByRole("button", { name: "Add item" }).click();
+  await bag.getByRole("button", { name: "Add item" }).click();
+
+  const rows = bag.locator(".item-row");
+  // Row 0 -> POTION, Row 1 -> POKé BALL.
+  await rows.nth(0).locator(".picker-trigger").click();
+  let dialog = page.locator("dialog.picker[open]");
+  await dialog.getByLabel("Search").fill("potion");
+  await dialog.locator(".picker__row").filter({ hasText: /^POTION/ }).first().click();
+  await rows.nth(1).locator(".picker-trigger").click();
+  dialog = page.locator("dialog.picker[open]");
+  await dialog.getByLabel("Search").fill("poke ball");
+  await dialog.locator(".picker__row").filter({ hasText: "POKé BALL" }).first().click();
+
+  await bag.getByRole("button", { name: "Auto-sort" }).click();
+  // Poké Ball comes before Potion in the ROM order.
+  await expect(bag.locator(".item-row .picker-trigger__label").first()).toHaveText("POKé BALL");
+});
+
 test("Expert hex view highlights an edit and can jump from a field", async ({ page }) => {
   await loadFixture(page);
   await page.locator(".sidenav__item", { hasText: "Trainer" }).click();
