@@ -16196,8 +16196,7 @@
   "1655": {
    "files": [
     "rockethideout1"
-   ],
-   "note": "CheckEventHL EVENT_677\t;joenote - this is a bug."
+   ]
   },
   "1663": {
    "files": [
@@ -16366,9 +16365,7 @@
     "vermiliondock",
     "items",
     "main_menu",
-    "oak_speech",
-    "poison",
-    "func_battle"
+    "oak_speech"
    ],
    "note": "has e4 been beaten?"
   },

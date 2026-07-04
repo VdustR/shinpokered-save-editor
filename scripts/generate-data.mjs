@@ -352,11 +352,10 @@ if (eventFlags.length < 400) throw new Error(`Suspiciously few named event flags
 // the UI show verified semantics: which files use a bit, plus the first
 // inline comment found next to a usage.
 function collectAsmFiles(dir, out = []) {
-  for (const entry of readdirSync(path.join(srcDir, dir))) {
-    const rel = `${dir}/${entry}`;
-    const stats = statSync(path.join(srcDir, rel));
-    if (stats.isDirectory()) collectAsmFiles(rel, out);
-    else if (entry.endsWith(".asm")) out.push(rel);
+  for (const entry of readdirSync(path.join(srcDir, dir), { withFileTypes: true })) {
+    const rel = `${dir}/${entry.name}`;
+    if (entry.isDirectory()) collectAsmFiles(rel, out);
+    else if (entry.name.endsWith(".asm")) out.push(rel);
   }
   return out;
 }
@@ -369,9 +368,13 @@ const eventFlagUsage = {};
   for (const file of codeFiles) {
     const base = path.basename(file, ".asm");
     for (const rawLine of read(file).split("\n")) {
-      const tokens = rawLine.match(/EVENT_[0-9A-F]{3}\b/g);
+      // Only match tokens in the code part: a flag mentioned in a comment
+      // alone (e.g. "; EVENT_123 is unused") is not a usage.
+      const semiIndex = rawLine.indexOf(";");
+      const codePart = semiIndex !== -1 ? rawLine.slice(0, semiIndex) : rawLine;
+      const tokens = codePart.match(/EVENT_[0-9A-F]{3}\b/g);
       if (!tokens) continue;
-      const comment = rawLine.includes(";") ? rawLine.slice(rawLine.indexOf(";") + 1).trim() : "";
+      const comment = semiIndex !== -1 ? rawLine.slice(semiIndex + 1).trim() : "";
       for (const token of tokens) {
         const index = parseInt(token.slice(6), 16);
         const entry = (eventFlagUsage[index] ??= { files: [] });

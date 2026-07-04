@@ -26,7 +26,7 @@ interface FlagUsage {
   note?: string;
 }
 
-const FLAG_USAGE = gamedata.eventFlagUsage as Record<string, FlagUsage>;
+const FLAG_USAGE = (gamedata.eventFlagUsage ?? {}) as Record<string, FlagUsage>;
 
 /**
  * The bits event_constants.asm leaves placeholder-named, with semantics
