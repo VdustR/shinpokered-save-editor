@@ -53,11 +53,11 @@ export function MonEditor({
     patch((d) => {
       d.dvs = { atk: 15, def: 15, spd: 15, spc: 15 };
       d.statExp = { hp: 65535, atk: 65535, def: 65535, spd: 65535, spc: 65535 };
-      // Full PP with 3 PP Ups on every move.
+      // Full PP with 3 PP Ups on every move; unknown move ids stay empty (PP 0).
       d.pp = d.moves.map((id) => {
-        if (!id) return 0;
-        const base = moveInfo(id)?.pp ?? 0;
-        return makePpByte(maxPp(base, 3), 3);
+        const info = id ? moveInfo(id) : undefined;
+        if (!info) return 0;
+        return makePpByte(maxPp(info.pp, 3), 3);
       }) as MonRecord["pp"];
       d.status = 0;
       d.currentHp = 0xffff; // recalc clamps to the new max HP (full heal)
@@ -172,8 +172,10 @@ export function MonEditor({
                     const id = Number(e.target.value);
                     patch((d) => {
                       d.moves[i] = id;
-                      // Reset to full PP with no PP Ups for the newly chosen move.
-                      d.pp[i] = id ? makePpByte(moveInfo(id)?.pp ?? 0, 0) : 0;
+                      // Reset to full PP with no PP Ups for the newly chosen move;
+                      // an unknown id becomes an empty slot (PP 0).
+                      const chosen = id ? moveInfo(id) : undefined;
+                      d.pp[i] = chosen ? makePpByte(chosen.pp, 0) : 0;
                     }, false);
                   }}
                 >

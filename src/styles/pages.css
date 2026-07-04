@@ -337,7 +337,7 @@
 }
 .move-row {
   display: grid;
-  grid-template-columns: minmax(0, 1.4fr) auto minmax(180px, 0.9fr);
+  grid-template-columns: minmax(0, 1.4fr) auto minmax(240px, 0.9fr);
   gap: var(--space-4);
   align-items: center;
 }
