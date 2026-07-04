@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import {
   EVENT_FLAGS,
-  EVENT_FLAGS_BYTES,
+  UNNAMED_EVENT_FLAGS,
   eventFlagByteOffset,
   getEventFlag,
   setEventFlag,
@@ -24,19 +24,7 @@ import { useSaveStore } from "../state/store";
 import { Button, OffsetChip, Panel, Toggle } from "../components/ui/ui";
 import { PageHeader } from "../components/PageHeader";
 
-/** Placeholder entries for the bits event_constants.asm leaves unnamed. */
-const UNNAMED_FLAGS: readonly EventFlag[] = (() => {
-  const named = new Set(EVENT_FLAGS.map((flag) => flag.index));
-  const out: EventFlag[] = [];
-  for (let i = 0; i < EVENT_FLAGS_BYTES * 8; i++) {
-    if (named.has(i)) continue;
-    const hex = i.toString(16).toUpperCase().padStart(3, "0");
-    out.push({ index: i, name: `EVENT_${hex}`, label: `Unnamed $${hex}` });
-  }
-  return out;
-})();
-
-const ALL_FLAGS: readonly EventFlag[] = [...EVENT_FLAGS, ...UNNAMED_FLAGS].sort(
+const ALL_FLAGS: readonly EventFlag[] = [...EVENT_FLAGS, ...UNNAMED_EVENT_FLAGS].sort(
   (a, b) => a.index - b.index,
 );
 
@@ -154,7 +142,11 @@ export function FlagsPage() {
                 label={flag.label}
                 onChange={(v) => mutate((b) => setEventFlag(b, flag.index, v))}
               />
-              <span className="flag-row__meta mono">
+              <span
+                className="flag-row__meta mono"
+                title={flag.usedIn ? `Referenced by: ${flag.usedIn.join(", ")}` : undefined}
+              >
+                {flag.usedIn ? `${flag.usedIn.length} refs · ` : ""}
                 {flag.name.replace(/^EVENT_/, "")} · bit {flag.index & 7}
               </span>
               <OffsetChip offset={eventFlagByteOffset(flag.index)} onJump={jump} />

@@ -13,11 +13,43 @@ export interface EventFlag {
   name: string;
   /** Precomputed display label so list renders don't re-derive it. */
   label: string;
+  /** Source files (basenames) that reference this bit, for unnamed-but-used flags. */
+  usedIn?: string[];
 }
 
 export const EVENT_FLAGS: readonly EventFlag[] = (gamedata.eventFlags as [number, string][]).map(
   ([index, name]) => ({ index, name, label: eventFlagLabel(name) }),
 );
+
+interface FlagUsage {
+  files: string[];
+  note?: string;
+}
+
+const FLAG_USAGE = (gamedata.eventFlagUsage ?? {}) as Record<string, FlagUsage>;
+
+/**
+ * The bits event_constants.asm leaves placeholder-named, with semantics
+ * derived from a code cross-reference: some are used without ever being
+ * renamed (the label carries the usage comment and files); the rest are
+ * verified unused by any game code, so toggling them has no effect.
+ */
+export const UNNAMED_EVENT_FLAGS: readonly EventFlag[] = (() => {
+  const named = new Set(EVENT_FLAGS.map((flag) => flag.index));
+  const out: EventFlag[] = [];
+  for (let i = 0; i < EVENT_FLAGS_BYTES * 8; i++) {
+    if (named.has(i)) continue;
+    const hex = i.toString(16).toUpperCase().padStart(3, "0");
+    const usage = FLAG_USAGE[i];
+    if (usage) {
+      const hint = usage.note ?? `used in ${usage.files[0]}`;
+      out.push({ index: i, name: `EVENT_${hex}`, label: `Unnamed $${hex} — ${hint}`, usedIn: usage.files });
+    } else {
+      out.push({ index: i, name: `EVENT_${hex}`, label: `Unnamed $${hex} (unused)` });
+    }
+  }
+  return out;
+})();
 
 export function eventFlagByteOffset(index: number): number {
   return EVENT_FLAGS_OFFSET + (index >> 3);
