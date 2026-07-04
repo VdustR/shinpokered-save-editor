@@ -72,6 +72,32 @@ export function hpDvOf(dvs: Dvs): number {
   return ((dvs.atk & 1) << 3) | ((dvs.def & 1) << 2) | ((dvs.spd & 1) << 1) | (dvs.spc & 1);
 }
 
+// --- PP byte: current PP in bits 0-5, PP Up count in bits 6-7 ------------------
+// (shinpokered engine/heal_party.asm masks $c0 for PP Ups; battle uses $3f.)
+
+export const MAX_PP_UPS = 3;
+
+export function ppCurrent(byte: number): number {
+  return byte & 0x3f;
+}
+
+export function ppUps(byte: number): number {
+  return (byte >> 6) & 0x03;
+}
+
+export function makePpByte(current: number, ups: number): number {
+  return ((Math.min(ups, MAX_PP_UPS) & 0x03) << 6) | (Math.min(current, 0x3f) & 0x3f);
+}
+
+/**
+ * Max PP for a move: base PP plus a per-PP-Up bonus of floor(basePP / 5),
+ * capped at 7 per PP Up (shinpokered AddBonusPP). PP Ups range 0-3.
+ */
+export function maxPp(basePp: number, ups: number): number {
+  const bonus = Math.min(Math.floor(basePp / 5), 7);
+  return basePp + bonus * Math.min(ups, MAX_PP_UPS);
+}
+
 export function readMon(bytes: Uint8Array, offset: number, isParty: boolean): MonRecord {
   const b = bytes.subarray(offset, offset + (isParty ? PARTY_MON_SIZE : BOX_MON_SIZE));
   const dvs = getDvs(b[0x1b], b[0x1c]);

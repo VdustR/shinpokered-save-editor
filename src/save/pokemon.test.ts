@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { PARTY_MON_SIZE } from "./layout";
-import { getDvs, packDvs, readMon, writeMon, type MonRecord } from "./pokemon";
+import { getDvs, makePpByte, maxPp, packDvs, ppCurrent, ppUps, readMon, writeMon, type MonRecord } from "./pokemon";
 
 /** Build a synthetic 44-byte party record for a Pikachu-like mon. */
 function sampleBytes(): Uint8Array {
@@ -73,6 +73,43 @@ describe("DV packing", () => {
   });
   it("packs nibbles back into two bytes", () => {
     expect(packDvs({ atk: 0xa, def: 0xb, spd: 0xc, spc: 0xd })).toEqual([0xab, 0xcd]);
+  });
+});
+
+describe("PP byte encoding", () => {
+  it("splits the PP byte into current PP (bits 0-5) and PP Ups (bits 6-7)", () => {
+    // 30 current PP + 3 PP Ups: 30 | (3<<6) = 30 + 192 = 222
+    const byte = 222;
+    expect(ppCurrent(byte)).toBe(30);
+    expect(ppUps(byte)).toBe(3);
+  });
+
+  it("round-trips through makePpByte", () => {
+    for (const cur of [0, 15, 40, 61, 63]) {
+      for (const ups of [0, 1, 2, 3]) {
+        const byte = makePpByte(cur, ups);
+        expect(ppCurrent(byte)).toBe(cur);
+        expect(ppUps(byte)).toBe(ups);
+      }
+    }
+  });
+
+  it("clamps current PP to 6 bits and PP Ups to 2 bits", () => {
+    expect(ppCurrent(makePpByte(99, 9))).toBe(63);
+    expect(ppUps(makePpByte(99, 9))).toBe(3);
+  });
+});
+
+describe("maxPp", () => {
+  it("adds floor(basePP/5) per PP Up, capped at 7 per PP Up", () => {
+    // Thunderbolt base 15: +3 per PP Up -> 24 at 3 PP Ups
+    expect(maxPp(15, 0)).toBe(15);
+    expect(maxPp(15, 3)).toBe(24);
+    // base 40: floor(40/5)=8 -> capped at 7 per PP Up
+    expect(maxPp(40, 1)).toBe(47);
+    expect(maxPp(40, 3)).toBe(61);
+    // base 5: +1 per PP Up
+    expect(maxPp(5, 3)).toBe(8);
   });
 });
 
