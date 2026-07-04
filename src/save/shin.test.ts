@@ -3,8 +3,11 @@ import {
   SHIN_FLAGS_OFFSET,
   ROM_HACK_VERSION_OFFSET,
   RANDOMIZER_SEED_OFFSET,
+  WIN_STREAK_OFFSET,
   getShinFlags,
+  getWinStreak,
   setShinFlag,
+  setWinStreak,
   genderOf,
   isShinyDvs,
   makeShinyDvs,
@@ -20,11 +23,21 @@ const MAGNEMITE = 0xad; // unlisted -> genderless
 const MEWTWO = 0x83; // unlisted -> genderless
 
 describe("Shin flag byte (wUnusedD721)", () => {
-  it("maps to file offset 0x29cd and version/seed to 0x2ce6/0x2ce7", () => {
-    // d721/da3a/da3b relative to wPokedexOwned d2f7 at 0x25a3.
+  it("maps to file offset 0x29cd and version/seed/streak to 0x2ce6/0x2ce7/0x284f", () => {
+    // d721/da3a/da3b/d5a3 relative to wPokedexOwned d2f7 at 0x25a3.
     expect(SHIN_FLAGS_OFFSET).toBe(0x29cd);
     expect(ROM_HACK_VERSION_OFFSET).toBe(0x2ce6);
     expect(RANDOMIZER_SEED_OFFSET).toBe(0x2ce7);
+    expect(WIN_STREAK_OFFSET).toBe(0x284f);
+  });
+
+  it("reads and writes the underground NPC win streak with clamping", () => {
+    const bytes = new Uint8Array(SAVE_SIZE);
+    setWinStreak(bytes, 5);
+    expect(getWinStreak(bytes)).toBe(5);
+    expect(bytes[WIN_STREAK_OFFSET]).toBe(5);
+    setWinStreak(bytes, 999);
+    expect(getWinStreak(bytes)).toBe(255);
   });
 
   it("reads and writes individual option bits without touching others", () => {
