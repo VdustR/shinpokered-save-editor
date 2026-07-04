@@ -532,3 +532,18 @@ test("Expert hex view highlights an edit and can jump from a field", async ({ pa
   await expect(page.locator(".page-header__title")).toHaveText("Raw Hex");
   await expect(page.locator(".hx__b--dirty").first()).toBeVisible();
 });
+
+test("switching the current box persists cache and updates the box number", async ({ page }) => {
+  await loadFixture(page);
+  await page.locator(".sidenav__item", { hasText: "Boxes" }).click();
+  // Put a mon into box 1 (current), then make box 5 current.
+  await page.getByRole("button", { name: "Add Pokémon" }).click();
+  await page.locator(".box-tab", { hasText: /^5$/ }).click();
+  await page.getByRole("button", { name: "Set as current" }).click();
+
+  const bytes = await exportBytes(page);
+  expect(bytes[0x284c]).toBe(0x80 | 4); // bit 7 + new index
+  expect(bytes[0x4000]).toBe(1); // box 1 stored slot holds the old cache (1 mon)
+  expect(bytes[0x30c0]).toBe(0); // cache is now the empty box 5
+  expect(bytes[MAIN_CKSUM]).toBe(gen1MainChecksum(bytes));
+});

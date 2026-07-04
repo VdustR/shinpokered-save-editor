@@ -809,4 +809,8 @@
 .hof-mon__meta {
   font-size: var(--text-xs);
   color: var(--ink-muted);
+.box-panel__head-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
 }
