@@ -1,0 +1,82 @@
+.dialog {
+  border: none;
+  padding: 0;
+  border-radius: var(--radius-panel);
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: var(--shadow-pop);
+  max-width: 460px;
+  width: calc(100vw - var(--space-6));
+}
+.dialog::backdrop {
+  background: oklch(0.2 0.02 265 / 0.45);
+  backdrop-filter: blur(2px);
+}
+.dialog__inner {
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+.dialog__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.dialog__title {
+  font-size: var(--text-xl);
+}
+.dialog__x {
+  border: none;
+  background: none;
+  color: var(--ink-faint);
+  font-size: var(--text-md);
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-control);
+}
+.dialog__x:hover {
+  background: var(--surface-2);
+  color: var(--ink);
+}
+.dialog__lead {
+  color: var(--ink-muted);
+  font-size: var(--text-sm);
+  text-wrap: pretty;
+}
+.dialog__summary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: var(--surface-inset);
+  border-radius: var(--radius-control);
+}
+.dialog__summary > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+.dialog__summary dt {
+  color: var(--ink-muted);
+  font-size: var(--text-sm);
+}
+.dialog__chips {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.dialog__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--ink-muted);
+}
+.dialog__foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+}

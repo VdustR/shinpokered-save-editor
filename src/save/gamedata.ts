@@ -57,6 +57,7 @@ export const MOVES: readonly MoveEntry[] = gamedata.moves as MoveEntry[];
 export const ITEMS: readonly ItemEntry[] = gamedata.items as ItemEntry[];
 export const TYPE_NAMES: Record<number, string> = gamedata.typeNames as Record<number, string>;
 export const GAMEDATA_META = gamedata.meta;
+export const PROFILE_LABEL = `Gen 1 · Shin ${gamedata.meta.tag}`;
 
 const speciesById = new Map(SPECIES.map((s) => [s.internalId, s]));
 const pokemonByDexNo = new Map(POKEMON.map((p) => [p.dexNo, p]));

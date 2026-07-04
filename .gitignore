@@ -207,3 +207,6 @@ scratch/
 
 # Keep committed test fixture saves
 !tests/fixtures/**/*.sav
+
+# Pokémon sprites (copyrighted, not committed)
+public/sprites/

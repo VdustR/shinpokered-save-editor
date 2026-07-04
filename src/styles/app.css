@@ -1,0 +1,207 @@
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+/* --- Top bar -------------------------------------------------------------- */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  height: 52px;
+  padding: 0 var(--space-5);
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+  flex: 0 0 auto;
+  z-index: var(--z-sticky);
+}
+.topbar__left,
+.topbar__right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-width: 0;
+}
+.brand {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+.brand__mark {
+  color: var(--primary);
+  font-size: 0.7rem;
+  transform: translateY(-1px);
+}
+.brand__name {
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.brand__sub {
+  color: var(--ink-faint);
+  font-size: var(--text-sm);
+}
+.topbar__file {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding-left: var(--space-4);
+  border-left: 1px solid var(--border);
+  min-width: 0;
+}
+.topbar__filename {
+  font-size: var(--text-sm);
+  color: var(--ink-muted);
+  max-width: 30ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.topbar__divider {
+  width: 1px;
+  height: 22px;
+  background: var(--border);
+}
+.checksum {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  font-weight: 500;
+}
+.checksum--ok {
+  color: var(--success);
+}
+.checksum--warn {
+  color: var(--warning);
+}
+.dirty {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--ink-faint);
+}
+.dirty__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--border-strong);
+}
+.dirty--on {
+  color: var(--primary);
+}
+.dirty--on .dirty__dot {
+  background: var(--primary);
+}
+.theme-toggle {
+  display: inline-grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-control);
+  border: 1px solid transparent;
+  background: none;
+  color: var(--ink-muted);
+  transition: background var(--dur-fast), color var(--dur-fast);
+}
+.theme-toggle:hover {
+  background: var(--surface);
+  color: var(--ink);
+}
+
+/* --- Body layout ---------------------------------------------------------- */
+.app__body {
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+.app__body--empty {
+  overflow: auto;
+}
+.sidenav {
+  flex: 0 0 auto;
+  width: 200px;
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  background: var(--surface-2);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+}
+.sidenav__item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-3);
+  border: none;
+  border-radius: var(--radius-control);
+  background: none;
+  color: var(--ink-muted);
+  font-size: var(--text-base);
+  font-weight: 500;
+  text-align: left;
+  transition: background var(--dur-fast), color var(--dur-fast);
+}
+.sidenav__item:hover {
+  background: var(--surface);
+  color: var(--ink);
+}
+.sidenav__item--active {
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+.sidenav__icon {
+  display: inline-grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+}
+.sidenav__icon svg {
+  width: 20px;
+  height: 20px;
+}
+.app__main {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: auto;
+}
+
+/* --- Responsive: nav becomes a bottom tab bar ----------------------------- */
+@media (max-width: 720px) {
+  .topbar {
+    height: 48px;
+    padding: 0 var(--space-4);
+  }
+  .brand__sub,
+  .topbar__file,
+  .dirty {
+    display: none;
+  }
+  .app__body {
+    flex-direction: column;
+  }
+  .sidenav {
+    order: 2;
+    width: 100%;
+    flex-direction: row;
+    gap: 2px;
+    padding: var(--space-2);
+    border-right: none;
+    border-top: 1px solid var(--border);
+    overflow-x: auto;
+  }
+  .sidenav__item {
+    flex-direction: column;
+    gap: 2px;
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--text-xs);
+    white-space: nowrap;
+  }
+  .app__main {
+    order: 1;
+  }
+}

@@ -75,6 +75,17 @@ export function exportSave(bytes: Uint8Array, original?: Uint8Array): Uint8Array
 
 // --- Trainer -------------------------------------------------------------------
 
+/** True if `name` fits a Gen 1 name field (≤10 storable characters). */
+export function isEncodableName(name: string): boolean {
+  if (name.length > NAME_LENGTH - 1) return false;
+  try {
+    encodeText(name, NAME_LENGTH);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export function getPlayerName(bytes: Uint8Array): string {
   return decodeText(bytes.subarray(OFFSETS.playerName, OFFSETS.playerName + NAME_LENGTH));
 }

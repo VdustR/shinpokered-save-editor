@@ -1,0 +1,140 @@
+/* Design tokens — see DESIGN.md. OKLCH throughout; light + dark first-class. */
+
+:root {
+  /* Spacing scale */
+  --space-1: 2px;
+  --space-2: 4px;
+  --space-3: 8px;
+  --space-4: 12px;
+  --space-5: 16px;
+  --space-6: 24px;
+  --space-7: 32px;
+  --space-8: 48px;
+
+  /* Radii */
+  --radius-control: 6px;
+  --radius-panel: 10px;
+  --radius-pill: 999px;
+
+  /* Type scale (fixed rem, product UI) */
+  --text-xs: 0.75rem;
+  --text-sm: 0.8125rem;
+  --text-base: 0.875rem;
+  --text-md: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.375rem;
+  --text-2xl: 1.75rem;
+
+  --font-ui: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", "Cascadia Code", "Roboto Mono", Menlo, Consolas, monospace;
+
+  /* Z-index scale */
+  --z-nav: 100;
+  --z-sticky: 200;
+  --z-backdrop: 300;
+  --z-modal: 400;
+  --z-toast: 500;
+  --z-tooltip: 600;
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-fast: 130ms;
+  --dur: 200ms;
+
+  /* Light theme (default) */
+  --bg: oklch(1 0 0);
+  --surface: oklch(0.986 0.002 255);
+  --surface-2: oklch(0.965 0.004 255);
+  --surface-inset: oklch(0.945 0.005 255);
+  --border: oklch(0.9 0.005 255);
+  --border-strong: oklch(0.82 0.008 255);
+  --ink: oklch(0.24 0.012 265);
+  --ink-muted: oklch(0.5 0.012 265);
+  --ink-faint: oklch(0.62 0.01 265);
+
+  --primary: oklch(0.55 0.2 27);
+  --primary-hover: oklch(0.5 0.2 27);
+  --primary-soft: oklch(0.95 0.04 27);
+  --on-primary: oklch(0.99 0 0);
+
+  --danger: oklch(0.55 0.19 25);
+  --danger-soft: oklch(0.95 0.04 25);
+  --warning: oklch(0.68 0.15 75);
+  --warning-soft: oklch(0.95 0.05 85);
+  --success: oklch(0.58 0.13 155);
+  --success-soft: oklch(0.95 0.04 155);
+  --info: oklch(0.58 0.13 245);
+  --info-soft: oklch(0.95 0.03 245);
+
+  --focus-ring: oklch(0.6 0.18 250);
+  --shadow-panel: 0 1px 2px oklch(0.2 0.02 265 / 0.06), 0 4px 12px oklch(0.2 0.02 265 / 0.05);
+  --shadow-pop: 0 8px 28px oklch(0.2 0.02 265 / 0.18);
+
+  color-scheme: light;
+}
+
+.theme-dark {
+  --bg: oklch(0.19 0.012 265);
+  --surface: oklch(0.23 0.014 265);
+  --surface-2: oklch(0.26 0.015 265);
+  --surface-inset: oklch(0.16 0.012 265);
+  --border: oklch(0.32 0.016 265);
+  --border-strong: oklch(0.4 0.018 265);
+  --ink: oklch(0.95 0.006 265);
+  --ink-muted: oklch(0.74 0.012 265);
+  --ink-faint: oklch(0.6 0.012 265);
+
+  --primary: oklch(0.66 0.19 27);
+  --primary-hover: oklch(0.72 0.18 27);
+  --primary-soft: oklch(0.32 0.08 27);
+  --on-primary: oklch(0.16 0.02 27);
+
+  --danger: oklch(0.66 0.19 25);
+  --danger-soft: oklch(0.32 0.08 25);
+  --warning: oklch(0.78 0.14 78);
+  --warning-soft: oklch(0.34 0.06 78);
+  --success: oklch(0.72 0.14 155);
+  --success-soft: oklch(0.3 0.06 155);
+  --info: oklch(0.72 0.13 245);
+  --info-soft: oklch(0.3 0.06 245);
+
+  --focus-ring: oklch(0.72 0.15 250);
+  --shadow-panel: 0 1px 2px oklch(0 0 0 / 0.3), 0 4px 14px oklch(0 0 0 / 0.35);
+  --shadow-pop: 0 10px 34px oklch(0 0 0 / 0.5);
+
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not(.theme-light) {
+    --bg: oklch(0.19 0.012 265);
+    --surface: oklch(0.23 0.014 265);
+    --surface-2: oklch(0.26 0.015 265);
+    --surface-inset: oklch(0.16 0.012 265);
+    --border: oklch(0.32 0.016 265);
+    --border-strong: oklch(0.4 0.018 265);
+    --ink: oklch(0.95 0.006 265);
+    --ink-muted: oklch(0.74 0.012 265);
+    --ink-faint: oklch(0.6 0.012 265);
+
+    --primary: oklch(0.66 0.19 27);
+    --primary-hover: oklch(0.72 0.18 27);
+    --primary-soft: oklch(0.32 0.08 27);
+    --on-primary: oklch(0.16 0.02 27);
+
+    --danger: oklch(0.66 0.19 25);
+    --danger-soft: oklch(0.32 0.08 25);
+    --warning: oklch(0.78 0.14 78);
+    --warning-soft: oklch(0.34 0.06 78);
+    --success: oklch(0.72 0.14 155);
+    --success-soft: oklch(0.3 0.06 155);
+    --info: oklch(0.72 0.13 245);
+    --info-soft: oklch(0.3 0.06 245);
+
+    --focus-ring: oklch(0.72 0.15 250);
+    --shadow-panel: 0 1px 2px oklch(0 0 0 / 0.3), 0 4px 14px oklch(0 0 0 / 0.35);
+    --shadow-pop: 0 10px 34px oklch(0 0 0 / 0.5);
+
+    color-scheme: dark;
+  }
+}
