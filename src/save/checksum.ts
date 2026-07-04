@@ -74,3 +74,30 @@ export function repairChecksums(bytes: Uint8Array): ChecksumGroup[] {
   }
   return repaired;
 }
+
+/**
+ * Recompute only the checksum groups whose data range changed relative to
+ * `original`. A fresh game never initializes the PC box checksum bytes, so
+ * blindly repairing all groups would rewrite bytes the game left alone and
+ * break byte-for-byte round-trips. Repairing only dirty groups keeps an
+ * untouched save identical while still fixing any group the user edited.
+ */
+export function repairDirtyChecksums(bytes: Uint8Array, original: Uint8Array): ChecksumGroup[] {
+  const repaired: ChecksumGroup[] = [];
+  for (const group of CHECKSUM_GROUPS) {
+    let dirty = false;
+    for (let i = group.start; i < group.start + group.length; i++) {
+      if (bytes[i] !== original[i]) {
+        dirty = true;
+        break;
+      }
+    }
+    if (!dirty) continue;
+    const value = computeChecksum(bytes, group.start, group.length);
+    if (bytes[group.output] !== value) {
+      bytes[group.output] = value;
+      repaired.push(group);
+    }
+  }
+  return repaired;
+}

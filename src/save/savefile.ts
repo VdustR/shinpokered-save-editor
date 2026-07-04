@@ -6,7 +6,12 @@
  * identical (checksums are only rewritten when they no longer match).
  */
 import { decodeBcd, encodeBcd } from "./bcd";
-import { listChecksumMismatches, repairChecksums, type ChecksumGroup } from "./checksum";
+import {
+  listChecksumMismatches,
+  repairChecksums,
+  repairDirtyChecksums,
+  type ChecksumGroup,
+} from "./checksum";
 import {
   BAG_CAPACITY,
   BOX_MON_SIZE,
@@ -45,11 +50,27 @@ export function parseSave(input: Uint8Array): ParsedSave {
   return { bytes, warnings, checksumMismatches: listChecksumMismatches(bytes) };
 }
 
-/** Clone and repair checksums; a valid untouched save round-trips byte-for-byte. */
-export function exportSave(bytes: Uint8Array): Uint8Array {
+export interface ExportResult {
+  bytes: Uint8Array;
+  repaired: ChecksumGroup[];
+}
+
+/**
+ * Produce the file to download. Checksums are repaired only for groups whose
+ * data changed relative to `original`, so an untouched save round-trips
+ * byte-for-byte (a fresh game leaves PC box checksums uninitialized, and we
+ * must not "fix" bytes the game itself never wrote).
+ *
+ * When `original` is omitted, every mismatched checksum is repaired.
+ */
+export function exportSaveWithReport(bytes: Uint8Array, original?: Uint8Array): ExportResult {
   const out = Uint8Array.from(bytes);
-  repairChecksums(out);
-  return out;
+  const repaired = original ? repairDirtyChecksums(out, original) : repairChecksums(out);
+  return { bytes: out, repaired };
+}
+
+export function exportSave(bytes: Uint8Array, original?: Uint8Array): Uint8Array {
+  return exportSaveWithReport(bytes, original).bytes;
 }
 
 // --- Trainer -------------------------------------------------------------------

@@ -4,6 +4,7 @@ import { NAME_LENGTH, OFFSETS, SAVE_SIZE, storedBoxOffset } from "./layout";
 import { writeMon, type MonRecord } from "./pokemon";
 import {
   exportSave,
+  exportSaveWithReport,
   getBadges,
   getBagItems,
   getCoins,
@@ -243,16 +244,27 @@ describe("boxes", () => {
 describe("exportSave", () => {
   it("is byte-identical for a no-op on a valid save", () => {
     const bytes = buildTestSave();
-    const out = exportSave(bytes);
+    const out = exportSave(bytes, bytes);
     expect(Array.from(out)).toEqual(Array.from(bytes));
     expect(out).not.toBe(bytes);
   });
 
-  it("repairs checksums after edits", () => {
-    const bytes = buildTestSave();
-    setMoney(bytes, 424242);
-    const out = exportSave(bytes);
-    expect(parseSave(out).checksumMismatches).toEqual([]);
+  it("only repairs the main checksum when only main data changed", () => {
+    const original = buildTestSave();
+    const edited = Uint8Array.from(original);
+    setMoney(edited, 424242);
+    const { bytes: out, repaired } = exportSaveWithReport(edited, original);
+    expect(repaired.map((g) => g.id)).toEqual(["main"]);
     expect(getMoney(out)).toBe(424242);
+    // Main checksum is now valid.
+    expect(parseSave(out).checksumMismatches.find((g) => g.id === "main")).toBeUndefined();
+  });
+
+  it("repairs box and bank checksums when a box changed", () => {
+    const original = buildTestSave();
+    const edited = Uint8Array.from(original);
+    writeBoxMon(edited, 3, 0, { ...sampleMon(0x99, 7) }, { nickname: "IVY", otName: "RED" });
+    const { repaired } = exportSaveWithReport(edited, original);
+    expect(repaired.map((g) => g.id).sort()).toEqual(["bank2-all", "box-4"]);
   });
 });
