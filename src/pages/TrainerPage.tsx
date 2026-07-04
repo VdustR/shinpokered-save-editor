@@ -308,6 +308,11 @@ export function TrainerPage() {
                   );
                 }}
               >
+                {position.map >= MAPS.length && (
+                  <option value={position.map} disabled>
+                    {mapName(position.map)} (${position.map.toString(16).padStart(2, "0").toUpperCase()})
+                  </option>
+                )}
                 {MAPS.map((_m, id) => (
                   <option key={id} value={id}>
                     {mapName(id)} (${id.toString(16).padStart(2, "0").toUpperCase()})
