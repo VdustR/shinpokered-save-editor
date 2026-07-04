@@ -24,11 +24,14 @@ import {
 import {
   RANDOMIZER_SEED_OFFSET,
   ROM_HACK_VERSION_OFFSET,
+  WIN_STREAK_OFFSET,
   getRandomizerSeed,
   getRomHackVersion,
   getShinFlags,
+  getWinStreak,
   setRandomizerSeed,
   setShinFlag,
+  setWinStreak,
 } from "../save/shin";
 import { isEncodable } from "../save/text";
 import { useNav } from "../state/nav";
@@ -214,6 +217,20 @@ export function TrainerPage() {
               </Field>
               <Field label="Save format version" offset={ROM_HACK_VERSION_OFFSET} onJump={jump} hint="Set by the ROM on save.">
                 <NumberInput value={getRomHackVersion(bytes)} min={0} max={255} onValue={() => {}} disabled />
+              </Field>
+              <Field
+                label="Underground win streak"
+                offset={WIN_STREAK_OFFSET}
+                onJump={jump}
+                hint="Post-E4 random-battle NPC; reach 5 to spawn the M.GENE."
+              >
+                <NumberInput
+                  value={getWinStreak(bytes)}
+                  min={0}
+                  max={255}
+                  aria-label="Underground win streak"
+                  onValue={(n) => mutate((b) => setWinStreak(b, n))}
+                />
               </Field>
             </div>
             <p className="hint-line">

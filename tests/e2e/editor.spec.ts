@@ -320,9 +320,14 @@ test("Shin feature toggles persist into the exported save", async ({ page }) => 
   await page.locator(".sidenav__item", { hasText: "Trainer" }).click();
   await page.getByRole("switch", { name: "Nuzlocke mode" }).click();
   await page.getByRole("switch", { name: "Female trainer" }).click();
+  const streak = page.getByLabel("Underground win streak");
+  await streak.fill("5");
+  await streak.blur();
   const bytes = await exportBytes(page);
   // wUnusedD721 -> 0x29cd: bit 6 nuzlocke, bit 0 female trainer.
   expect(bytes[0x29cd] & 0b0100_0001).toBe(0b0100_0001);
+  // wUnusedD5A3 -> 0x284f: underground NPC win streak.
+  expect(bytes[0x284f]).toBe(5);
   // Main checksum still valid after the repair pass.
   expect(bytes[MAIN_CKSUM]).toBe(gen1MainChecksum(bytes));
 });

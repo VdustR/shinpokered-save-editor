@@ -20,6 +20,12 @@ import type { Dvs } from "./pokemon";
 export const SHIN_FLAGS_OFFSET = 0x25a3 + (0xd721 - 0xd2f7); // 0x29cd
 export const ROM_HACK_VERSION_OFFSET = 0x25a3 + (0xda3a - 0xd2f7); // 0x2ce6
 export const RANDOMIZER_SEED_OFFSET = 0x25a3 + (0xda3b - 0xd2f7); // 0x2ce7
+/**
+ * wUnusedD5A3 (d5a3): win streak against the post-E4 random-battle NPC in the
+ * east-west underground path (scripts/undergroundpathwe.asm). Reaching 5
+ * spawns the M.GENE reward; leaving the area resets the counter.
+ */
+export const WIN_STREAK_OFFSET = 0x25a3 + (0xd5a3 - 0xd2f7); // 0x284f
 
 export type ShinFlagName = "femaleTrainer" | "sixtyFps" | "obedienceCap" | "nuzlocke" | "gbcColors";
 
@@ -60,6 +66,17 @@ export function getRandomizerSeed(bytes: Uint8Array): number {
 
 export function setRandomizerSeed(bytes: Uint8Array, seed: number): void {
   bytes[RANDOMIZER_SEED_OFFSET] = seed & 0xff;
+}
+
+export function getWinStreak(bytes: Uint8Array): number {
+  return bytes[WIN_STREAK_OFFSET];
+}
+
+export function setWinStreak(bytes: Uint8Array, streak: number): void {
+  // The UI never passes NaN (NumberInput guards on commit), but as a
+  // standalone API a NaN would otherwise silently zero the byte.
+  if (Number.isNaN(streak)) return;
+  bytes[WIN_STREAK_OFFSET] = Math.min(Math.max(Math.trunc(streak), 0), 0xff);
 }
 
 // --- Gender -------------------------------------------------------------------
