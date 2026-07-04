@@ -108,6 +108,14 @@
   flex-wrap: wrap;
 }
 
+/* On narrow screens the side nav becomes a horizontal tab bar; keep the meta
+   footer out of it (About stays reachable from the empty-state footer). */
+@media (max-width: 560px) {
+  .sidenav .app-footer {
+    display: none;
+  }
+}
+
 /* Centered under the dropzone on the empty state. */
 .dropzone-wrap .app-footer {
   justify-content: center;
