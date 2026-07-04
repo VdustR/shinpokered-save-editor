@@ -332,6 +332,19 @@ const genderList = [];
 }
 if (genderList.length !== 138) throw new Error(`Expected 138 gender list entries, got ${genderList.length}`);
 
+// --- Named event flags (constants/event_constants.asm) -----------------------------------
+// wEventFlags is 320 bytes at d747; indices are sequential bit numbers. Only
+// named flags are useful in the UI; EVENT_XXX hex placeholders are unnamed.
+const eventConsts = parseConstFile("constants/event_constants.asm");
+const eventFlags = [];
+for (const [name, value] of eventConsts) {
+  if (!name.startsWith("EVENT_")) continue;
+  if (/^EVENT_[0-9A-F]{3}$/.test(name)) continue; // unnamed placeholder
+  eventFlags.push([value, name]);
+}
+eventFlags.sort((a, b) => a[0] - b[0]);
+if (eventFlags.length < 400) throw new Error(`Suspiciously few named event flags: ${eventFlags.length}`);
+
 // --- Types ---------------------------------------------------------------------------
 const typeNameLines = asmLines("text/type_names.asm");
 const typePointerOrder = [];
@@ -384,7 +397,7 @@ const pokemon = [...pokemonByDex.values()].sort((a, b) => a.dexNo - b.dexNo);
 writeFileSync(
   path.join(outDir, "gamedata.json"),
   JSON.stringify(
-    { meta, species, pokemon, moves, items, typeNames, tmMoves, itemSortOrder, genderList, charmap },
+    { meta, species, pokemon, moves, items, typeNames, tmMoves, itemSortOrder, genderList, eventFlags, charmap },
     null,
     1,
   ),

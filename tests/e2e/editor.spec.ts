@@ -420,6 +420,18 @@ test("gender symbol derives from the attack DV and Make shiny sets shiny DVs", a
   await expect(page.getByLabel("SPC DV")).toHaveValue("10");
 });
 
+test("story flags search and toggle persist into the exported save", async ({ page }) => {
+  await loadFixture(page);
+  await page.locator(".sidenav__item", { hasText: "Story Flags" }).click();
+  await page.getByLabel("Search flags").fill("got town map");
+  const row = page.locator(".flag-row").filter({ hasText: "Got town map" }).first();
+  await row.getByRole("switch").click();
+  const bytes = await exportBytes(page);
+  // EVENT_GOT_TOWN_MAP = index 24 -> wEventFlags (0x29f3) byte 3, bit 0.
+  expect(bytes[0x29f3 + 3] & 0b1).toBe(1);
+  expect(bytes[MAIN_CKSUM]).toBe(gen1MainChecksum(bytes));
+});
+
 test("Expert hex view highlights an edit and can jump from a field", async ({ page }) => {
   await loadFixture(page);
   await page.locator(".sidenav__item", { hasText: "Trainer" }).click();
