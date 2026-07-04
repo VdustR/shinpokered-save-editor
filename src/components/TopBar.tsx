@@ -50,7 +50,7 @@ export function TopBar({ onExport }: { onExport: () => void }) {
           <Button size="sm" variant="ghost" onClick={revert} disabled={!dirty}>
             Revert
           </Button>
-          <Button size="sm" variant="ghost" onClick={closeFile}>
+          <Button size="sm" variant="ghost" className="topbar__close" onClick={closeFile}>
             Close
           </Button>
           <Button size="sm" variant="primary" onClick={onExport}>
@@ -73,14 +73,14 @@ function ChecksumStatus({ mismatchCount }: { mismatchCount: number }) {
     return (
       <span className="checksum checksum--ok" title="All checksums valid">
         <Icon.Check />
-        Checksums OK
+        <span className="checksum__label">Checksums OK</span>
       </span>
     );
   }
   return (
     <span className="checksum checksum--warn" title={`${mismatchCount} checksum group(s) will be repaired on export`}>
       <Icon.Warn />
-      {mismatchCount} to repair
+      <span className="checksum__label">{mismatchCount} to repair</span>
     </span>
   );
 }

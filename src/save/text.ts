@@ -31,6 +31,22 @@ export function decodeText(bytes: Uint8Array): string {
 }
 
 /**
+ * Decode a Gen 1 name field for display. Unlike decodeText, it also stops at a
+ * 0x00 byte: some saves leave never-set name fields as 0x00 padding rather than
+ * the 0x50 terminator, and rendering those as "<$00>" is noise. Raw bytes are
+ * untouched, so this is display-only and does not affect round-trips.
+ */
+export function decodeName(bytes: Uint8Array): string {
+  let out = "";
+  for (const byte of bytes) {
+    if (byte === TEXT_TERMINATOR || byte === 0x00) break;
+    const token = byteToToken.get(byte);
+    out += token ?? `<$${byte.toString(16).padStart(2, "0")}>`;
+  }
+  return out;
+}
+
+/**
  * Encode into a fixed-length field. The remainder is filled with terminators,
  * which is how the game initializes name fields. At least one terminator must
  * fit, so the maximum text length is `fieldLength - 1` bytes.

@@ -26,7 +26,7 @@ import {
   storedBoxOffset,
 } from "./layout";
 import { readMon, writeMon, type MonRecord } from "./pokemon";
-import { decodeText, encodeText } from "./text";
+import { decodeName, encodeText } from "./text";
 
 // --- Parse / export -----------------------------------------------------------
 
@@ -87,7 +87,7 @@ export function isEncodableName(name: string): boolean {
 }
 
 export function getPlayerName(bytes: Uint8Array): string {
-  return decodeText(bytes.subarray(OFFSETS.playerName, OFFSETS.playerName + NAME_LENGTH));
+  return decodeName(bytes.subarray(OFFSETS.playerName, OFFSETS.playerName + NAME_LENGTH));
 }
 
 export function setPlayerName(bytes: Uint8Array, name: string): void {
@@ -95,7 +95,7 @@ export function setPlayerName(bytes: Uint8Array, name: string): void {
 }
 
 export function getRivalName(bytes: Uint8Array): string {
-  return decodeText(bytes.subarray(OFFSETS.rivalName, OFFSETS.rivalName + NAME_LENGTH));
+  return decodeName(bytes.subarray(OFFSETS.rivalName, OFFSETS.rivalName + NAME_LENGTH));
 }
 
 export function setRivalName(bytes: Uint8Array, name: string): void {
@@ -284,8 +284,8 @@ export function getParty(bytes: Uint8Array): MonSlot[] {
   for (let i = 0; i < count; i++) {
     slots.push({
       mon: readMon(bytes, OFFSETS.partyMons + i * PARTY_MON_SIZE, true),
-      otName: decodeText(bytes.subarray(OFFSETS.partyMonOts + i * NAME_LENGTH, OFFSETS.partyMonOts + (i + 1) * NAME_LENGTH)),
-      nickname: decodeText(
+      otName: decodeName(bytes.subarray(OFFSETS.partyMonOts + i * NAME_LENGTH, OFFSETS.partyMonOts + (i + 1) * NAME_LENGTH)),
+      nickname: decodeName(
         bytes.subarray(OFFSETS.partyMonNicks + i * NAME_LENGTH, OFFSETS.partyMonNicks + (i + 1) * NAME_LENGTH),
       ),
     });
@@ -379,8 +379,8 @@ export function readBox(bytes: Uint8Array, boxIndex: number): BoxContents {
   for (let i = 0; i < count; i++) {
     mons.push({
       mon: readMon(bytes, base + BOX.mons + i * BOX_MON_SIZE, false),
-      otName: decodeText(bytes.subarray(base + BOX.ots + i * NAME_LENGTH, base + BOX.ots + (i + 1) * NAME_LENGTH)),
-      nickname: decodeText(
+      otName: decodeName(bytes.subarray(base + BOX.ots + i * NAME_LENGTH, base + BOX.ots + (i + 1) * NAME_LENGTH)),
+      nickname: decodeName(
         bytes.subarray(base + BOX.nicks + i * NAME_LENGTH, base + BOX.nicks + (i + 1) * NAME_LENGTH),
       ),
     });
@@ -446,8 +446,8 @@ export function getDayCare(bytes: Uint8Array): DayCare {
     inUse,
     mon: {
       mon: readMon(bytes, OFFSETS.dayCareMon, false),
-      nickname: decodeText(bytes.subarray(OFFSETS.dayCareMonName, OFFSETS.dayCareMonName + NAME_LENGTH)),
-      otName: decodeText(bytes.subarray(OFFSETS.dayCareMonOt, OFFSETS.dayCareMonOt + NAME_LENGTH)),
+      nickname: decodeName(bytes.subarray(OFFSETS.dayCareMonName, OFFSETS.dayCareMonName + NAME_LENGTH)),
+      otName: decodeName(bytes.subarray(OFFSETS.dayCareMonOt, OFFSETS.dayCareMonOt + NAME_LENGTH)),
     },
   };
 }

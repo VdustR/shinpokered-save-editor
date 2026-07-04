@@ -31,7 +31,8 @@ export function BoxesPage() {
   const active = contents.mons[slot];
 
   function commit(index: number, mon: MonRecord, names: MonNames) {
-    mutate((b) => writeBoxMon(b, box, index, mon, names));
+    const nickname = names.nickname.trim() || speciesByInternalId(mon.species)?.name || "";
+    mutate((b) => writeBoxMon(b, box, index, mon, { ...names, nickname }));
   }
 
   function addMon() {

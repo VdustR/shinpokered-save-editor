@@ -18,12 +18,21 @@
   flex: 0 0 auto;
   z-index: var(--z-sticky);
 }
-.topbar__left,
-.topbar__right {
+.topbar__left {
   display: flex;
   align-items: center;
   gap: var(--space-4);
   min-width: 0;
+  flex: 1 1 auto;
+}
+.topbar__right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  flex: 0 0 auto;
+}
+.brand {
+  flex: 0 0 auto;
 }
 .brand {
   display: flex;
@@ -174,11 +183,29 @@
 @media (max-width: 720px) {
   .topbar {
     height: 48px;
-    padding: 0 var(--space-4);
+    padding: 0 var(--space-3);
+    gap: var(--space-2);
+  }
+  .topbar__left,
+  .topbar__right {
+    gap: var(--space-2);
   }
   .brand__sub,
   .topbar__file,
-  .dirty {
+  .dirty,
+  .topbar__divider,
+  .checksum__label {
+    display: none;
+  }
+  /* Keep only the checksum icon on mobile; hide its text label. */
+  .checksum {
+    gap: 0;
+  }
+}
+
+@media (max-width: 560px) {
+  /* Close is non-essential on mobile (reload works); drop it to fit the row. */
+  .topbar__close {
     display: none;
   }
   .app__body {

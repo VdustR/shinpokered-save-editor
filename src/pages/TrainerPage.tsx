@@ -24,7 +24,7 @@ import {
 import { isEncodable } from "../save/text";
 import { useNav } from "../state/nav";
 import { useSaveStore } from "../state/store";
-import { Field, NumberInput, Panel, Segmented, TextInput, Toggle } from "../components/ui/ui";
+import { Field, NumberInput, NumberWithMax, Panel, Segmented, TextInput, Toggle } from "../components/ui/ui";
 import { PageHeader } from "../components/PageHeader";
 
 const TEXT_SPEEDS = [
@@ -87,20 +87,31 @@ export function TrainerPage() {
         <Panel title="Resources">
           <div className="form-grid">
             <Field label="Money" offset={OFFSETS.money} onJump={jump} hint={`0 – ${MAX_MONEY.toLocaleString()}`}>
-              <NumberInput
-                data-testid="money-input"
-                value={getMoney(bytes)}
-                min={0}
-                max={MAX_MONEY}
-                onValue={(n) => mutate((b) => setMoney(b, n))}
-              />
+              <div className="input-row">
+                <NumberInput
+                  data-testid="money-input"
+                  value={getMoney(bytes)}
+                  min={0}
+                  max={MAX_MONEY}
+                  onValue={(n) => mutate((b) => setMoney(b, n))}
+                />
+                <button
+                  type="button"
+                  className="btn btn--default btn--sm input-row__max"
+                  onClick={() => mutate((b) => setMoney(b, MAX_MONEY))}
+                  disabled={getMoney(bytes) === MAX_MONEY}
+                >
+                  Max
+                </button>
+              </div>
             </Field>
             <Field label="Coins" offset={OFFSETS.coins} onJump={jump} hint={`0 – ${MAX_COINS.toLocaleString()}`}>
-              <NumberInput
+              <NumberWithMax
                 value={getCoins(bytes)}
                 min={0}
                 max={MAX_COINS}
                 onValue={(n) => mutate((b) => setCoins(b, n))}
+                aria-label="Coins"
               />
             </Field>
           </div>

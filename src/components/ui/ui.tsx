@@ -1,3 +1,4 @@
+import { useRef, useState } from "react";
 import type {
   ButtonHTMLAttributes,
   InputHTMLAttributes,
@@ -92,27 +93,78 @@ export function NumberInput({
   onValue: (n: number) => void;
   mono?: boolean;
 }) {
+  // Commit on blur / Enter rather than on every keystroke. A controlled input
+  // that clamps per-keystroke fights the user when typing multi-digit values
+  // (e.g. typing "123" over "0" briefly becomes an out-of-range number and
+  // gets mangled). While focused we keep a free-form string draft.
+  const [draft, setDraft] = useState<string | null>(null);
+  const ref = useRef<HTMLInputElement>(null);
+
+  const commit = () => {
+    if (draft === null) return;
+    const parsed = Number.parseInt(draft, 10);
+    let next = Number.isNaN(parsed) ? value : parsed;
+    if (typeof min === "number") next = Math.max(next, Number(min));
+    if (typeof max === "number") next = Math.min(next, Number(max));
+    setDraft(null);
+    if (next !== value) onValue(next);
+  };
+
   return (
     <input
-      type="number"
+      ref={ref}
+      type="text"
       inputMode="numeric"
+      pattern="[0-9]*"
       className={`control ${mono ? "mono" : ""} ${className}`}
-      value={Number.isFinite(value) ? value : 0}
+      value={draft ?? String(Number.isFinite(value) ? value : 0)}
       min={min}
       max={max}
-      onChange={(e) => {
-        const raw = e.target.valueAsNumber;
-        if (Number.isNaN(raw)) {
-          onValue(typeof min === "number" ? Number(min) : 0);
-          return;
+      onFocus={() => setDraft(String(Number.isFinite(value) ? value : 0))}
+      onChange={(e) => setDraft(e.target.value.replace(/[^0-9]/g, ""))}
+      onBlur={commit}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          commit();
+          ref.current?.blur();
+        } else if (e.key === "Escape") {
+          setDraft(null);
+          ref.current?.blur();
         }
-        let clamped = raw;
-        if (typeof min === "number") clamped = Math.max(clamped, Number(min));
-        if (typeof max === "number") clamped = Math.min(clamped, Number(max));
-        onValue(Math.trunc(clamped));
       }}
       {...props}
     />
+  );
+}
+
+/** A number field with an inline "Max" button that sets it to `max`. */
+export function NumberWithMax({
+  value,
+  min,
+  max,
+  onValue,
+  "aria-label": ariaLabel,
+}: {
+  value: number;
+  min?: number;
+  max: number;
+  onValue: (n: number) => void;
+  "aria-label"?: string;
+}) {
+  return (
+    <div className="input-row">
+      <NumberInput value={value} min={min} max={max} onValue={onValue} aria-label={ariaLabel} />
+      <button
+        type="button"
+        className="btn btn--default btn--sm input-row__max"
+        onClick={() => onValue(max)}
+        disabled={value === max}
+        title={`Set to ${max.toLocaleString()}`}
+      >
+        Max
+      </button>
+    </div>
   );
 }
 

@@ -7,6 +7,7 @@ export type PageId =
   | "boxes"
   | "items"
   | "pokedex"
+  | "encyclopedia"
   | "hex";
 
 interface NavState {

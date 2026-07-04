@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { decodeText, encodeText, isEncodable } from "./text";
+import { decodeName, decodeText, encodeText, isEncodable } from "./text";
 
 // Verified against shinpokered charmap.asm: "A"=$80, "a"=$a0, "0"=$f6,
 // "@"=$50 (terminator), " "=$7f, "é"=$ba, "♂"=$ef, "♀"=$f5.
@@ -56,6 +56,24 @@ describe("encodeText", () => {
 
   it("throws on characters outside the charmap", () => {
     expect(() => encodeText("中文", 11)).toThrow(/cannot encode/i);
+  });
+});
+
+describe("decodeName", () => {
+  it("stops at the 0x50 terminator like decodeText", () => {
+    const bytes = new Uint8Array([0x91, 0x84, 0x83, TERM, 0x84]);
+    expect(decodeName(bytes)).toBe("RED");
+  });
+
+  it("treats a 0x00 field as empty instead of rendering <$00>", () => {
+    const bytes = new Uint8Array(11).fill(0x00);
+    expect(decodeText(bytes)).toContain("<$00>");
+    expect(decodeName(bytes)).toBe("");
+  });
+
+  it("stops at the first 0x00 mid-field", () => {
+    const bytes = new Uint8Array([A, A + 1, 0x00, A + 2]);
+    expect(decodeName(bytes)).toBe("AB");
   });
 });
 

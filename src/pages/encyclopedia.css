@@ -1,0 +1,105 @@
+.enc-controls {
+  display: flex;
+  gap: var(--space-4);
+  align-items: center;
+  flex-wrap: wrap;
+}
+.enc-search {
+  position: relative;
+  flex: 1 1 260px;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+}
+.enc-search__icon {
+  position: absolute;
+  left: var(--space-3);
+  color: var(--ink-faint);
+  pointer-events: none;
+}
+.enc-search .control {
+  padding-left: calc(var(--space-3) * 2 + 15px);
+  padding-right: var(--space-6);
+}
+.enc-search__clear {
+  position: absolute;
+  right: var(--space-2);
+  border: none;
+  background: none;
+  color: var(--ink-faint);
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-control);
+}
+.enc-search__clear:hover {
+  background: var(--surface-2);
+  color: var(--ink);
+}
+.enc-count {
+  color: var(--ink-faint);
+  font-size: var(--text-xs);
+}
+.enc-table-wrap {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-panel);
+  overflow-x: auto;
+  background: var(--surface);
+}
+.enc-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+}
+.enc-table th {
+  text-align: left;
+  position: sticky;
+  top: 0;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+  z-index: 1;
+}
+.enc-table th button {
+  width: 100%;
+  text-align: inherit;
+  background: none;
+  border: none;
+  color: var(--ink-muted);
+  font: inherit;
+  font-weight: 600;
+  padding: var(--space-3) var(--space-4);
+}
+.enc-table th button:hover {
+  color: var(--ink);
+}
+.enc-table th.num,
+.enc-table td.num {
+  text-align: right;
+}
+.enc-table th.num button {
+  text-align: right;
+}
+.enc-table td {
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+.enc-table tbody tr:last-child td {
+  border-bottom: none;
+}
+.enc-table tbody tr:hover {
+  background: var(--surface-2);
+}
+.enc-name {
+  font-weight: 500;
+  white-space: nowrap;
+}
+.enc-effect {
+  color: var(--ink-muted);
+  min-width: 12ch;
+}
+.enc-empty {
+  padding: var(--space-6);
+  text-align: center;
+  color: var(--ink-muted);
+}

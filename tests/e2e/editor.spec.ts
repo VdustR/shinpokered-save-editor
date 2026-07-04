@@ -91,6 +91,36 @@ test("adding a party Pokémon updates the party count and stays exportable", asy
   expect(exported[MAIN_CKSUM]).toBe(gen1MainChecksum(exported));
 });
 
+test("party DV edits persist and one-click Max fills values", async ({ page }) => {
+  await loadFixture(page);
+  await page.locator(".sidenav__item", { hasText: "Party" }).click();
+  await page.getByRole("button", { name: "Add Pokémon" }).first().click();
+  await page.getByRole("button", { name: "DVs & EXP" }).click();
+
+  const atk = page.locator(".field", { hasText: "ATK DV" }).locator("input");
+  await atk.fill("13");
+  await atk.press("Enter");
+  await expect(atk).toHaveValue("13");
+
+  await page.getByRole("button", { name: "Max DVs" }).click();
+  await expect(atk).toHaveValue("15");
+});
+
+test("encyclopedia fuzzy-searches moves and filters by type", async ({ page }) => {
+  await loadFixture(page);
+  await page.locator(".sidenav__item", { hasText: "Encyclopedia" }).click();
+  await page.getByLabel("Search", { exact: true }).fill("thunderbolt");
+  await expect(page.locator(".enc-name").first()).toHaveText("THUNDERBOLT");
+
+  await page.getByLabel("Search", { exact: true }).fill("");
+  await page.getByLabel("Type filter").selectOption({ label: "ELECTRIC" });
+  const rows = page.locator(".enc-table tbody tr");
+  expect(await rows.count()).toBeGreaterThan(0);
+  for (const tag of await page.locator(".enc-table tbody .type-tag").allTextContents()) {
+    expect(tag).toBe("ELECTRIC");
+  }
+});
+
 test("Expert hex view highlights an edit and can jump from a field", async ({ page }) => {
   await loadFixture(page);
   await page.locator(".sidenav__item", { hasText: "Trainer" }).click();

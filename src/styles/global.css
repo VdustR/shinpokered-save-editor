@@ -16,6 +16,18 @@ body,
   height: 100%;
 }
 
+/* Baseline guard: the page itself must never scroll on the x-axis. Wide
+   content (tables, the hex grid) scrolls inside its own overflow container. */
+html,
+body {
+  overflow-x: hidden;
+}
+#root {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
 body {
   font-family: var(--font-ui);
   font-size: var(--text-base);

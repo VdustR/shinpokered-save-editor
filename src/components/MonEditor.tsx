@@ -9,7 +9,7 @@ import {
 } from "../save/gamedata";
 import type { Dvs, MonRecord } from "../save/pokemon";
 import type { MonNames } from "../save/savefile";
-import { Field, NumberInput, Segmented, Select, TextInput } from "./ui/ui";
+import { Button, Field, NumberInput, Segmented, Select, TextInput } from "./ui/ui";
 import { Sprite } from "./Sprite";
 import { StatBars } from "./StatBars";
 
@@ -40,6 +40,17 @@ export function MonEditor({
     fn(draft);
     if (recalc) recalcDerivedFields(draft);
     onChange(draft, names);
+  }
+
+  /** Perfect DVs + full stat EXP, refill PP, and fully heal. */
+  function maximize() {
+    patch((d) => {
+      d.dvs = { atk: 15, def: 15, spd: 15, spc: 15 };
+      d.statExp = { hp: 65535, atk: 65535, def: 65535, spd: 65535, spc: 65535 };
+      d.pp = d.moves.map((id) => (id ? (moveInfo(id)?.pp ?? 0) : 0)) as MonRecord["pp"];
+      d.status = 0;
+      d.currentHp = 0xffff; // recalc clamps to the new max HP (full heal)
+    });
   }
 
   return (
@@ -171,7 +182,28 @@ export function MonEditor({
 
       {tab === "dvs" && (
         <div className="mon-editor__section">
-          <p className="hint-line">DVs (0–15) and Stat EXP (0–65535). Changing these recalculates stats.</p>
+          <div className="mon-editor__toolbar">
+            <p className="hint-line">DVs (0–15) and Stat EXP (0–65535). Changing these recalculates stats.</p>
+            <div className="btn-row">
+              <Button
+                size="sm"
+                onClick={() => patch((d) => (d.dvs = { atk: 15, def: 15, spd: 15, spc: 15 }))}
+              >
+                Max DVs
+              </Button>
+              <Button
+                size="sm"
+                onClick={() =>
+                  patch((d) => (d.statExp = { hp: 65535, atk: 65535, def: 65535, spd: 65535, spc: 65535 }))
+                }
+              >
+                Max Stat EXP
+              </Button>
+              <Button size="sm" variant="ghost" onClick={maximize}>
+                Maximize all
+              </Button>
+            </div>
+          </div>
           <div className="form-grid form-grid--2">
             {(["atk", "def", "spd", "spc"] as (keyof Dvs)[]).map((k) => (
               <Field key={k} label={`${k.toUpperCase()} DV`}>

@@ -28,7 +28,10 @@ export function PartyPage() {
   const active = party[selected];
 
   function commit(index: number, mon: MonRecord, names: MonNames) {
-    mutate((b) => setPartyMon(b, index, mon, names));
+    // Gen 1 never stores a blank nickname; a non-nicknamed mon carries its
+    // species name. Default an empty field to that instead of writing blanks.
+    const nickname = names.nickname.trim() || speciesByInternalId(mon.species)?.name || "";
+    mutate((b) => setPartyMon(b, index, mon, { ...names, nickname }));
   }
 
   function addMon() {

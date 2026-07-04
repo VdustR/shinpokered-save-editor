@@ -14,6 +14,7 @@ const ITEMS: NavItem[] = [
   { id: "boxes", label: "Boxes", icon: IconBox },
   { id: "items", label: "Inventory", icon: IconBag },
   { id: "pokedex", label: "Pokédex", icon: IconDex },
+  { id: "encyclopedia", label: "Encyclopedia", icon: IconBook },
   { id: "hex", label: "Raw Hex", icon: IconHex },
 ];
 
@@ -92,6 +93,14 @@ function IconDex() {
       <rect x="3.5" y="3" width="13" height="14" rx="2" stroke="currentColor" strokeWidth="1.5" />
       <path d="M7 3v14" stroke="currentColor" strokeWidth="1.5" />
       <circle cx="12" cy="6.5" r="1.2" stroke="currentColor" strokeWidth="1.3" />
+    </svg>
+  );
+}
+function IconBook() {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" aria-hidden>
+      <path d="M10 4.5C8.5 3.5 6 3.2 3.8 3.6v11c2.2-.4 4.7-.1 6.2.9 1.5-1 4-1.3 6.2-.9v-11C14 3.2 11.5 3.5 10 4.5Z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />
+      <path d="M10 4.5v11" stroke="currentColor" strokeWidth="1.4" />
     </svg>
   );
 }

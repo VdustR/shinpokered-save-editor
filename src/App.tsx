@@ -7,6 +7,7 @@ import { SideNav } from "./components/SideNav";
 import { TopBar } from "./components/TopBar";
 import { UpdatePrompt } from "./components/UpdatePrompt";
 import { BoxesPage } from "./pages/BoxesPage";
+import { EncyclopediaPage } from "./pages/EncyclopediaPage";
 import { HexView } from "./pages/HexView";
 import { ItemsPage } from "./pages/ItemsPage";
 import { OverviewPage } from "./pages/OverviewPage";
@@ -41,6 +42,8 @@ function ActivePage() {
       return <ItemsPage />;
     case "pokedex":
       return <PokedexPage />;
+    case "encyclopedia":
+      return <EncyclopediaPage />;
     case "hex":
       return <HexView />;
     default:
