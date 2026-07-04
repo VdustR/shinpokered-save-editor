@@ -441,7 +441,7 @@ test("hidden item toggle persists and all flags can be shown", async ({ page }) 
 
   // Full list renders without a display cap; unnamed bits are opt-in.
   await page.getByRole("switch", { name: "Show unnamed bits" }).click();
-  await expect(page.locator(".flags-controls .mono")).toContainText("/ 2559");
+  await expect(page.locator(".flags-controls .mono")).toContainText("/ 2560");
   await page.getByLabel("Search flags").fill("unnamed $00");
   await expect(page.locator(".flag-row").first()).toContainText("Unnamed $00");
 

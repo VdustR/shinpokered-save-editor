@@ -28,7 +28,7 @@ import { PageHeader } from "../components/PageHeader";
 const UNNAMED_FLAGS: readonly EventFlag[] = (() => {
   const named = new Set(EVENT_FLAGS.map((flag) => flag.index));
   const out: EventFlag[] = [];
-  for (let i = 0; i < EVENT_FLAGS_BYTES * 8 - 1; i++) {
+  for (let i = 0; i < EVENT_FLAGS_BYTES * 8; i++) {
     if (named.has(i)) continue;
     const hex = i.toString(16).toUpperCase().padStart(3, "0");
     out.push({ index: i, name: `EVENT_${hex}`, label: `Unnamed $${hex}` });
