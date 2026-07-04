@@ -182,6 +182,11 @@ test("species picker searches and filters, and updates the mon", async ({ page }
   const dialog = page.locator("dialog.picker[open]");
   await expect(dialog).toBeVisible();
 
+  // Pressing Enter while a sort control is focused must not pick a row.
+  await dialog.getByRole("button", { name: "BST" }).focus();
+  await page.keyboard.press("Enter");
+  await expect(dialog).toBeVisible();
+
   await dialog.getByLabel("Search").fill("gengar");
   await expect(dialog.locator(".picker__row .picker__name").first()).toHaveText("GENGAR");
   await dialog.locator(".picker__row").filter({ hasText: "GENGAR" }).click();

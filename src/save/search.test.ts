@@ -22,6 +22,13 @@ describe("fuzzyScore", () => {
   it("empty query matches everything with a neutral score", () => {
     expect(fuzzyScore("", "ANYTHING")).toBe(0);
   });
+
+  it("ignores punctuation, gender glyphs, and accents on both sides", () => {
+    expect(fuzzyScore("mr mime", "MR.MIME")).not.toBeNull();
+    expect(fuzzyScore("nidoran m", "NIDORAN♂")).not.toBeNull();
+    expect(fuzzyScore("nidoran f", "NIDORAN♀")).not.toBeNull();
+    expect(fuzzyScore("poke ball", "POKé BALL")).not.toBeNull();
+  });
 });
 
 describe("searchMoves", () => {
@@ -72,6 +79,17 @@ describe("searchSpecies", () => {
   it("fuzzy-matches by name", () => {
     const r = searchSpecies({ query: "charizard" });
     expect(r[0].name).toBe("CHARIZARD");
+  });
+
+  it("ranks the shorter exact-ish match first (MEW before MEWTWO) even in dex sort", () => {
+    const r = searchSpecies({ query: "mew", sort: "dex" });
+    expect(r[0].name).toBe("MEW");
+    expect(r.map((s) => s.name)).toContain("MEWTWO");
+  });
+
+  it("matches species with punctuation/gender glyphs via plain text", () => {
+    expect(searchSpecies({ query: "mr mime" }).some((s) => s.name === "MR.MIME")).toBe(true);
+    expect(searchSpecies({ query: "nidoran m" }).some((s) => s.name === "NIDORAN♂")).toBe(true);
   });
 
   it("filters by type", () => {

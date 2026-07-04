@@ -2,14 +2,29 @@
 import { DEX_SPECIES, ITEMS, MOVES, baseStatsOf, type ItemEntry, type MoveEntry, type SpeciesEntry } from "./gamedata";
 
 /**
- * Subsequence fuzzy match. Returns a score (lower is better) when every query
- * character appears in `text` in order, or null when it doesn't. Contiguous
- * runs and early matches score better, so substrings/prefixes rank first.
+ * Fold a name to comparable letters/digits so searches match regardless of
+ * punctuation and gender glyphs: "MR.MIME" -> "mrmime", "NIDORAN♂" ->
+ * "nidoranm", "POKé BALL" -> "pokeball".
+ */
+function normalizeForSearch(s: string): string {
+  return s
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "") // strip diacritics (é -> e)
+    .replace(/♂/g, "m")
+    .replace(/♀/g, "f")
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "");
+}
+
+/**
+ * Subsequence fuzzy match over normalized names. Returns a score (lower is
+ * better) when every query character appears in `text` in order, or null when
+ * it doesn't. Contiguous runs and early matches score better.
  */
 export function fuzzyScore(query: string, text: string): number | null {
-  const q = query.trim().toLowerCase();
+  const q = normalizeForSearch(query);
   if (q === "") return 0;
-  const t = text.toLowerCase();
+  const t = normalizeForSearch(text);
   let ti = 0;
   let score = 0;
   let lastMatch = -1;
@@ -93,7 +108,14 @@ export function searchSpecies({ query = "", type, sort = "dex", dir = "asc" }: S
   }
   const sign = dir === "desc" ? -1 : 1;
   scored.sort((a, b) => {
-    if (query.trim() !== "" && sort === "dex" && a.score !== b.score) return a.score - b.score;
+    // With an active query, relevance wins over the chosen sort: better score
+    // first, then the shorter name (so "mew" ranks MEW above MEWTWO), then
+    // alphabetical — otherwise an equal-score tie would fall to dex order.
+    if (query.trim() !== "") {
+      if (a.score !== b.score) return a.score - b.score;
+      if (a.entry.name.length !== b.entry.name.length) return a.entry.name.length - b.entry.name.length;
+      return a.entry.name.localeCompare(b.entry.name);
+    }
     switch (sort) {
       case "name":
         return sign * a.entry.name.localeCompare(b.entry.name);

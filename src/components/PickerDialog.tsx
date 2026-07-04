@@ -86,7 +86,7 @@ export function PickerDialog<T>({
   }
 
   return (
-    <dialog ref={dialogRef} className="picker" onClose={onClose} onCancel={onClose} onKeyDown={onKeyDown}>
+    <dialog ref={dialogRef} className="picker" onClose={onClose} onCancel={onClose}>
       <div className="picker__head">
         <h2 className="picker__title">{title}</h2>
         <button className="picker__x" onClick={onClose} aria-label="Close">
@@ -104,6 +104,9 @@ export function PickerDialog<T>({
           value={query}
           placeholder={searchPlaceholder}
           onChange={(e) => onQuery(e.target.value)}
+          // Navigation/selection is handled from the search box (where focus
+          // lives), so Enter on a filter/sort control doesn't pick a row.
+          onKeyDown={onKeyDown}
           aria-label="Search"
         />
       </div>
