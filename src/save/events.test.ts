@@ -40,6 +40,20 @@ describe("event flags", () => {
     expect(townMap?.index).toBe(24);
   });
 
+  it("labels computed Nuzlocke encounter-area bits instead of calling them unused", () => {
+    // func_nuzlocke.asm addresses EVENT_980 + list index indirectly, so
+    // EVENT_981.. never appear as literals but are live state.
+    const first = UNNAMED_EVENT_FLAGS.find((f) => f.index === 0x980);
+    expect(first?.label).toContain("Celadon City");
+    expect(first?.label).toContain("Nuzlocke");
+    const second = UNNAMED_EVENT_FLAGS.find((f) => f.index === 0x981);
+    expect(second?.label).toContain("Cerulean Cave");
+    expect(second?.label).not.toContain("unused");
+    // One past the 44-entry list is back to verified unused.
+    const past = UNNAMED_EVENT_FLAGS.find((f) => f.index === 0x980 + 44);
+    expect(past?.label).toContain("(unused)");
+  });
+
   it("derives semantics for used-but-unnamed bits and marks the rest unused", () => {
     // EVENT_908 is referenced all over the code with the comment "has e4 been beaten?".
     const used = UNNAMED_EVENT_FLAGS.find((f) => f.index === 0x908);

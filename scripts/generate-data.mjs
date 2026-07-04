@@ -11,7 +11,7 @@
  * Without SHINPOKERED_DIR the script clones the pinned tag into .cache/.
  */
 import { execFileSync } from "node:child_process";
-import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -387,6 +387,30 @@ const eventFlagUsage = {};
   }
 }
 
+// --- Nuzlocke encounter-area flags ---------------------------------------------------------
+// func_nuzlocke.asm computes flag bits as EVENT_980 + (index into
+// NuzlockeMapList), so those bits are live even though the literal tokens
+// EVENT_981.. never appear in code. The list's inline comments carry the area
+// names ("; CeladonCityName"), which we keep for labels.
+const nuzlockeAreas = [];
+{
+  let inList = false;
+  for (const rawLine of read("custom_functions/func_nuzlocke.asm").split("\n")) {
+    const line = rawLine.trim();
+    if (/^NuzlockeMapList:/.test(line)) {
+      inList = true;
+      continue;
+    }
+    if (!inList) continue;
+    const row = line.match(/^db\s+\$([0-9a-fA-F]+)\s*;\s*([A-Za-z0-9]+?)(Name)?\s*$/);
+    if (!row) break;
+    if (row[1].toLowerCase() === "ff") break;
+    // "CeladonCity" -> "Celadon City", "Route10" -> "Route 10".
+    nuzlockeAreas.push(row[2].replace(/([a-z])([A-Z])/g, "$1 $2").replace(/([A-Za-z])(\d)/g, "$1 $2"));
+  }
+}
+if (nuzlockeAreas.length < 40) throw new Error(`Suspiciously few nuzlocke areas: ${nuzlockeAreas.length}`);
+
 // --- Hidden items / coins (data/hidden_item_coords.asm + hidden_objects.asm) -------------
 // The pickup code finds the row index of (map,y,x) in HiddenItemCoords /
 // HiddenCoinCoords and uses it as the bit index into
@@ -531,6 +555,7 @@ writeFileSync(
       genderList,
       eventFlags,
       eventFlagUsage,
+      nuzlockeAreas,
       hiddenItems,
       hiddenCoins,
       charmap,
