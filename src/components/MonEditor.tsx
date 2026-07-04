@@ -33,6 +33,10 @@ export function MonEditor({
   const species = speciesByInternalId(mon.species);
   const base = baseStatsOf(mon.species);
   const dexNo = species?.dexNo ?? 0;
+  // A non-nicknamed Gen 1 mon stores its species name; treat that (and an
+  // empty field) as "not custom" so the input shows a placeholder rather than
+  // a pre-filled value. The commit path writes the species name when blank.
+  const isCustomNickname = names.nickname !== "" && names.nickname !== species?.name;
 
   /** Apply a mutation to a clone, recalc derived fields, and persist. */
   function patch(fn: (draft: MonRecord) => void, recalc = true) {
@@ -80,9 +84,10 @@ export function MonEditor({
               ))}
             </Select>
           </Field>
-          <Field label="Nickname" hint="Max 10 characters.">
+          <Field label="Nickname" hint="Blank keeps the species name.">
             <TextInput
-              value={names.nickname}
+              value={isCustomNickname ? names.nickname : ""}
+              placeholder={species?.name ?? ""}
               maxLength={10}
               onChange={(e) => onChange(mon, { ...names, nickname: e.target.value.toUpperCase() })}
             />
