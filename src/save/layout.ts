@@ -49,9 +49,9 @@ export const OFFSETS = {
   dayCareMon: 0x2d0b, // da5f, box_struct
   partyCount: 0x2f2c, // d163
   partySpecies: 0x2f2d, // d164, PARTY_LENGTH + 1
-  partyMons: 0x2f34, // d16b
-  partyMonOts: 0x2fb8, // d273
-  partyMonNicks: 0x2ffa, // d2b5
+  partyMons: 0x2f34, // d16b, 6 x 44-byte party records
+  partyMonOts: 0x303c, // d273 = 0x2f2c + (0xd273 - 0xd163)
+  partyMonNicks: 0x307e, // d2b5 = 0x2f2c + (0xd2b5 - 0xd163)
   currentBox: 0x30c0, // sCurBoxData
   tilesetType: 0x3522, // sTilesetType
   mainChecksum: 0x3523, // sMainDataCheckSum
