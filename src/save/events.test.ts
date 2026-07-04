@@ -1,0 +1,41 @@
+import { describe, expect, it } from "vitest";
+import { EVENT_FLAGS, EVENT_FLAGS_OFFSET, eventFlagLabel, getEventFlag, setEventFlag } from "./events";
+import { SAVE_SIZE } from "./layout";
+
+describe("event flags", () => {
+  it("stores flags at wEventFlags (d747 -> 0x29f3)", () => {
+    expect(EVENT_FLAGS_OFFSET).toBe(0x29f3);
+  });
+
+  it("reads and writes a bit by its event index", () => {
+    const bytes = new Uint8Array(SAVE_SIZE);
+    // EVENT_GOT_TOWN_MAP = 24 -> byte 3, bit 0.
+    expect(getEventFlag(bytes, 24)).toBe(false);
+    setEventFlag(bytes, 24, true);
+    expect(getEventFlag(bytes, 24)).toBe(true);
+    expect(bytes[0x29f3 + 3]).toBe(0b0000_0001);
+    setEventFlag(bytes, 24, false);
+    expect(bytes[0x29f3 + 3]).toBe(0);
+  });
+
+  it("does not disturb neighbouring bits", () => {
+    const bytes = new Uint8Array(SAVE_SIZE);
+    bytes[0x29f3] = 0b1010_1010;
+    setEventFlag(bytes, 0, true); // bit 0 of byte 0
+    expect(bytes[0x29f3]).toBe(0b1010_1011);
+    setEventFlag(bytes, 1, false); // bit 1 was set
+    expect(bytes[0x29f3]).toBe(0b1010_1001);
+  });
+
+  it("exposes the generated named flag list", () => {
+    expect(EVENT_FLAGS.length).toBeGreaterThan(400);
+    const townMap = EVENT_FLAGS.find((f) => f.name === "EVENT_GOT_TOWN_MAP");
+    expect(townMap?.index).toBe(24);
+  });
+
+  it("prettifies constant names into readable sentence-case labels", () => {
+    expect(eventFlagLabel("EVENT_GOT_TOWN_MAP")).toBe("Got town map");
+    expect(eventFlagLabel("EVENT_BEAT_BROCK")).toBe("Beat brock");
+    expect(eventFlagLabel("EVENT_2ND_ROUTE22_RIVAL_BATTLE")).toBe("2nd route22 rival battle");
+  });
+});

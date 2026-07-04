@@ -710,3 +710,51 @@
   max-width: 42ch;
   text-wrap: pretty;
 }
+
+/* --- Story flags ------------------------------------------------------------ */
+.flags-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-4);
+}
+.flags-controls .control {
+  flex: 1 1 260px;
+  max-width: 420px;
+}
+.flags-list {
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-panel);
+  padding: var(--space-2) var(--space-4);
+}
+.flag-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--border);
+}
+.flag-row:last-child {
+  border-bottom: none;
+}
+.flag-row .toggle {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.flag-row__meta {
+  flex: 0 1 auto;
+  font-size: var(--text-xs);
+  color: var(--ink-faint);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+@media (max-width: 640px) {
+  .flag-row__meta {
+    display: none;
+  }
+}
