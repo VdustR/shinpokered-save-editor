@@ -3,6 +3,7 @@ import {
   HOF_CAPACITY,
   HOF_COUNT_OFFSET,
   HOF_OFFSET,
+  HOF_TEAM_SIZE,
   clearHallOfFame,
   getHofCount,
   readHofTeams,
@@ -23,6 +24,11 @@ export function HallOfFamePage() {
 
   const count = getHofCount(bytes);
   const teams = readHofTeams(bytes);
+  // Leftover record bytes can exist with a zeroed counter; Clear must stay
+  // available until the whole region is actually empty.
+  const regionHasData = bytes
+    .subarray(HOF_OFFSET, HOF_OFFSET + HOF_TEAM_SIZE * HOF_CAPACITY)
+    .some((b) => b !== 0);
 
   return (
     <div className="page">
@@ -34,7 +40,7 @@ export function HallOfFamePage() {
             variant="danger"
             size="sm"
             onClick={() => mutate((b) => clearHallOfFame(b))}
-            disabled={count === 0 && teams.length === 0}
+            disabled={count === 0 && !regionHasData}
           >
             Clear records
           </Button>
