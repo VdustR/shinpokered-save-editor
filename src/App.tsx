@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import "./styles/app.css";
 import "./styles/pages.css";
+import { AssessmentBanner } from "./components/AssessmentBanner";
 import { ExportDialog } from "./components/ExportDialog";
 import { FileDropzone } from "./components/FileDropzone";
 import { SideNav } from "./components/SideNav";
@@ -59,6 +60,7 @@ export default function App() {
   return (
     <div className="app">
       <TopBar onExport={() => setExportOpen(true)} />
+      <AssessmentBanner />
       {fileName ? (
         <div className="app__body">
           <SideNav />
