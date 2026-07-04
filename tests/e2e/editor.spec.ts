@@ -62,6 +62,28 @@ test("warns when the opened file is not a Gen 1 save, and not for a real one", a
   await expect(page.getByTestId("assessment-banner")).toHaveCount(0);
 });
 
+test("About dialog shows repo, license, and disclaimer from both entry points", async ({ page }) => {
+  await page.goto("/");
+  // Empty state: footer under the dropzone.
+  await page.getByTestId("about-open").click();
+  const dialog = page.locator("dialog.about[open]");
+  await expect(dialog).toBeVisible();
+  await expect(dialog.getByRole("link", { name: /GitHub/ })).toHaveAttribute(
+    "href",
+    "https://github.com/VdustR/shinpokered-save-editor",
+  );
+  await expect(dialog).toContainText("MIT License");
+  await expect(dialog).toContainText("not affiliated with, endorsed, or sponsored by Nintendo");
+  await page.keyboard.press("Escape");
+  await expect(dialog).toBeHidden();
+
+  // File open: side-nav footer.
+  await page.setInputFiles('[data-testid="file-input"]', fixturePath);
+  await expect(page.locator(".page-header__title")).toHaveText("Overview");
+  await page.getByTestId("about-open").click();
+  await expect(page.locator("dialog.about[open]")).toBeVisible();
+});
+
 test("loads a save and shows the trainer name", async ({ page }) => {
   await loadFixture(page);
   await page.locator(".sidenav__item", { hasText: "Trainer" }).click();

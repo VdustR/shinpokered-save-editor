@@ -1,9 +1,12 @@
 .dropzone-wrap {
-  /* The empty app body is a flex row; fill it so the grid centering below
-     centers in the viewport instead of hugging the content width. */
+  /* The empty app body is a flex row; fill it so the centering below happens
+     in the viewport instead of hugging the content width. Column layout keeps
+     the meta footer stacked under the card. */
   flex: 1 1 auto;
-  display: grid;
-  place-items: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   min-height: 100%;
   padding: var(--space-6);
 }

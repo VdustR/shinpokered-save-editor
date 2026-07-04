@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { useNav, type PageId } from "../state/nav";
+import { AppFooter } from "./AppFooter";
 
 interface NavItem {
   id: PageId;
@@ -40,6 +41,7 @@ export function SideNav() {
           </button>
         );
       })}
+      <AppFooter />
     </nav>
   );
 }

@@ -1,0 +1,115 @@
+/* --- About dialog ---------------------------------------------------------- */
+.about {
+  margin: auto;
+  border: none;
+  padding: 0;
+  width: min(94vw, 520px);
+  max-height: min(84vh, 640px);
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--radius-panel);
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: var(--shadow-pop);
+}
+.about:not([open]) {
+  display: none;
+}
+.about::backdrop {
+  background: oklch(0.2 0.02 265 / 0.45);
+  backdrop-filter: blur(2px);
+}
+.about__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--border);
+}
+.about__title {
+  font-size: var(--text-md);
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+}
+.about__version {
+  font-size: var(--text-xs);
+  color: var(--ink-faint);
+  font-weight: 400;
+}
+.about__x {
+  border: none;
+  background: none;
+  color: var(--ink-faint);
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-control);
+}
+.about__x:hover {
+  background: var(--surface-2);
+  color: var(--ink);
+}
+.about__body {
+  overflow-y: auto;
+  padding: var(--space-5);
+  font-size: var(--text-sm);
+  line-height: 1.55;
+  max-width: 70ch;
+}
+.about__body h3 {
+  font-size: var(--text-sm);
+  margin: var(--space-5) 0 var(--space-2);
+}
+.about__body p + p {
+  margin-top: var(--space-3);
+}
+.about__body ul {
+  padding-left: 1.2em;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.about__body a {
+  color: var(--primary);
+  text-underline-offset: 2px;
+}
+
+/* --- Footers that open it --------------------------------------------------- */
+.app-footer {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--text-xs);
+  color: var(--ink-faint);
+}
+.app-footer a,
+.app-footer button {
+  color: var(--ink-muted);
+  border: none;
+  background: none;
+  padding: 0;
+  font-size: var(--text-xs);
+  text-decoration: none;
+}
+.app-footer a:hover,
+.app-footer button:hover {
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.app-footer__sep {
+  opacity: 0.6;
+}
+
+/* Pinned to the bottom of the side nav when a file is open. */
+.sidenav .app-footer {
+  margin-top: auto;
+  padding: var(--space-4) var(--space-2) var(--space-2);
+  flex-wrap: wrap;
+}
+
+/* Centered under the dropzone on the empty state. */
+.dropzone-wrap .app-footer {
+  justify-content: center;
+  margin-top: var(--space-5);
+}
