@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { formatMoveEffect } from "../save/describe";
 import { TYPE_NAMES, typeName, type MoveEntry } from "../save/gamedata";
 import { searchMoves, type MoveSort, type SortDir } from "../save/search";
@@ -16,6 +16,9 @@ const SORTS: { value: MoveSort; label: string }[] = [
   { value: "accuracy", label: "Acc" },
   { value: "pp", label: "PP" },
 ];
+
+// A sentinel "no move" entry so a slot can be cleared, like the old "—" option.
+const NO_MOVE: MoveEntry = { id: 0, name: "— No move", effect: "NO_ADDITIONAL_EFFECT", power: 0, type: 0, accuracy: 0, pp: 0 };
 
 /** Modal move picker with fuzzy search, type filter, sort, and per-row detail. */
 export function MovePicker({
@@ -37,10 +40,21 @@ export function MovePicker({
   const [sort, setSort] = useState<MoveSort>("name");
   const [dir, setDir] = useState<SortDir>("asc");
 
-  const items = useMemo(
-    () => searchMoves({ query, type: type === "" ? undefined : type, sort, dir }),
-    [query, type, sort, dir],
-  );
+  // Start each open from a clean slate so a prior filter doesn't linger.
+  useEffect(() => {
+    if (open) {
+      setQuery("");
+      setType("");
+      setSort("name");
+      setDir("asc");
+    }
+  }, [open]);
+
+  const items = useMemo(() => {
+    const results = searchMoves({ query, type: type === "" ? undefined : type, sort, dir });
+    // Offer "no move" (clears the slot) at the top whenever not name-searching.
+    return query.trim() === "" ? [NO_MOVE, ...results] : results;
+  }, [query, type, sort, dir]);
 
   const controls = (
     <>
@@ -92,6 +106,14 @@ export function MovePicker({
       onClose={onClose}
       footer={<span className="picker__hint">↑↓ to navigate · Enter to choose · Esc to close</span>}
       renderRow={(m) => {
+        if (m.id === 0) {
+          return (
+            <>
+              <span className="picker__name">{m.name}</span>
+              <span className="picker__effect">clears this slot</span>
+            </>
+          );
+        }
         const stab = monTypes?.includes(m.type);
         return (
           <>

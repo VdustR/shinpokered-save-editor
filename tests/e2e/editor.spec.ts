@@ -160,6 +160,13 @@ test("move picker searches, filters by type, and assigns the chosen move", async
 
   await expect(dialog).toBeHidden();
   await expect(page.locator(".move-row .picker-trigger__label").first()).toHaveText("THUNDERBOLT");
+
+  // The picker can also clear a slot back to empty (regression guard).
+  await page.locator(".move-row .picker-trigger").first().click();
+  await expect(dialog).toBeVisible();
+  await dialog.locator(".picker__row").filter({ hasText: "No move" }).click();
+  await expect(dialog).toBeHidden();
+  await expect(page.locator(".move-row .picker-trigger__label").first()).toHaveText("Empty slot");
 });
 
 test("item picker searches and assigns the chosen item", async ({ page }) => {

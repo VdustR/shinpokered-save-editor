@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { ItemEntry } from "../save/gamedata";
 import { searchItems, type ItemCategory } from "../save/search";
 import { PickerDialog } from "./PickerDialog";
@@ -18,6 +18,13 @@ export function ItemPicker({
 }) {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<ItemCategory>("all");
+
+  useEffect(() => {
+    if (open) {
+      setQuery("");
+      setCategory("all");
+    }
+  }, [open]);
 
   const items = useMemo(() => searchItems({ query, category }), [query, category]);
 
