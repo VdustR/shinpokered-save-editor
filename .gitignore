@@ -210,3 +210,6 @@ scratch/
 
 # Pokémon sprites (copyrighted, not committed)
 public/sprites/
+
+# PWA dev output (icons/favicon are original art and are committed)
+dev-dist/

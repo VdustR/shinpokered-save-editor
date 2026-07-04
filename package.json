@@ -10,7 +10,9 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
-    "gen:data": "node scripts/generate-data.mjs"
+    "gen:data": "node scripts/generate-data.mjs",
+    "gen:sprites": "node scripts/fetch-sprites.mjs",
+    "gen:icons": "node scripts/make-icons.mjs"
   },
   "dependencies": {
     "react": "^19.2.7",
@@ -28,6 +30,8 @@
     "serverboy": "^0.0.7",
     "typescript": "~6.0.2",
     "vite": "^8.1.1",
-    "vitest": "^4.1.9"
+    "vite-plugin-pwa": "^1.3.0",
+    "vitest": "^4.1.9",
+    "workbox-window": "^7.4.1"
   }
 }
