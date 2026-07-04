@@ -563,7 +563,7 @@
 }
 .box-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(58px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
   gap: var(--space-2);
 }
 .box-cell {
@@ -571,7 +571,7 @@
   flex-direction: column;
   align-items: center;
   gap: 2px;
-  padding: var(--space-2);
+  padding: var(--space-2) var(--space-1);
   border: 1px solid transparent;
   border-radius: var(--radius-control);
   background: var(--surface-inset);
@@ -584,9 +584,26 @@
   border-color: var(--primary);
   background: var(--primary-soft);
 }
+.box-cell__btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  border: none;
+  background: none;
+  color: inherit;
+  padding: 0;
+  width: 100%;
+}
 .box-cell__lv {
   font-size: var(--text-xs);
   color: var(--ink-muted);
+}
+.box-cell .reorder {
+  margin-top: 2px;
+}
+.box-cell .reorder__grip {
+  height: 16px;
 }
 .box-panel__foot {
   margin-top: var(--space-4);

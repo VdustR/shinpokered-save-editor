@@ -16,6 +16,7 @@ import { Badge, Button } from "../components/ui/ui";
 import { EmptyLine } from "../components/EmptyLine";
 import { MonEditor } from "../components/MonEditor";
 import { PageHeader } from "../components/PageHeader";
+import { ReorderControls } from "../components/ReorderControls";
 import { Sprite } from "../components/Sprite";
 import { useDragReorder } from "../components/useDragReorder";
 
@@ -104,18 +105,25 @@ export function BoxesPage() {
                 {contents.mons.map((m, i) => {
                   const sp = speciesByInternalId(m.mon.species);
                   return (
-                    <button
-                      key={i}
-                      type="button"
-                      className={`box-cell ${i === slot ? "box-cell--active" : ""}`}
-                      title={`${m.nickname || sp?.name} · Lv${m.mon.level} · drag to reorder`}
-                      onClick={() => setSlot(i)}
-                      {...drag.gripProps(i)}
-                      {...drag.rowProps(i)}
-                    >
-                      <Sprite dexNo={sp?.dexNo ?? 0} size={44} alt={sp?.name ?? ""} />
-                      <span className="box-cell__lv mono">Lv{m.mon.level}</span>
-                    </button>
+                    <div key={i} className={`box-cell ${i === slot ? "box-cell--active" : ""}`} {...drag.rowProps(i)}>
+                      <button
+                        type="button"
+                        className="box-cell__btn"
+                        title={`${m.nickname || sp?.name} · Lv${m.mon.level}`}
+                        onClick={() => setSlot(i)}
+                      >
+                        <Sprite dexNo={sp?.dexNo ?? 0} size={44} alt={sp?.name ?? ""} />
+                        <span className="box-cell__lv mono">Lv{m.mon.level}</span>
+                      </button>
+                      <ReorderControls
+                        index={i}
+                        count={contents.mons.length}
+                        label={m.nickname || sp?.name || "Pokémon"}
+                        gripProps={drag.gripProps(i)}
+                        onMove={(d) => drag.moveBy(i, d)}
+                        vertical={false}
+                      />
+                    </div>
                   );
                 })}
               </div>
