@@ -411,6 +411,15 @@ const nuzlockeAreas = [];
 }
 if (nuzlockeAreas.length < 40) throw new Error(`Suspiciously few nuzlocke areas: ${nuzlockeAreas.length}`);
 
+// --- Maps (constants/map_constants.asm) ----------------------------------------------------
+// `mapconst NAME, height, width` in id order; ids are sequential from 0.
+const maps = [];
+for (const line of asmLines("constants/map_constants.asm")) {
+  const row = line.match(/^mapconst\s+([A-Z0-9_]+),\s*(\d+),\s*(\d+)$/);
+  if (row) maps.push({ name: row[1], height: Number(row[2]), width: Number(row[3]) });
+}
+if (maps.length !== 248) throw new Error(`Expected 248 maps, got ${maps.length}`);
+
 // --- Hidden items / coins (data/hidden_item_coords.asm + hidden_objects.asm) -------------
 // The pickup code finds the row index of (map,y,x) in HiddenItemCoords /
 // HiddenCoinCoords and uses it as the bit index into
@@ -556,6 +565,7 @@ writeFileSync(
       eventFlags,
       eventFlagUsage,
       nuzlockeAreas,
+      maps,
       hiddenItems,
       hiddenCoins,
       charmap,
