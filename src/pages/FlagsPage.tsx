@@ -1,9 +1,10 @@
 import { useMemo, useState } from "react";
 import { EVENT_FLAGS, eventFlagByteOffset, getEventFlag, setEventFlag } from "../save/events";
 import { fuzzyScore } from "../save/search";
+import { TOWNS, TOWNS_VISITED_OFFSET, getTownVisited, setTownVisited } from "../save/towns";
 import { useNav } from "../state/nav";
 import { useSaveStore } from "../state/store";
-import { OffsetChip, Toggle } from "../components/ui/ui";
+import { Button, OffsetChip, Panel, Toggle } from "../components/ui/ui";
 import { PageHeader } from "../components/PageHeader";
 
 const PAGE_LIMIT = 120;
@@ -45,6 +46,39 @@ export function FlagsPage() {
         title="Story flags"
         subtitle="Named event flags from the game's 320-byte flag table. The game sets these in groups; toggling story milestones out of order can strand NPCs or skip rewards — keep a backup."
       />
+
+      <Panel
+        className="towns-panel"
+        title={
+          <span className="panel-title-row">
+            Fly destinations <OffsetChip offset={TOWNS_VISITED_OFFSET} onJump={jump} />
+          </span>
+        }
+        actions={
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => mutate((b) => TOWNS.forEach((t) => setTownVisited(b, t.mapId, true)))}
+          >
+            Visit all
+          </Button>
+        }
+      >
+        <p className="hint-line">
+          Towns the game marks as visited on entry; a set bit unlocks that Fly destination. Indigo
+          Plateau only affects the town map.
+        </p>
+        <div className="towns-grid">
+          {TOWNS.map((town) => (
+            <Toggle
+              key={town.mapId}
+              checked={getTownVisited(bytes, town.mapId)}
+              label={town.name}
+              onChange={(v) => mutate((b) => setTownVisited(b, town.mapId, v))}
+            />
+          ))}
+        </div>
+      </Panel>
 
       <div className="flags-controls">
         <input

@@ -758,3 +758,13 @@
     display: none;
   }
 }
+
+/* --- Visited towns (Fly destinations) ---------------------------------------- */
+.towns-panel {
+  margin-bottom: var(--space-5);
+}
+.towns-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: var(--space-2) var(--space-4);
+}

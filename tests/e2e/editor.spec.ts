@@ -420,6 +420,18 @@ test("gender symbol derives from the attack DV and Make shiny sets shiny DVs", a
   await expect(page.getByLabel("SPC DV")).toHaveValue("10");
 });
 
+test("visited-town toggles unlock fly bits in the exported save", async ({ page }) => {
+  await loadFixture(page);
+  await page.locator(".sidenav__item", { hasText: "Story Flags" }).click();
+  await page.getByRole("switch", { name: "Saffron City" }).click();
+  await page.getByRole("switch", { name: "Pallet Town" }).click();
+  const bytes = await exportBytes(page);
+  // wTownVisitedFlag -> 0x29b7: Pallet = byte 0 bit 0, Saffron (map $0a) = byte 1 bit 2.
+  expect(bytes[0x29b7] & 0b1).toBe(1);
+  expect(bytes[0x29b8] & 0b100).toBe(0b100);
+  expect(bytes[MAIN_CKSUM]).toBe(gen1MainChecksum(bytes));
+});
+
 test("story flags search and toggle persist into the exported save", async ({ page }) => {
   await loadFixture(page);
   await page.locator(".sidenav__item", { hasText: "Story Flags" }).click();
