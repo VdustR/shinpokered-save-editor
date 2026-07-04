@@ -1,8 +1,11 @@
+import { speciesByInternalId } from "../save/gamedata";
 import { OFFSETS } from "../save/layout";
 import {
   BADGE_NAMES,
   MAX_COINS,
   MAX_MONEY,
+  PLAYER_STARTER_OFFSET,
+  RIVAL_STARTER_OFFSET,
   getBadges,
   getCoins,
   getMoney,
@@ -10,7 +13,9 @@ import {
   getPlayTime,
   getPlayerId,
   getPlayerName,
+  getPlayerStarter,
   getRivalName,
+  getRivalStarter,
   isEncodableName,
   setBadge,
   setCoins,
@@ -19,7 +24,9 @@ import {
   setPlayTime,
   setPlayerId,
   setPlayerName,
+  setPlayerStarter,
   setRivalName,
+  setRivalStarter,
 } from "../save/savefile";
 import {
   RANDOMIZER_SEED_OFFSET,
@@ -36,7 +43,16 @@ import {
 import { isEncodable } from "../save/text";
 import { useNav } from "../state/nav";
 import { useSaveStore } from "../state/store";
-import { Field, NumberInput, NumberWithMax, Panel, Segmented, TextInput, Toggle } from "../components/ui/ui";
+import {
+  Field,
+  NumberInput,
+  NumberWithMax,
+  Panel,
+  Segmented,
+  Select,
+  TextInput,
+  Toggle,
+} from "../components/ui/ui";
 import { PageHeader } from "../components/PageHeader";
 
 const TEXT_SPEEDS = [
@@ -92,6 +108,30 @@ export function TrainerPage() {
                 min={0}
                 max={65535}
                 onValue={(n) => mutate((b) => setPlayerId(b, n))}
+              />
+            </Field>
+            <Field
+              label="Rival's starter"
+              offset={RIVAL_STARTER_OFFSET}
+              onJump={jump}
+              hint="Picks the team he brings to every rival battle."
+            >
+              <StarterSelect
+                ariaLabel="Rival's starter"
+                value={getRivalStarter(bytes)}
+                onChange={(id) => mutate((b) => setRivalStarter(b, id))}
+              />
+            </Field>
+            <Field
+              label="Your starter"
+              offset={PLAYER_STARTER_OFFSET}
+              onJump={jump}
+              hint="Recorded pick; referenced by some dialogue."
+            >
+              <StarterSelect
+                ariaLabel="Your starter"
+                value={getPlayerStarter(bytes)}
+                onChange={(id) => mutate((b) => setPlayerStarter(b, id))}
               />
             </Field>
           </div>
@@ -254,5 +294,40 @@ export function TrainerPage() {
         </Panel>
       </div>
     </div>
+  );
+}
+
+// The three Gen 1 starters by species internal id (constants/starter_mons.asm).
+const STARTERS = [0xb0, 0xb1, 0x99]; // CHARMANDER, SQUIRTLE, BULBASAUR
+
+/**
+ * Starter picker constrained to the three legal values; an out-of-range byte
+ * (possible on odd saves) is shown as a disabled "Unknown" entry so the value
+ * is visible without offering an option the game's team-selection code does
+ * not understand.
+ */
+function StarterSelect({
+  value,
+  onChange,
+  ariaLabel,
+}: {
+  value: number;
+  onChange: (speciesId: number) => void;
+  ariaLabel: string;
+}) {
+  const known = STARTERS.includes(value);
+  return (
+    <Select value={value} aria-label={ariaLabel} onChange={(e) => onChange(Number(e.target.value))}>
+      {!known && (
+        <option value={value} disabled>
+          Unknown (${value.toString(16).padStart(2, "0").toUpperCase()})
+        </option>
+      )}
+      {STARTERS.map((id) => (
+        <option key={id} value={id}>
+          {speciesByInternalId(id)?.name ?? id}
+        </option>
+      ))}
+    </Select>
   );
 }
