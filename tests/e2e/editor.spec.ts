@@ -868,10 +868,11 @@ test.describe("narrow window", () => {
   test("topbar brand never overlaps the action cluster", async ({ page }) => {
     await loadFixture(page);
     const brand = await page.locator(".brand").boundingBox();
-    const undo = await page.getByRole("button", { name: "Undo" }).boundingBox();
+    // The checksum status is the leftmost element of the action cluster.
+    const checksum = await page.locator(".checksum").boundingBox();
     expect(brand).not.toBeNull();
-    expect(undo).not.toBeNull();
-    expect(brand!.x + brand!.width).toBeLessThanOrEqual(undo!.x);
+    expect(checksum).not.toBeNull();
+    expect(brand!.x + brand!.width).toBeLessThanOrEqual(checksum!.x);
   });
 });
 
