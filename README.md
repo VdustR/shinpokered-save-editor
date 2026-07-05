@@ -11,17 +11,43 @@ Your save file never leaves the browser: no upload, no account, no backend.
 
 ## Features
 
-- Parse and edit 32 KiB Gen 1 battery saves: trainer, party, PC boxes,
-  inventory, Pokédex, badges, options, play time.
-- Byte-for-byte round-trip guarantee: exporting without edits reproduces the
-  original file exactly.
-- Automatic checksum validation and repair (main data + per-bank box
-  checksums) on export.
-- Game data (base stats, moves, items, species) generated from the
-  [shinpokered](https://github.com/jojobear13/shinpokered) source at tag
-  `1.25.0` — not hand-copied.
-- Installable PWA with full offline support and in-app update prompt.
-- Responsive layout, automatic light/dark theme.
+Everything runs on the parsed 32 KiB battery save with a byte-for-byte
+round-trip guarantee: exporting without edits reproduces the original file
+exactly, and checksums (main data + per-bank box checksums) are validated and
+repaired only where your edits made them stale.
+
+| Page | What you can do |
+|------|-----------------|
+| **Overview** | File recognition verdict, checksum status, quick stats. |
+| **Trainer** | Names, trainer ID, money/coins, badges, play time, options (with in-game polarity explained), both starters, map position (softlock rescue), win streak, and the Shin feature flags (female trainer, 60 fps, obedience cap, Nuzlocke, GBC colors, randomizer seed, caught/gender indicators). |
+| **Party** | Full mon editor: species/nickname/level, moves with PP & PP Ups, DVs and stat EXP with live stat bars, one-click Max, drag/keyboard reordering, **legality badges** per slot, a **Legality report** tab per mon, **team type coverage** (Shin chart, Ghost→Psychic ×2 included), **Heal team**, and **.pk1 import/export** (PKHeX-compatible). |
+| **Boxes** | All 12 boxes plus the current-box cache kept in sync like the game's own PC, box switching, reordering, .pk1 import/export, and a **living-dex filler** (one of every missing species, dex marked, first-box-switch safe). |
+| **Inventory** | Bag and PC items with quantities, the game's own sort order, search pickers. |
+| **Pokédex** | Seen/owned toggles per species. |
+| **Story Flags** | 500+ named event flags with search, visited towns (Fly unlocks), hidden items/coins, missable item balls. |
+| **Hall of Fame** | View and clear recorded teams; win-count handling. |
+| **Encyclopedia** | Searchable move/item/species reference with type filters and legality info. |
+| **Test Drive** | Boot **your own ROM** (stored only in IndexedDB) with your edits injected as battery SRAM — playable in-browser with keyboard or an on-screen **virtual gamepad** on touch devices, fullscreen mode, and **in-game save detection** that offers to pull the game's save back into the editor. |
+| **Compare** | Semantic diff against the loaded file or any other save — changes described in game terms (money, badges, party slots, box contents, flags), not byte offsets. |
+| **Raw Hex** | Full hex view with edit highlighting and jump-from-field links. |
+
+Plus: **undo/redo everywhere** (Ctrl/⌘Z, capped history of 200 snapshots),
+installable PWA with full offline support and an in-app update prompt,
+responsive layout, automatic light/dark theme.
+
+Game data (base stats, moves, learnsets, items, event flags, type chart, maps)
+is generated from the
+[shinpokered](https://github.com/jojobear13/shinpokered) source at tag
+`1.25.0` — not hand-copied.
+
+## Screenshots
+
+| | |
+|---|---|
+| ![Party editor](docs/screenshots/party.png) | ![Boxes with living dex](docs/screenshots/boxes.png) |
+| ![Trainer page](docs/screenshots/trainer.png) | ![Story flags](docs/screenshots/flags.png) |
+| ![Test drive](docs/screenshots/testdrive.png) | ![Semantic compare](docs/screenshots/compare.png) |
+| ![Encyclopedia](docs/screenshots/encyclopedia.png) | ![Overview](docs/screenshots/overview.png) |
 
 ## Development
 
