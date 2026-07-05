@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.1](https://github.com/VdustR/shinpokered-save-editor/compare/v1.6.0...v1.6.1) (2026-07-05)
+
+
+### Bug Fixes
+
+* add shared package description ([#57](https://github.com/VdustR/shinpokered-save-editor/issues/57)) ([a6a2269](https://github.com/VdustR/shinpokered-save-editor/commit/a6a226921eee921e1e028758ea52186fc83fe1f8))
+
 ## [1.6.0](https://github.com/VdustR/shinpokered-save-editor/compare/v1.5.1...v1.6.0) (2026-07-05)
 
 
