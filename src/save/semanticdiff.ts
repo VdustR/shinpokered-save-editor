@@ -4,6 +4,8 @@
  * byte ranges. Sections with no differences are omitted.
  */
 import { countDirtyBytes } from "./diff";
+import { HIDDEN_COINS, HIDDEN_COINS_OFFSET, HIDDEN_ITEMS, HIDDEN_ITEMS_OFFSET, getHiddenFlag, hiddenSpotLabel } from "./hidden";
+import { MISSABLE_BALLS, getMissable } from "./missables";
 import { EVENT_FLAGS, UNNAMED_EVENT_FLAGS, getEventFlag } from "./events";
 import { itemName, moveName, speciesName, DEX_SPECIES } from "./gamedata";
 import { mapName, getPosition } from "./position";
@@ -14,6 +16,7 @@ import {
   getCoins,
   getCurrentBoxIndex,
   getDayCare,
+  exportSave,
   getMoney,
   getOptions,
   getParty,
@@ -21,14 +24,16 @@ import {
   getPlayTime,
   getPlayerId,
   getPlayerName,
+  getPlayerStarter,
   getRivalName,
+  getRivalStarter,
   isDexOwned,
   isDexSeen,
   readBox,
   type ItemStack,
   type MonSlot,
 } from "./savefile";
-import { getShinFlags, getWinStreak, type ShinFlags } from "./shin";
+import { getRandomizerSeed, getShinFlags, getWinStreak, type ShinFlags } from "./shin";
 import { TOWNS, getTownVisited } from "./towns";
 
 export interface DiffEntry {
@@ -65,9 +70,12 @@ function trainerSection(a: Uint8Array, b: Uint8Array): DiffSection {
   cmp(entries, "Player name", getPlayerName(a), getPlayerName(b));
   cmp(entries, "Rival name", getRivalName(a), getRivalName(b));
   cmp(entries, "Trainer ID", getPlayerId(a), getPlayerId(b));
-  cmp(entries, "Money", getMoney(a).toLocaleString(), getMoney(b).toLocaleString());
+  cmp(entries, "Money", getMoney(a).toLocaleString("en-US"), getMoney(b).toLocaleString("en-US"));
   cmp(entries, "Coins", getCoins(a), getCoins(b));
   cmp(entries, "Win streak", getWinStreak(a), getWinStreak(b));
+  cmp(entries, "Rival's starter", speciesName(getRivalStarter(a)), speciesName(getRivalStarter(b)));
+  cmp(entries, "Your starter", speciesName(getPlayerStarter(a)), speciesName(getPlayerStarter(b)));
+  cmp(entries, "Randomizer seed", getRandomizerSeed(a), getRandomizerSeed(b));
 
   const badgesA = getBadges(a);
   const badgesB = getBadges(b);
@@ -78,12 +86,9 @@ function trainerSection(a: Uint8Array, b: Uint8Array): DiffSection {
 
   const timeA = getPlayTime(a);
   const timeB = getPlayTime(b);
-  cmp(
-    entries,
-    "Play time",
-    `${timeA.hours}:${String(timeA.minutes).padStart(2, "0")}`,
-    `${timeB.hours}:${String(timeB.minutes).padStart(2, "0")}`,
-  );
+  const fmtTime = (t: ReturnType<typeof getPlayTime>) =>
+    `${t.hours}:${String(t.minutes).padStart(2, "0")}:${String(t.seconds).padStart(2, "0")}`;
+  cmp(entries, "Play time", fmtTime(timeA), fmtTime(timeB));
 
   const posA = getPosition(a);
   const posB = getPosition(b);
@@ -122,6 +127,30 @@ function describeSlot(slot: MonSlot): string {
   return `${name}${nick} Lv${slot.mon.level}`;
 }
 
+/** Move list keeping slot positions: internal empties show as "—", trailing empties trimmed. */
+function formatMoves(moves: readonly number[]): string {
+  const named = moves.map((id) => (id ? moveName(id) : "—"));
+  while (named.length && named[named.length - 1] === "—") named.pop();
+  return named.join("/") || "—";
+}
+
+/** Field-level changes between two same-species slots (party, box, or day care). */
+function monFieldChanges(sa: MonSlot, sb: MonSlot): string[] {
+  const sub: string[] = [];
+  if (sa.mon.level !== sb.mon.level) sub.push(`level ${sa.mon.level} → ${sb.mon.level}`);
+  if (sa.nickname !== sb.nickname) sub.push(`nickname ${sa.nickname || "—"} → ${sb.nickname || "—"}`);
+  const movesA = formatMoves(sa.mon.moves);
+  const movesB = formatMoves(sb.mon.moves);
+  if (movesA !== movesB) sub.push(`moves ${movesA} → ${movesB}`);
+  if (sa.mon.pp.join() !== sb.mon.pp.join()) sub.push("PP changed");
+  if (JSON.stringify(sa.mon.dvs) !== JSON.stringify(sb.mon.dvs)) sub.push("DVs changed");
+  if (JSON.stringify(sa.mon.statExp) !== JSON.stringify(sb.mon.statExp)) sub.push("stat EXP changed");
+  if (sa.mon.exp !== sb.mon.exp) sub.push(`EXP ${sa.mon.exp} → ${sb.mon.exp}`);
+  if (sa.mon.currentHp !== sb.mon.currentHp) sub.push(`HP ${sa.mon.currentHp} → ${sb.mon.currentHp}`);
+  if (sa.mon.status !== sb.mon.status) sub.push("status changed");
+  return sub;
+}
+
 function monsSection(title: string, slotsA: MonSlot[], slotsB: MonSlot[]): DiffSection {
   const entries: DiffEntry[] = [];
   const max = Math.max(slotsA.length, slotsB.length);
@@ -142,15 +171,7 @@ function monsSection(title: string, slotsA: MonSlot[], slotsB: MonSlot[]): DiffS
       entries.push(entry(label, describeSlot(sa), describeSlot(sb)));
       continue;
     }
-    const sub: string[] = [];
-    if (sa.mon.level !== sb.mon.level) sub.push(`level ${sa.mon.level} → ${sb.mon.level}`);
-    if (sa.nickname !== sb.nickname) sub.push(`nickname ${sa.nickname || "—"} → ${sb.nickname || "—"}`);
-    const movesA = sa.mon.moves.filter(Boolean).map(moveName).join("/");
-    const movesB = sb.mon.moves.filter(Boolean).map(moveName).join("/");
-    if (movesA !== movesB) sub.push(`moves ${movesA || "—"} → ${movesB || "—"}`);
-    if (JSON.stringify(sa.mon.dvs) !== JSON.stringify(sb.mon.dvs)) sub.push("DVs changed");
-    if (JSON.stringify(sa.mon.statExp) !== JSON.stringify(sb.mon.statExp)) sub.push("stat EXP changed");
-    if (sa.mon.currentHp !== sb.mon.currentHp) sub.push(`HP ${sa.mon.currentHp} → ${sb.mon.currentHp}`);
+    const sub = monFieldChanges(sa, sb);
     if (sub.length) entries.push(entry(`${label} ${speciesName(sa.mon.species)}`, "…", sub.join("; ")));
   }
   return { title, entries };
@@ -199,7 +220,12 @@ function dayCareSection(a: Uint8Array, b: Uint8Array): DiffSection {
   const dcB = getDayCare(b);
   const label = (dc: ReturnType<typeof getDayCare>) =>
     dc.inUse && dc.mon ? describeSlot(dc.mon) : "empty";
-  cmp(entries, "Day care", label(dcA), label(dcB));
+  if (label(dcA) !== label(dcB)) {
+    entries.push(entry("Day care", label(dcA), label(dcB)));
+  } else if (dcA.mon && dcB.mon && dcA.mon.mon.species === dcB.mon.mon.species) {
+    const sub = monFieldChanges(dcA.mon, dcB.mon);
+    if (sub.length) entries.push(entry(`Day care ${speciesName(dcA.mon.mon.species)}`, "…", sub.join("; ")));
+  }
   return { title: "Day care", entries };
 }
 
@@ -272,6 +298,31 @@ function flagsSection(a: Uint8Array, b: Uint8Array): DiffSection {
     if (va !== vb) towns.push(`${vb ? "+" : "−"}${town.name}`);
   }
   if (towns.length) entries.push(entry("Visited towns", "…", listPreview(towns)));
+
+  const hiddenItems: string[] = [];
+  HIDDEN_ITEMS.forEach((spot, i) => {
+    const va = getHiddenFlag(a, HIDDEN_ITEMS_OFFSET, i);
+    const vb = getHiddenFlag(b, HIDDEN_ITEMS_OFFSET, i);
+    if (va !== vb) hiddenItems.push(`${vb ? "+" : "−"}${hiddenSpotLabel(spot)}`);
+  });
+  if (hiddenItems.length) entries.push(entry("Hidden items collected", "…", listPreview(hiddenItems)));
+
+  const hiddenCoins: string[] = [];
+  HIDDEN_COINS.forEach((spot, i) => {
+    const va = getHiddenFlag(a, HIDDEN_COINS_OFFSET, i);
+    const vb = getHiddenFlag(b, HIDDEN_COINS_OFFSET, i);
+    if (va !== vb) hiddenCoins.push(`${vb ? "+" : "−"}${hiddenSpotLabel(spot, "coins")}`);
+  });
+  if (hiddenCoins.length) entries.push(entry("Hidden coins collected", "…", listPreview(hiddenCoins)));
+
+  const balls: string[] = [];
+  for (const ball of MISSABLE_BALLS) {
+    const va = getMissable(a, ball.index);
+    const vb = getMissable(b, ball.index);
+    if (va !== vb)
+      balls.push(`${vb ? "+" : "−"}${ball.item !== null ? itemName(ball.item) : "?"} (${ball.map})`);
+  }
+  if (balls.length) entries.push(entry("Item balls taken", "…", listPreview(balls)));
   return { title: "Flags & world", entries };
 }
 
@@ -288,11 +339,16 @@ export function semanticDiff(a: Uint8Array, b: Uint8Array): DiffSection[] {
     flagsSection(a, b),
   ].filter((s) => s.entries.length > 0);
 
-  const dirty = countDirtyBytes(a, b);
-  if (dirty > 0) {
+  // Compare export-quality copies so pending checksum repairs are counted;
+  // the working buffer keeps stale checksum bytes until export.
+  const dirty = countDirtyBytes(exportSave(a), exportSave(b));
+  const rawDirty = countDirtyBytes(a, b);
+  if (dirty > 0 || rawDirty > 0) {
     sections.push({
       title: "Raw",
-      entries: [entry("Changed bytes (including checksums)", "…", dirty.toLocaleString())],
+      entries: [
+        entry("Changed bytes as exported (including checksums)", "…", Math.max(dirty, rawDirty).toLocaleString("en-US")),
+      ],
     });
   }
   return sections;

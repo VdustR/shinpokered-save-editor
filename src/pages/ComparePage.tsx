@@ -37,6 +37,9 @@ export function ComparePage() {
       setOther({ name: file.name, bytes: parsed });
       setFileError(null);
     } catch (e) {
+      // Drop any previous baseline so the page never renders a diff that
+      // looks like it came from the file that just failed to load.
+      setOther(null);
       setFileError(e instanceof Error ? e.message : String(e));
     }
   }

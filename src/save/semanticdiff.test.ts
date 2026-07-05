@@ -10,6 +10,9 @@ import {
   setPlayerName,
   writeBoxMon,
 } from "./savefile";
+import { setHiddenFlag, HIDDEN_ITEMS_OFFSET } from "./hidden";
+import { setRandomizerSeed } from "./shin";
+import { setRivalStarter } from "./savefile";
 import { semanticDiff } from "./semanticdiff";
 
 const BULBASAUR = 153;
@@ -81,6 +84,42 @@ describe("semanticDiff", () => {
     const flags = section(d, "Flags & world");
     expect(flags?.entries.some((e) => e.to.includes("+EVENT_FOLLOWED_OAK_INTO_LAB"))).toBe(true);
     expect(flags?.entries.some((e) => e.label === "Unnamed flags changed" && e.to === "1")).toBe(true);
+  });
+
+  it("reports starters, randomizer seed, and hidden pickups semantically", () => {
+    const a = blank();
+    const b = blank();
+    setRivalStarter(b, BULBASAUR);
+    setRandomizerSeed(b, 0xdeadbeef);
+    setHiddenFlag(b, HIDDEN_ITEMS_OFFSET, 0, true);
+    const d = semanticDiff(a, b);
+    const trainer = section(d, "Trainer");
+    expect(trainer?.entries.some((e) => e.label === "Rival's starter" && e.to === "BULBASAUR")).toBe(true);
+    expect(trainer?.entries.some((e) => e.label === "Randomizer seed")).toBe(true);
+    expect(section(d, "Flags & world")?.entries.some((e) => e.label === "Hidden items collected")).toBe(
+      true,
+    );
+  });
+
+  it("surfaces PP-only changes and keeps move slot positions distinct", () => {
+    const a = blank();
+    const b = blank();
+    const monA = createMon(BULBASAUR, 5);
+    monA.moves = [33, 0, 45, 0];
+    const monB = createMon(BULBASAUR, 5);
+    monB.moves = [33, 45, 0, 0]; // same set, different slots
+    setPartyMon(a, 0, monA, { nickname: "X", otName: "V" });
+    setPartyMon(b, 0, monB, { nickname: "X", otName: "V" });
+    const moved = section(semanticDiff(a, b), "Party");
+    expect(moved?.entries.some((e) => /moves TACKLE\/—\/GROWL → TACKLE\/GROWL/.test(e.to))).toBe(true);
+
+    const c = blank();
+    const monC = createMon(BULBASAUR, 5);
+    monC.moves = [33, 0, 45, 0];
+    monC.pp = [10, 0, 40, 0];
+    setPartyMon(c, 0, monC, { nickname: "X", otName: "V" });
+    const ppOnly = section(semanticDiff(a, c), "Party");
+    expect(ppOnly?.entries.some((e) => /PP changed/.test(e.to))).toBe(true);
   });
 
   it("always includes the raw changed-byte count when anything differs", () => {
