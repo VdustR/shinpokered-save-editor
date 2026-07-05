@@ -860,6 +860,43 @@ test.describe("touch device", () => {
   });
 });
 
+test.describe("narrow touch device", () => {
+  test.use({ hasTouch: true, viewport: { width: 360, height: 740 } });
+
+  test("virtual pad and screen fit the viewport, in page and fullscreen", async ({ page }) => {
+    await loadFixture(page);
+    await page.locator(".sidenav__item", { hasText: "Test Drive" }).click();
+    const pad = page.getByTestId("virtual-pad");
+    await expect(pad).toBeVisible();
+
+    const expectEverythingFits = async () => {
+      // No horizontal page overflow…
+      const overflow = await page.evaluate(
+        () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+      );
+      expect(overflow).toBeLessThanOrEqual(0);
+      // …and every pad button and the screen sit fully inside the viewport.
+      for (const name of ["Up", "Down", "Left", "Right", "A", "B", "Start", "Select"]) {
+        const box = await pad.getByRole("button", { name, exact: true }).boundingBox();
+        expect(box).not.toBeNull();
+        expect(box!.x).toBeGreaterThanOrEqual(0);
+        expect(box!.x + box!.width).toBeLessThanOrEqual(360);
+      }
+      const canvas = await page.getByTestId("gb-canvas").boundingBox();
+      expect(canvas).not.toBeNull();
+      expect(canvas!.x).toBeGreaterThanOrEqual(0);
+      expect(canvas!.x + canvas!.width).toBeLessThanOrEqual(360);
+    };
+
+    await expectEverythingFits();
+
+    await page.getByTestId("fullscreen-toggle").click();
+    await expect(page.getByTestId("fullscreen-toggle")).toHaveText("Exit full screen");
+    await expectEverythingFits();
+    await page.getByTestId("stage").getByRole("button", { name: "Exit full screen" }).click();
+  });
+});
+
 test("box pk1 export/import round-trips through the current box", async ({ page }) => {
   await loadFixture(page);
   await page.locator(".sidenav__item", { hasText: "Boxes" }).click();

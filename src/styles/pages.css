@@ -1108,6 +1108,7 @@
 
 .vpad {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-3);
@@ -1208,6 +1209,16 @@
   background: rgba(255, 255, 255, 0.12);
   border-color: rgba(255, 255, 255, 0.28);
   color: #fff;
+}
+
+/* Narrow screens: a single row cannot fit all three clusters, so SELECT/START
+   wraps to a centered second row — the physical Game Boy arrangement. */
+@media (max-width: 560px) {
+  .vpad__middle {
+    order: 3;
+    flex-basis: 100%;
+    justify-content: center;
+  }
 }
 
 @media (max-width: 480px) {
