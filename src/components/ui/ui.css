@@ -229,6 +229,10 @@
      reflows text in place); scroll the strip instead on narrow screens. */
   max-width: 100%;
   overflow-x: auto;
+  scrollbar-width: none;
+}
+.segmented::-webkit-scrollbar {
+  display: none;
 }
 .segmented__btn {
   border: none;

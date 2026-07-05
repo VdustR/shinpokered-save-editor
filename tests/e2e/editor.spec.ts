@@ -868,6 +868,7 @@ test.describe("narrow touch device", () => {
     await page.locator(".sidenav__item", { hasText: "Party" }).click();
     await page.getByRole("button", { name: "Add Pok\u00e9mon" }).first().click();
     const tab = page.getByRole("button", { name: "DVs & EXP" });
+    await expect(tab).toBeVisible();
     const box = await tab.boundingBox();
     expect(box).not.toBeNull();
     // A wrapped label roughly doubles the 28px pill; nowrap keeps it flat.
