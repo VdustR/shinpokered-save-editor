@@ -161,13 +161,13 @@ export function TestDrivePage() {
     const save = exportSave(bytes, original ?? undefined);
     baselineRef.current = Uint8Array.from(save);
     setSaveDetected(false);
-    driveRef.current = startTestDrive({
+    const drive = await startTestDrive({
       rom: rom.bytes,
       save,
       canvas: canvasRef.current,
       sound,
       onSramWrite: (sram) => {
-        // A stopped session's debounced callback may still fire; ignore it.
+        // A stopped session's throttled callback may still fire; ignore it.
         if (myBootId !== bootIdRef.current) return;
         // Bank-0 sprite scratch fires this constantly; only a rewrite of the
         // bank-1 main region means the player used SAVE in-game.
@@ -176,6 +176,12 @@ export function TestDrivePage() {
         }
       },
     });
+    if (myBootId !== bootIdRef.current) {
+      // Superseded while the wasm core was loading; don't leak the run loop.
+      drive.stop();
+      return;
+    }
+    driveRef.current = drive;
     setRunning(true);
     setNotice(null);
     canvasRef.current.focus();

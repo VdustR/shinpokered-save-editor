@@ -969,17 +969,13 @@ test("in-game SAVE is detected and offered for pull-back", async ({ page }) => {
     await page.waitForTimeout(settle);
   }
 
-  // Verified interactively: inputs during screen transitions are eaten, so
-  // the intro gets a full settle and extra presses along the way are no-ops.
+  // Verified interactively: inputs during screen transitions are eaten, and
+  // START is a no-op on the main menu, so repeated Enter presses converge
+  // there from anywhere in the intro/title sequence.
   await page.waitForTimeout(20000); // boot + GAME FREAK intro
-  await press("Enter", 3500); // -> title
-  await press("Enter", 3500); // START -> main menu
+  for (let i = 0; i < 4; i++) await press("Enter", 3000); // -> main menu
   await press("KeyX", 3000); // A: CONTINUE (save summary opens)
-  await press("KeyX", 3500); // A: enter the overworld
-  await press("Enter", 2500);
-  await press("ArrowDown", 800);
-  await press("KeyX", 2500);
-  await press("KeyX", 5000); // noise absorbed by transitions; ends in overworld
+  await press("KeyX", 4000); // A: enter the overworld
 
   // Long gameplay so far, plenty of sprite-scratch SRAM writes: no banner.
   await expect(page.getByTestId("save-detected")).toHaveCount(0);
