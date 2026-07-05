@@ -1,11 +1,22 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { PageHeader } from "../components/PageHeader";
+import { VirtualPad } from "../components/VirtualPad";
 import { Badge, Button, Panel, Toggle } from "../components/ui/ui";
 import { assessRom, type RomAssessment } from "../emu/rom";
 import { clearRom, loadRom, saveRom, type StoredRom } from "../emu/romstore";
-import type { TestDrive } from "../emu/testdrive";
+import type { GbButton, TestDrive } from "../emu/testdrive";
 import { exportSave, parseSave } from "../save/savefile";
 import { useSaveStore } from "../state/store";
+
+/**
+ * Touch capability, not device class: coarse pointers and touch points cover
+ * phones/tablets without user-agent sniffing, and the pad stays available as
+ * a manual toggle for everything else (touch laptops, pen displays).
+ */
+function detectTouch(): boolean {
+  if (typeof window === "undefined") return false;
+  return window.matchMedia?.("(pointer: coarse)").matches || navigator.maxTouchPoints > 0;
+}
 
 const KEYS = [
   ["Arrows", "D-pad"],
@@ -25,12 +36,41 @@ export function TestDrivePage() {
   const [running, setRunning] = useState(false);
   const [sound, setSound] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
+  const [padOn, setPadOn] = useState(detectTouch);
+  const [fullscreen, setFullscreen] = useState(false);
+  /** True when the Fullscreen API is unavailable and a fixed overlay fills in. */
+  const [cssFullscreen, setCssFullscreen] = useState(false);
+  const stageRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const driveRef = useRef<TestDrive | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   // Bumped on every stop/boot so a boot that was superseded while awaiting
   // the code-split emulator import bails out instead of double-starting.
   const bootIdRef = useRef(0);
+
+  // Track native fullscreen changes (Esc, system UI) and lock page scroll
+  // while the CSS-overlay fallback is active.
+  useEffect(() => {
+    function onChange() {
+      setFullscreen(document.fullscreenElement === stageRef.current && stageRef.current !== null);
+    }
+    document.addEventListener("fullscreenchange", onChange);
+    return () => document.removeEventListener("fullscreenchange", onChange);
+  }, []);
+  useEffect(() => {
+    if (!cssFullscreen) return;
+    const prev = document.documentElement.style.overflow;
+    document.documentElement.style.overflow = "hidden";
+    // Match native fullscreen: Escape leaves the overlay fallback too.
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") setCssFullscreen(false);
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.documentElement.style.overflow = prev;
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [cssFullscreen]);
 
   useEffect(() => {
     let cancelled = false;
@@ -77,6 +117,26 @@ export function TestDrivePage() {
     await saveRom(file.name, data).catch(() => {});
     setRom({ name: file.name, bytes: data });
     setNotice(null);
+  }
+
+  async function toggleFullscreen() {
+    if (fullscreen || cssFullscreen) {
+      if (document.fullscreenElement) await document.exitFullscreen().catch(() => {});
+      setCssFullscreen(false);
+      return;
+    }
+    const stage = stageRef.current;
+    if (!stage) return;
+    // iPhone Safari has no element fullscreen; fall back to a fixed overlay.
+    if (stage.requestFullscreen) {
+      try {
+        await stage.requestFullscreen();
+        return;
+      } catch {
+        // fall through to the CSS overlay
+      }
+    }
+    setCssFullscreen(true);
   }
 
   function stopDrive() {
@@ -198,6 +258,11 @@ export function TestDrivePage() {
               Pull save into editor
             </Button>
             <Toggle
+              checked={padOn}
+              label="Virtual gamepad"
+              onChange={setPadOn}
+            />
+            <Toggle
               checked={sound}
               label="Sound"
               onChange={(v) => {
@@ -231,17 +296,44 @@ export function TestDrivePage() {
           )}
         </Panel>
 
-        <Panel title="Screen" className="span-2">
-          <div className={`testdrive__stage ${running ? "testdrive__stage--on" : ""}`}>
-            <canvas
-              ref={canvasRef}
-              data-testid="gb-canvas"
-              width={160}
-              height={144}
-              tabIndex={-1}
-              aria-label="Game Boy screen"
-            />
-            {!running && <span className="testdrive__stage-hint">Screen off — boot to start playing.</span>}
+        <Panel
+          title="Screen"
+          className="span-2"
+          actions={
+            <Button size="sm" variant="ghost" onClick={() => void toggleFullscreen()} data-testid="fullscreen-toggle">
+              {fullscreen || cssFullscreen ? "Exit full screen" : "Full screen"}
+            </Button>
+          }
+        >
+          <div
+            ref={stageRef}
+            className={`testdrive__stage ${running ? "testdrive__stage--on" : ""} ${
+              cssFullscreen ? "testdrive__stage--overlay" : ""
+            }`}
+            data-testid="stage"
+          >
+            <div className="testdrive__screenbox">
+              <canvas
+                ref={canvasRef}
+                data-testid="gb-canvas"
+                width={160}
+                height={144}
+                tabIndex={-1}
+                aria-label="Game Boy screen"
+              />
+              {!running && <span className="testdrive__stage-hint">Screen off — boot to start playing.</span>}
+            </div>
+            {(fullscreen || cssFullscreen) && (
+              <button
+                type="button"
+                className="testdrive__exit-fs"
+                onClick={() => void toggleFullscreen()}
+                aria-label="Exit full screen"
+              >
+                ✕
+              </button>
+            )}
+            {padOn && <VirtualPad onButton={(b: GbButton, pressed) => driveRef.current?.setButton(b, pressed)} />}
           </div>
         </Panel>
       </div>

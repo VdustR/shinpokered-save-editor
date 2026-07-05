@@ -1,10 +1,25 @@
 import { Gameboy } from "@neil-morrison44/gameboy-emulator";
 import { toTightBuffer } from "./rom";
 
+export type GbButton = "up" | "down" | "left" | "right" | "a" | "b" | "start" | "select";
+
+const INPUT_FLAGS = {
+  up: "isPressingUp",
+  down: "isPressingDown",
+  left: "isPressingLeft",
+  right: "isPressingRight",
+  a: "isPressingA",
+  b: "isPressingB",
+  start: "isPressingStart",
+  select: "isPressingSelect",
+} as const;
+
 export interface TestDrive {
   stop: () => void;
   /** Current cartridge SRAM (32 KiB) — the in-emulator save. */
   readSram: () => Uint8Array | null;
+  /** Press/release a button programmatically (virtual gamepad). */
+  setButton: (button: GbButton, pressed: boolean) => void;
 }
 
 export interface TestDriveOptions {
@@ -43,8 +58,18 @@ export function startTestDrive({ rom, save, canvas, sound }: TestDriveOptions): 
   if (sound) gameboy.apu?.enableSound();
   gameboy.run();
 
+  const releaseAllButtons = () => {
+    for (const flag of Object.values(INPUT_FLAGS)) gameboy.input[flag] = false;
+  };
+
   return {
-    stop: () => gameboy.stop(),
+    stop: () => {
+      releaseAllButtons(); // no stuck inputs across restarts
+      gameboy.stop();
+    },
+    setButton: (button, pressed) => {
+      gameboy.input[INPUT_FLAGS[button]] = pressed;
+    },
     readSram: () => {
       const sram = gameboy.getCartridgeSaveRam();
       // The mapper only ever addresses the first 32 KiB; anything beyond is
