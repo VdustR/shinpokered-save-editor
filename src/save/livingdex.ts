@@ -8,6 +8,7 @@ import {
   getDayCare,
   getParty,
   getPlayerId,
+  markBoxesInitialized,
   readBox,
   setDexOwned,
   setDexSeen,
@@ -43,6 +44,14 @@ function presentSpecies(bytes: Uint8Array): Set<number> {
 export function fillLivingDex(bytes: Uint8Array, otName: string): LivingDexResult {
   const present = presentSpecies(bytes);
   const missing = DEX_SPECIES.filter((sp) => !present.has(sp.internalId));
+  // A living dex means a complete Pokédex too: species already in the save
+  // may have unset dex bits on edited or imported files.
+  for (const sp of DEX_SPECIES) {
+    if (present.has(sp.internalId)) {
+      setDexSeen(bytes, sp.dexNo, true);
+      setDexOwned(bytes, sp.dexNo, true);
+    }
+  }
   // Match the save's trainer ID; a mismatched OT id/name makes Gen 1 treat
   // the mon as traded (boosted EXP, possible disobedience).
   const otId = getPlayerId(bytes);
@@ -64,5 +73,8 @@ export function fillLivingDex(bytes: Uint8Array, otName: string): LivingDexResul
     slot++;
     added++;
   }
+  // Stored boxes written before the first in-game box switch would be wiped
+  // by the game's EmptyAllSRAMBoxes; mark them initialized so they survive.
+  if (added > 0) markBoxesInitialized(bytes);
   return { added, skippedForSpace: missing.length - added };
 }

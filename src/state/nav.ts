@@ -11,6 +11,7 @@ export type PageId =
   | "hof"
   | "encyclopedia"
   | "testdrive"
+  | "compare"
   | "hex";
 
 interface NavState {

@@ -25,6 +25,19 @@ describe("fillLivingDex", () => {
     expect(readBox(bytes, 8).mons).toHaveLength(0);
     expect(isDexOwned(bytes, 1)).toBe(true);
     expect(isDexSeen(bytes, 151)).toBe(true);
+    // Boxes are marked initialized so the game's first in-game box switch
+    // does not wipe them, and untouched boxes are valid empties.
+    expect(bytes[0x284c] & 0x80).toBe(0x80);
+    expect(readBox(bytes, 11).initialized).toBe(true);
+  });
+
+  it("marks the dex for species already present with unset dex bits", () => {
+    const bytes = new Uint8Array(0x8000);
+    setPartyMon(bytes, 0, createMon(BULBASAUR, 42), { nickname: "LEAFY", otName: "V" });
+    expect(isDexOwned(bytes, 1)).toBe(false);
+    fillLivingDex(bytes, "VIPRO");
+    expect(isDexOwned(bytes, 1)).toBe(true);
+    expect(isDexSeen(bytes, 1)).toBe(true);
   });
 
   it("skips species already in the party or boxes and keeps existing mons", () => {

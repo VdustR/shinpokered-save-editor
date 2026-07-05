@@ -38,11 +38,13 @@ export function BoxesPage() {
       result = fillLivingDex(b, getPlayerName(b) || "TRAINER");
     });
     setDexNotice(
-      result.added === 0
-        ? "Nothing to add — every species is already in this save."
-        : `Added ${result.added} species at Lv5 in dex order${
-            result.skippedForSpace ? `; ${result.skippedForSpace} did not fit` : ""
-          }. Undo (Ctrl/⌘Z) reverts the whole fill.`,
+      result.added === 0 && result.skippedForSpace > 0
+        ? `No space left in the boxes — ${result.skippedForSpace} species could not be added.`
+        : result.added === 0
+          ? "Nothing to add — every species is already in this save."
+          : `Added ${result.added} species at Lv5 in dex order${
+              result.skippedForSpace ? `; ${result.skippedForSpace} did not fit` : ""
+            }. Undo (Ctrl/⌘Z) reverts the whole fill.`,
     );
   }
   const [slot, setSlot] = useState(0);

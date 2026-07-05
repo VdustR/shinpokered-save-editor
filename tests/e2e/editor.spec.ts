@@ -769,6 +769,28 @@ test("pk1 export and re-import round-trips a party mon", async ({ page }) => {
   expect(exported[MAIN_CKSUM]).toBe(gen1MainChecksum(exported));
 });
 
+test("compare page reports semantic changes against the loaded file", async ({ page }) => {
+  await loadFixture(page);
+  await page.locator(".sidenav__item", { hasText: "Compare" }).click();
+  await expect(page.getByTestId("compare-clean")).toBeVisible();
+
+  // Change money, then the diff should describe it in game terms.
+  await page.locator(".sidenav__item", { hasText: "Trainer" }).click();
+  const money = page.getByTestId("money-input");
+  await money.fill("123456");
+  await money.blur();
+  await page.locator(".sidenav__item", { hasText: "Compare" }).click();
+  const trainer = page.getByTestId("compare-Trainer");
+  await expect(trainer).toContainText("Money");
+  await expect(trainer).toContainText("3,000");
+  await expect(trainer).toContainText("123,456");
+
+  // Comparing against a copy of the fixture as "another file" shows the same diff.
+  await page.getByRole("button", { name: "Another file" }).click();
+  await page.setInputFiles('[data-testid="compare-input"]', fixturePath);
+  await expect(page.getByTestId("compare-Trainer")).toContainText("Money");
+});
+
 test("living dex filler populates boxes and marks the dex", async ({ page }) => {
   await loadFixture(page);
   await page.locator(".sidenav__item", { hasText: "Boxes" }).click();
