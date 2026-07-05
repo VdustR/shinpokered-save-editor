@@ -17753,6 +17753,538 @@
    "width": 5
   }
  ],
+ "missableBalls": [
+  {
+   "index": 25,
+   "map": "ROUTE_2",
+   "item": 10
+  },
+  {
+   "index": 26,
+   "map": "ROUTE_2",
+   "item": 35
+  },
+  {
+   "index": 27,
+   "map": "ROUTE_4",
+   "item": 204
+  },
+  {
+   "index": 28,
+   "map": "ROUTE_9",
+   "item": 230
+  },
+  {
+   "index": 30,
+   "map": "ROUTE_12",
+   "item": 216
+  },
+  {
+   "index": 31,
+   "map": "ROUTE_12",
+   "item": 37
+  },
+  {
+   "index": 32,
+   "map": "ROUTE_15",
+   "item": 220
+  },
+  {
+   "index": 37,
+   "map": "ROUTE_24",
+   "item": 245
+  },
+  {
+   "index": 38,
+   "map": "ROUTE_25",
+   "item": 219
+  },
+  {
+   "index": 51,
+   "map": "VIRIDIAN_GYM",
+   "item": 53
+  },
+  {
+   "index": 53,
+   "map": "UNKNOWN_DUNGEON_1",
+   "item": 16
+  },
+  {
+   "index": 54,
+   "map": "UNKNOWN_DUNGEON_1",
+   "item": 83
+  },
+  {
+   "index": 55,
+   "map": "UNKNOWN_DUNGEON_1",
+   "item": 49
+  },
+  {
+   "index": 57,
+   "map": "POKEMONTOWER_3",
+   "item": 29
+  },
+  {
+   "index": 58,
+   "map": "POKEMONTOWER_4",
+   "item": 82
+  },
+  {
+   "index": 59,
+   "map": "POKEMONTOWER_4",
+   "item": 14
+  },
+  {
+   "index": 60,
+   "map": "POKEMONTOWER_4",
+   "item": 35
+  },
+  {
+   "index": 61,
+   "map": "POKEMONTOWER_5",
+   "item": 49
+  },
+  {
+   "index": 62,
+   "map": "POKEMONTOWER_6",
+   "item": 40
+  },
+  {
+   "index": 63,
+   "map": "POKEMONTOWER_6",
+   "item": 46
+  },
+  {
+   "index": 71,
+   "map": "FUCHSIA_HOUSE_2",
+   "item": 40
+  },
+  {
+   "index": 72,
+   "map": "MANSION_1",
+   "item": 29
+  },
+  {
+   "index": 73,
+   "map": "MANSION_1",
+   "item": 38
+  },
+  {
+   "index": 86,
+   "map": "POWER_PLANT",
+   "item": 38
+  },
+  {
+   "index": 87,
+   "map": "POWER_PLANT",
+   "item": 35
+  },
+  {
+   "index": 88,
+   "map": "POWER_PLANT",
+   "item": 40
+  },
+  {
+   "index": 89,
+   "map": "POWER_PLANT",
+   "item": 225
+  },
+  {
+   "index": 90,
+   "map": "POWER_PLANT",
+   "item": 233
+  },
+  {
+   "index": 92,
+   "map": "VICTORY_ROAD_2",
+   "item": 217
+  },
+  {
+   "index": 93,
+   "map": "VICTORY_ROAD_2",
+   "item": 52
+  },
+  {
+   "index": 94,
+   "map": "VICTORY_ROAD_2",
+   "item": 205
+  },
+  {
+   "index": 95,
+   "map": "VICTORY_ROAD_2",
+   "item": 55
+  },
+  {
+   "index": 100,
+   "map": "VIRIDIAN_FOREST",
+   "item": 11
+  },
+  {
+   "index": 101,
+   "map": "VIRIDIAN_FOREST",
+   "item": 20
+  },
+  {
+   "index": 102,
+   "map": "VIRIDIAN_FOREST",
+   "item": 4
+  },
+  {
+   "index": 103,
+   "map": "MT_MOON_1",
+   "item": 20
+  },
+  {
+   "index": 104,
+   "map": "MT_MOON_1",
+   "item": 10
+  },
+  {
+   "index": 105,
+   "map": "MT_MOON_1",
+   "item": 40
+  },
+  {
+   "index": 106,
+   "map": "MT_MOON_1",
+   "item": 29
+  },
+  {
+   "index": 107,
+   "map": "MT_MOON_1",
+   "item": 20
+  },
+  {
+   "index": 108,
+   "map": "MT_MOON_1",
+   "item": 56
+  },
+  {
+   "index": 111,
+   "map": "MT_MOON_3",
+   "item": 35
+  },
+  {
+   "index": 112,
+   "map": "MT_MOON_3",
+   "item": 201
+  },
+  {
+   "index": 114,
+   "map": "SS_ANNE_8",
+   "item": 208
+  },
+  {
+   "index": 115,
+   "map": "SS_ANNE_9",
+   "item": 81
+  },
+  {
+   "index": 116,
+   "map": "SS_ANNE_9",
+   "item": 40
+  },
+  {
+   "index": 117,
+   "map": "SS_ANNE_10",
+   "item": 80
+  },
+  {
+   "index": 118,
+   "map": "SS_ANNE_10",
+   "item": 244
+  },
+  {
+   "index": 119,
+   "map": "SS_ANNE_10",
+   "item": 17
+  },
+  {
+   "index": 120,
+   "map": "VICTORY_ROAD_3",
+   "item": 54
+  },
+  {
+   "index": 121,
+   "map": "VICTORY_ROAD_3",
+   "item": 247
+  },
+  {
+   "index": 123,
+   "map": "ROCKET_HIDEOUT_1",
+   "item": 29
+  },
+  {
+   "index": 124,
+   "map": "ROCKET_HIDEOUT_1",
+   "item": 18
+  },
+  {
+   "index": 125,
+   "map": "ROCKET_HIDEOUT_2",
+   "item": 10
+  },
+  {
+   "index": 126,
+   "map": "ROCKET_HIDEOUT_2",
+   "item": 49
+  },
+  {
+   "index": 127,
+   "map": "ROCKET_HIDEOUT_2",
+   "item": 207
+  },
+  {
+   "index": 128,
+   "map": "ROCKET_HIDEOUT_2",
+   "item": 19
+  },
+  {
+   "index": 129,
+   "map": "ROCKET_HIDEOUT_3",
+   "item": 210
+  },
+  {
+   "index": 130,
+   "map": "ROCKET_HIDEOUT_3",
+   "item": 40
+  },
+  {
+   "index": 132,
+   "map": "ROCKET_HIDEOUT_4",
+   "item": 35
+  },
+  {
+   "index": 133,
+   "map": "ROCKET_HIDEOUT_4",
+   "item": 202
+  },
+  {
+   "index": 134,
+   "map": "ROCKET_HIDEOUT_4",
+   "item": 37
+  },
+  {
+   "index": 135,
+   "map": "ROCKET_HIDEOUT_4",
+   "item": 72
+  },
+  {
+   "index": 136,
+   "map": "ROCKET_HIDEOUT_4",
+   "item": 74
+  },
+  {
+   "index": 144,
+   "map": "SILPH_CO_3F",
+   "item": 18
+  },
+  {
+   "index": 148,
+   "map": "SILPH_CO_4F",
+   "item": 52
+  },
+  {
+   "index": 149,
+   "map": "SILPH_CO_4F",
+   "item": 54
+  },
+  {
+   "index": 150,
+   "map": "SILPH_CO_4F",
+   "item": 29
+  },
+  {
+   "index": 155,
+   "map": "SILPH_CO_5F",
+   "item": 209
+  },
+  {
+   "index": 156,
+   "map": "SILPH_CO_5F",
+   "item": 36
+  },
+  {
+   "index": 157,
+   "map": "SILPH_CO_5F",
+   "item": 48
+  },
+  {
+   "index": 161,
+   "map": "SILPH_CO_6F",
+   "item": 35
+  },
+  {
+   "index": 162,
+   "map": "SILPH_CO_6F",
+   "item": 46
+  },
+  {
+   "index": 168,
+   "map": "SILPH_CO_7F",
+   "item": 39
+  },
+  {
+   "index": 169,
+   "map": "SILPH_CO_7F",
+   "item": 203
+  },
+  {
+   "index": 180,
+   "map": "SILPH_CO_10F",
+   "item": 226
+  },
+  {
+   "index": 181,
+   "map": "SILPH_CO_10F",
+   "item": 40
+  },
+  {
+   "index": 182,
+   "map": "SILPH_CO_10F",
+   "item": 38
+  },
+  {
+   "index": 187,
+   "map": "MANSION_2",
+   "item": 39
+  },
+  {
+   "index": 188,
+   "map": "MANSION_3",
+   "item": 17
+  },
+  {
+   "index": 189,
+   "map": "MANSION_3",
+   "item": 37
+  },
+  {
+   "index": 190,
+   "map": "MANSION_4",
+   "item": 40
+  },
+  {
+   "index": 191,
+   "map": "MANSION_4",
+   "item": 16
+  },
+  {
+   "index": 192,
+   "map": "MANSION_4",
+   "item": 214
+  },
+  {
+   "index": 193,
+   "map": "MANSION_4",
+   "item": 222
+  },
+  {
+   "index": 194,
+   "map": "MANSION_4",
+   "item": 43
+  },
+  {
+   "index": 195,
+   "map": "SAFARI_ZONE_EAST",
+   "item": 16
+  },
+  {
+   "index": 196,
+   "map": "SAFARI_ZONE_EAST",
+   "item": 17
+  },
+  {
+   "index": 197,
+   "map": "SAFARI_ZONE_EAST",
+   "item": 38
+  },
+  {
+   "index": 198,
+   "map": "SAFARI_ZONE_EAST",
+   "item": 237
+  },
+  {
+   "index": 199,
+   "map": "SAFARI_ZONE_NORTH",
+   "item": 36
+  },
+  {
+   "index": 200,
+   "map": "SAFARI_ZONE_NORTH",
+   "item": 240
+  },
+  {
+   "index": 201,
+   "map": "SAFARI_ZONE_WEST",
+   "item": 17
+  },
+  {
+   "index": 202,
+   "map": "SAFARI_ZONE_WEST",
+   "item": 232
+  },
+  {
+   "index": 203,
+   "map": "SAFARI_ZONE_WEST",
+   "item": 54
+  },
+  {
+   "index": 204,
+   "map": "SAFARI_ZONE_WEST",
+   "item": 64
+  },
+  {
+   "index": 205,
+   "map": "SAFARI_ZONE_CENTER",
+   "item": 49
+  },
+  {
+   "index": 206,
+   "map": "UNKNOWN_DUNGEON_2",
+   "item": 16
+  },
+  {
+   "index": 207,
+   "map": "UNKNOWN_DUNGEON_2",
+   "item": 79
+  },
+  {
+   "index": 208,
+   "map": "UNKNOWN_DUNGEON_2",
+   "item": 2
+  },
+  {
+   "index": 210,
+   "map": "UNKNOWN_DUNGEON_3",
+   "item": 2
+  },
+  {
+   "index": 211,
+   "map": "UNKNOWN_DUNGEON_3",
+   "item": 54
+  },
+  {
+   "index": 212,
+   "map": "VICTORY_ROAD_1",
+   "item": 243
+  },
+  {
+   "index": 213,
+   "map": "VICTORY_ROAD_1",
+   "item": 40
+  },
+  {
+   "index": 230,
+   "map": "UNDPATHWE",
+   "item": 50
+  },
+  {
+   "index": 231,
+   "map": "MUSEUM",
+   "item": 212
+  }
+ ],
  "hiddenItems": [
   {
    "map": "VIRIDIAN_FOREST",

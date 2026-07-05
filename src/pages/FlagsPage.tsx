@@ -17,6 +17,7 @@ import {
   setHiddenFlag,
   type HiddenSpot,
 } from "../save/hidden";
+import { MISSABLE_BALLS, MISSABLES_OFFSET, ballLabel, getMissable, setMissable } from "../save/missables";
 import { fuzzyScore } from "../save/search";
 import { TOWNS, TOWNS_VISITED_OFFSET, getTownVisited, setTownVisited } from "../save/towns";
 import { useNav } from "../state/nav";
@@ -116,6 +117,7 @@ export function FlagsPage() {
         hint="Game Corner floor coins; unchecking makes a spot findable again."
         fallbackLabel="coins"
       />
+      <MissableBallsPanel />
 
       <div className="flags-controls">
         <input
@@ -156,6 +158,52 @@ export function FlagsPage() {
         {shown.length === 0 && <p className="hint-line">No flags match.</p>}
       </div>
     </div>
+  );
+}
+
+/**
+ * Overworld item balls (missable objects). Checked = picked up (hidden);
+ * unchecking respawns the ball. Bit indices are sparse HS_* values, so this
+ * panel addresses each ball's own bit rather than a sequential range.
+ */
+function MissableBallsPanel() {
+  const bytes = useSaveStore((s) => s.bytes)!;
+  const mutate = useSaveStore((s) => s.mutate);
+  const jump = useNav((s) => s.jumpToHex);
+
+  return (
+    <Panel
+      className="towns-panel"
+      title={
+        <span className="panel-title-row">
+          Item balls <OffsetChip offset={MISSABLES_OFFSET} onJump={jump} />
+        </span>
+      }
+      actions={
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={() => mutate((b) => MISSABLE_BALLS.forEach((ball) => setMissable(b, ball.index, false)))}
+        >
+          Respawn all
+        </Button>
+      }
+    >
+      <p className="hint-line">
+        Overworld Poké Ball pickups. Checked balls have been collected; unchecking makes the ball
+        reappear on the map. NPC visibility shares this flag table and stays hex-only on purpose.
+      </p>
+      <div className="towns-grid towns-grid--wide">
+        {MISSABLE_BALLS.map((ball) => (
+          <Toggle
+            key={ball.index}
+            checked={getMissable(bytes, ball.index)}
+            label={ballLabel(ball)}
+            onChange={(v) => mutate((b) => setMissable(b, ball.index, v))}
+          />
+        ))}
+      </div>
+    </Panel>
   );
 }
 
