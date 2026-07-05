@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.0](https://github.com/VdustR/shinpokered-save-editor/compare/v1.5.1...v1.6.0) (2026-07-05)
+
+
+### Features
+
+* add branded social preview artwork ([#54](https://github.com/VdustR/shinpokered-save-editor/issues/54)) ([69835ef](https://github.com/VdustR/shinpokered-save-editor/commit/69835ef82afec85d71172fa09cd9a482656db0d0))
+
 ## [1.5.1](https://github.com/VdustR/shinpokered-save-editor/compare/v1.5.0...v1.5.1) (2026-07-05)
 
 
