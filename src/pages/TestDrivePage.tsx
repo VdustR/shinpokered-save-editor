@@ -181,6 +181,14 @@ export function TestDrivePage() {
     canvasRef.current.focus();
   }
 
+  function ignoreDetectedSave() {
+    // Adopt the current SRAM as the new baseline; otherwise the very next
+    // debounced scratch write would re-flag the same in-game save.
+    const sram = driveRef.current?.readSram();
+    if (sram) baselineRef.current = sram;
+    setSaveDetected(false);
+  }
+
   function pullSave() {
     const sram = driveRef.current?.readSram();
     if (!sram) return;
@@ -317,7 +325,7 @@ export function TestDrivePage() {
               <Button size="sm" variant="primary" onClick={pullSave}>
                 Pull save
               </Button>
-              <Button size="sm" variant="ghost" onClick={() => setSaveDetected(false)}>
+              <Button size="sm" variant="ghost" onClick={ignoreDetectedSave}>
                 Ignore
               </Button>
             </p>
