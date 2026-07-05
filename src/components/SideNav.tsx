@@ -19,6 +19,7 @@ const ITEMS: NavItem[] = [
   { id: "hof", label: "Hall of Fame", icon: IconTrophy },
   { id: "encyclopedia", label: "Encyclopedia", icon: IconBook },
   { id: "testdrive", label: "Test Drive", icon: IconPlay },
+  { id: "compare", label: "Compare", icon: IconCompare },
   { id: "hex", label: "Raw Hex", icon: IconHex },
 ];
 
@@ -138,6 +139,14 @@ function IconPlay() {
     <svg viewBox="0 0 20 20" fill="none" aria-hidden>
       <rect x="2.5" y="5" width="15" height="10" rx="2" stroke="currentColor" strokeWidth="1.5" />
       <path d="M8.5 8v4l3.5-2z" fill="currentColor" />
+    </svg>
+  );
+}
+function IconCompare() {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" aria-hidden>
+      <path d="M12 3.5 15.5 7 12 10.5M15.5 7h-11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M8 9.5 4.5 13 8 16.5M4.5 13h11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
