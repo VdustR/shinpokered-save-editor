@@ -863,6 +863,17 @@ test.describe("touch device", () => {
 test.describe("narrow touch device", () => {
   test.use({ hasTouch: true, viewport: { width: 360, height: 740 } });
 
+  test("mon editor tab labels never wrap inside their pills", async ({ page }) => {
+    await loadFixture(page);
+    await page.locator(".sidenav__item", { hasText: "Party" }).click();
+    await page.getByRole("button", { name: "Add Pok\u00e9mon" }).first().click();
+    const tab = page.getByRole("button", { name: "DVs & EXP" });
+    const box = await tab.boundingBox();
+    expect(box).not.toBeNull();
+    // A wrapped label roughly doubles the 28px pill; nowrap keeps it flat.
+    expect(box!.height).toBeLessThanOrEqual(30);
+  });
+
   test("virtual pad and screen fit the viewport, in page and fullscreen", async ({ page }) => {
     await loadFixture(page);
     await page.locator(".sidenav__item", { hasText: "Test Drive" }).click();

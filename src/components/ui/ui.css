@@ -225,6 +225,10 @@
   border-radius: var(--radius-control);
   padding: 2px;
   gap: 2px;
+  /* Labels must never wrap inside the 28px pills (Android font boosting
+     reflows text in place); scroll the strip instead on narrow screens. */
+  max-width: 100%;
+  overflow-x: auto;
 }
 .segmented__btn {
   border: none;
@@ -232,6 +236,8 @@
   color: var(--ink-muted);
   padding: 0 var(--space-3);
   height: 28px;
+  flex: 0 0 auto;
+  white-space: nowrap;
   border-radius: 4px;
   font-size: var(--text-sm);
   font-weight: 500;
