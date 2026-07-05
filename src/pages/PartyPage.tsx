@@ -23,6 +23,8 @@ import { PageHeader } from "../components/PageHeader";
 import { ReorderControls } from "../components/ReorderControls";
 import { Sprite } from "../components/Sprite";
 import { useDragReorder } from "../components/useDragReorder";
+import { TeamCoverage } from "../components/TeamCoverage";
+import { healParty } from "../save/team";
 import { exportPk1, importPk1 } from "../save/pk1";
 import { recalcDerivedFields } from "../save/derive";
 
@@ -133,6 +135,14 @@ export function PartyPage() {
             >
               Import .pk1
             </Button>
+            <Button
+              size="sm"
+              onClick={() => mutate(healParty)}
+              disabled={party.length === 0}
+              data-testid="heal-team"
+            >
+              Heal team
+            </Button>
             <Button variant="primary" size="sm" onClick={addMon} disabled={party.length >= PARTY_LENGTH}>
               Add Pokémon
             </Button>
@@ -200,6 +210,8 @@ export function PartyPage() {
           )}
         </div>
       )}
+
+      <TeamCoverage party={party} />
 
       <DayCarePanel />
     </div>
