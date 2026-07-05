@@ -20,8 +20,8 @@ repaired only where your edits made them stale.
 |------|-----------------|
 | **Overview** | File recognition verdict, checksum status, quick stats. |
 | **Trainer** | Names, trainer ID, money/coins, badges, play time, options (with in-game polarity explained), both starters, map position (softlock rescue), win streak, and the Shin feature flags (female trainer, 60 fps, obedience cap, Nuzlocke, GBC colors, randomizer seed, caught/gender indicators). |
-| **Party** | Full mon editor: species/nickname/level, moves with PP & PP Ups, DVs and stat EXP with live stat bars, one-click Max, drag/keyboard reordering, **legality badges** per slot, a **Legality report** tab per mon, **team type coverage** (Shin chart, Ghost→Psychic ×2 included), **Heal team**, and **.pk1 import/export** (PKHeX-compatible). |
-| **Boxes** | All 12 boxes plus the current-box cache kept in sync like the game's own PC, box switching, reordering, .pk1 import/export, and a **living-dex filler** (one of every missing species, dex marked, first-box-switch safe). |
+| **Party** | Full Pokémon editor: species/nickname/level, moves with PP & PP Ups, DVs and stat EXP with live stat bars, one-click Max, drag/keyboard reordering, **legality badges** per slot, a **Legality report** tab per mon, **team type coverage** (Shin chart, Ghost→Psychic ×2 included), **Heal team**, and **.pk1 import/export** (PKHeX-compatible). |
+| **Boxes** | All 12 boxes plus the current-box cache kept in sync like the game's own PC, box switching, reordering, .pk1 import/export, and a **living-dex filler** (one of every missing species, dex marked, first-box-switch-safe). |
 | **Inventory** | Bag and PC items with quantities, the game's own sort order, search pickers. |
 | **Pokédex** | Seen/owned toggles per species. |
 | **Story Flags** | 500+ named event flags with search, visited towns (Fly unlocks), hidden items/coins, missable item balls. |
@@ -31,7 +31,7 @@ repaired only where your edits made them stale.
 | **Compare** | Semantic diff against the loaded file or any other save — changes described in game terms (money, badges, party slots, box contents, flags), not byte offsets. |
 | **Raw Hex** | Full hex view with edit highlighting and jump-from-field links. |
 
-Plus: **undo/redo everywhere** (Ctrl/⌘Z, capped history of 200 snapshots),
+Plus: **undo/redo everywhere** (Ctrl+Z / ⌘+Z, capped history of 200 snapshots),
 installable PWA with full offline support and an in-app update prompt,
 responsive layout, automatic light/dark theme.
 
