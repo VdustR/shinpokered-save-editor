@@ -88,6 +88,10 @@ export function TestDrivePage() {
       });
     return () => {
       cancelled = true;
+      // Also invalidates an in-flight boot() still awaiting the wasm core,
+      // so its continuation bails instead of running a loop on a dead page.
+      // oxlint-disable-next-line react-hooks/exhaustive-deps -- counter ref, not a DOM node; the latest value is the point
+      bootIdRef.current++;
       driveRef.current?.stop();
       driveRef.current = null;
     };
@@ -161,13 +165,13 @@ export function TestDrivePage() {
     const save = exportSave(bytes, original ?? undefined);
     baselineRef.current = Uint8Array.from(save);
     setSaveDetected(false);
-    driveRef.current = startTestDrive({
+    const drive = await startTestDrive({
       rom: rom.bytes,
       save,
       canvas: canvasRef.current,
       sound,
       onSramWrite: (sram) => {
-        // A stopped session's debounced callback may still fire; ignore it.
+        // A stopped session's throttled callback may still fire; ignore it.
         if (myBootId !== bootIdRef.current) return;
         // Bank-0 sprite scratch fires this constantly; only a rewrite of the
         // bank-1 main region means the player used SAVE in-game.
@@ -176,6 +180,12 @@ export function TestDrivePage() {
         }
       },
     });
+    if (myBootId !== bootIdRef.current) {
+      // Superseded while the wasm core was loading; don't leak the run loop.
+      drive.stop();
+      return;
+    }
+    driveRef.current = drive;
     setRunning(true);
     setNotice(null);
     canvasRef.current.focus();
