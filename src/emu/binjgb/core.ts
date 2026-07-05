@@ -52,6 +52,7 @@ export class BinjgbCore {
   private readonly module: BinjgbModule;
   private readonly e: number;
   private readonly joypadPtr: number;
+  private readonly audioFrames: number;
   private deleted = false;
 
   static async create(rom: Uint8Array, opts: BinjgbCoreOptions): Promise<BinjgbCore> {
@@ -60,6 +61,7 @@ export class BinjgbCore {
 
   private constructor(module: BinjgbModule, rom: Uint8Array, opts: BinjgbCoreOptions) {
     this.module = module;
+    this.audioFrames = opts.audioFrames ?? 4096;
     // binjgb requires the ROM buffer size to be a multiple of 32 KiB.
     const size = (rom.length + 0x7fff) & ~0x7fff;
     const romPtr = module._malloc(size);
@@ -72,7 +74,7 @@ export class BinjgbCore {
       romPtr,
       size,
       opts.sampleRate,
-      opts.audioFrames ?? 4096,
+      this.audioFrames,
       CGB_COLOR_CURVE,
     );
     if (this.e === 0) {
@@ -158,14 +160,20 @@ export class BinjgbCore {
     );
   }
 
-  /** Interleaved stereo u8 sample view; length = audioFrames × 2. */
+  /**
+   * Interleaved stereo u8 sample view of one EVENT_AUDIO_BUFFER_FULL batch:
+   * exactly audioFrames × 2 bytes. The underlying buffer's capacity is
+   * larger (overrun padding); the padding is never valid sample data.
+   */
   audioBuffer(): Uint8Array {
-    return this.heap(
-      this.module._get_audio_buffer_ptr(this.e),
-      this.module._get_audio_buffer_capacity(this.e),
-    );
+    return this.heap(this.module._get_audio_buffer_ptr(this.e), this.audioFrames * 2);
   }
 
+  /**
+   * Note: the vendored glue backs the _set_joyp_* setters with one
+   * module-global button struct, so with multiple live cores every instance
+   * sees the same input. Run one core at a time (the Test Drive does).
+   */
   setButton(button: JoypadButton, pressed: boolean): void {
     const m = this.module;
     const e = this.e;
