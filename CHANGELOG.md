@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.1](https://github.com/VdustR/shinpokered-save-editor/compare/v1.5.0...v1.5.1) (2026-07-05)
+
+
+### Bug Fixes
+
+* drop the stale emulator dependency the release merge restored ([#52](https://github.com/VdustR/shinpokered-save-editor/issues/52)) ([d39f824](https://github.com/VdustR/shinpokered-save-editor/commit/d39f824949c79f310634840368d5816253ccfefd))
+
 ## [1.5.0](https://github.com/VdustR/shinpokered-save-editor/compare/v1.4.1...v1.5.0) (2026-07-05)
 
 
