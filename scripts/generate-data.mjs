@@ -575,6 +575,20 @@ typePointerOrder.forEach((label, index) => {
   if (index === 0) typeNames[0] = "NORMAL";
 });
 
+// --- Type effectiveness (data/type_effects.asm) -------------------------------------------
+// Rows: attacking type, defending type, fixed-point multiplier (20 = x2, 05 = x0.5, 00 = x0).
+const typeEffects = [];
+for (const line of asmLines("data/type_effects.asm")) {
+  const match = line.match(/^db\s+([A-Z_]+)\s*,\s*([A-Z_]+)\s*,\s*([0-9]+)$/);
+  if (!match) continue;
+  typeEffects.push({
+    atk: resolveToken(match[1], typeConsts),
+    def: resolveToken(match[2], typeConsts),
+    mult: Number(match[3]) / 10,
+  });
+}
+if (typeEffects.length < 50) throw new Error(`typeEffects parse too small: ${typeEffects.length}`);
+
 // --- Charmap ----------------------------------------------------------------------------
 const charmap = {};
 for (const line of asmLines("charmap.asm")) {
@@ -617,6 +631,7 @@ writeFileSync(
       moves,
       items,
       typeNames,
+      typeEffects,
       tmMoves,
       itemSortOrder,
       genderList,
