@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { MonRecord } from "./pokemon";
-import { legalityReport, minLearnLevel } from "./report";
+import { legalityReport, minLearnLevel, tmLearnable } from "./report";
 import { expForLevel } from "./stats";
 
 const BULBASAUR = 153; // learns VINE WHIP (22) at level 13
@@ -76,6 +76,38 @@ describe("legalityReport", () => {
   it("flags unlearnable moves", () => {
     const r = legalityReport(mkMon({ moves: [TRANSFORM, 0, 0, 0], pp: [16, 0, 0, 0] }));
     expect(r.some((f) => f.area === "Moves" && f.severity === "warn")).toBe(true);
+  });
+
+  it("applies no level floor to moves also learnable by TM", () => {
+    // MEWTWO learns PSYCHIC (94) at level 66 by level-up but also via TM;
+    // BARRIER (112, level 63) has no TM path and keeps its floor.
+    const MEWTWO = 131;
+    const PSYCHIC = 94;
+    const BARRIER = 112;
+    const FAST_THEN_SLOW = 5;
+    expect(tmLearnable(MEWTWO, PSYCHIC)).toBe(true);
+    expect(tmLearnable(MEWTWO, BARRIER)).toBe(false);
+    const mk = (move: number) =>
+      mkMon({
+        species: MEWTWO,
+        level: 50,
+        exp: expForLevel(FAST_THEN_SLOW, 50),
+        types: [24, 24],
+        catchRate: 3,
+        moves: [move, 0, 0, 0],
+        pp: [10, 0, 0, 0],
+      });
+    expect(legalityReport(mk(PSYCHIC)).filter((f) => f.area === "Moves")).toEqual([]);
+    expect(
+      legalityReport(mk(BARRIER)).some((f) => f.area === "Moves" && /level 63/.test(f.message)),
+    ).toBe(true);
+  });
+
+  it("checks boxed current HP against the derived max", () => {
+    const r = legalityReport(mkMon({ currentHp: 500 })); // no stats/maxHp: box shape
+    const hp = r.find((f) => f.area === "Stats");
+    expect(hp?.severity).toBe("warn");
+    expect(hp?.message).toMatch(/derived max HP/);
   });
 
   it("flags a level-up move known below its learn level", () => {

@@ -6,7 +6,7 @@
  * "warn" = inconsistent with derived rules, the game may rewrite or
  * behave oddly; "info" = noteworthy but harmless.
  */
-import { SPECIES, baseStatsOf, moveInfo, moveName, speciesByInternalId, speciesName } from "./gamedata";
+import { SPECIES, TM_MOVES, baseStatsOf, moveInfo, moveName, speciesByInternalId, speciesName } from "./gamedata";
 import { moveLegality, type LearnSource } from "./legality";
 import { calcStat, levelForExp } from "./stats";
 import { hpDvOf, maxPp, ppCurrent, ppUps, type MonRecord } from "./pokemon";
@@ -37,6 +37,21 @@ for (const s of SPECIES) {
     list.push(s.internalId);
     preEvos.set(evo.into, list);
   }
+}
+
+/** Can the species line learn this move from a TM/HM (no level floor)? */
+export function tmLearnable(internalId: number, moveId: number): boolean {
+  const visited = new Set<number>();
+  const queue = [internalId];
+  while (queue.length) {
+    const id = queue.pop()!;
+    if (visited.has(id)) continue;
+    visited.add(id);
+    const base = baseStatsOf(id);
+    for (const n of base?.tmhm ?? []) if (TM_MOVES[n - 1] === moveId) return true;
+    for (const prev of preEvos.get(id) ?? []) queue.push(prev);
+  }
+  return false;
 }
 
 /**
@@ -129,7 +144,8 @@ export function legalityReport(mon: MonRecord, names?: MonNames): Finding[] {
         area: "Moves",
         message: `${info.name}: ${speciesName(mon.species)} (and its pre-evolutions) cannot learn this in normal play.`,
       });
-    } else if (legal.source === "levelup" || legal.source === "prevo") {
+    } else if ((legal.source === "levelup" || legal.source === "prevo") && !tmLearnable(mon.species, id)) {
+      // A TM/HM path has no level floor, so only pure level-up moves get one.
       const lvl = minLearnLevel(mon.species, id);
       if (lvl !== null && lvl > mon.level) {
         findings.push({
@@ -165,6 +181,26 @@ export function legalityReport(mon: MonRecord, names?: MonNames): Finding[] {
     });
   }
 
+  if (mon.level >= 1 && mon.level <= 100) {
+    const derivedMaxHp = calcStat({
+      base: base.hp,
+      dv: hpDvOf(mon.dvs),
+      statExp: mon.statExp.hp,
+      level: mon.level,
+      isHp: true,
+    });
+    const cap = mon.maxHp ?? derivedMaxHp;
+    if (mon.currentHp > cap) {
+      findings.push({
+        severity: "warn",
+        area: "Stats",
+        message: `Current HP ${mon.currentHp} exceeds ${
+          mon.maxHp !== undefined ? `max HP ${cap}` : `the derived max HP ${cap}`
+        }.`,
+      });
+    }
+  }
+
   if (mon.stats && mon.maxHp !== undefined && mon.level >= 1 && mon.level <= 100) {
     const expect = {
       hp: calcStat({ base: base.hp, dv: hpDvOf(mon.dvs), statExp: mon.statExp.hp, level: mon.level, isHp: true }),
@@ -184,13 +220,6 @@ export function legalityReport(mon: MonRecord, names?: MonNames): Finding[] {
         severity: "warn",
         area: "Stats",
         message: `Stored stats differ from the formula for these DVs/EXP (${diffs.join(", ")}); the game recalculates them on box deposit.`,
-      });
-    }
-    if (mon.currentHp > mon.maxHp) {
-      findings.push({
-        severity: "warn",
-        area: "Stats",
-        message: `Current HP ${mon.currentHp} exceeds max HP ${mon.maxHp}.`,
       });
     }
   }
