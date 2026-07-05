@@ -10,6 +10,7 @@ export type PageId =
   | "flags"
   | "hof"
   | "encyclopedia"
+  | "testdrive"
   | "hex";
 
 interface NavState {

@@ -16,6 +16,7 @@ import { ItemsPage } from "./pages/ItemsPage";
 import { OverviewPage } from "./pages/OverviewPage";
 import { PartyPage } from "./pages/PartyPage";
 import { PokedexPage } from "./pages/PokedexPage";
+import { TestDrivePage } from "./pages/TestDrivePage";
 import { TrainerPage } from "./pages/TrainerPage";
 import { useNav } from "./state/nav";
 import { useSaveStore } from "./state/store";
@@ -79,6 +80,8 @@ function ActivePage() {
       return <HallOfFamePage />;
     case "encyclopedia":
       return <EncyclopediaPage />;
+    case "testdrive":
+      return <TestDrivePage />;
     case "hex":
       return <HexView />;
     default:
