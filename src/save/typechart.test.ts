@@ -66,6 +66,12 @@ describe("offenseCoverage", () => {
     expect(cov.get(NORMAL)).toBe(1);
   });
 
+  it("ignores fixed-damage moves, which bypass the type chart", () => {
+    // SEISMIC TOSS (69) has power 1 (fixed damage) - no coverage at all.
+    const cov = offenseCoverage([monWithMoves([69, 0, 0, 0])]);
+    expect(Number.isNaN(cov.get(GRASS)!)).toBe(true);
+  });
+
   it("flags uncovered types as 0 when a chart immunity applies", () => {
     // EARTHQUAKE (89, Ground) vs Flying = 0.
     const cov = offenseCoverage([monWithMoves([89, 0, 0, 0])]);

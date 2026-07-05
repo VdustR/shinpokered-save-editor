@@ -55,7 +55,10 @@ export function offenseCoverage(team: MonRecord[]): Map<number, number> {
   for (const mon of team) {
     for (const id of mon.moves) {
       const info = id ? moveInfo(id) : undefined;
-      if (info && info.power > 0) attackTypes.add(info.type);
+      // Power 1 marks Gen 1 fixed-damage moves (Seismic Toss, Dragon Rage,
+      // OHKO moves, Counter, Super Fang); they ignore the type chart, so
+      // they contribute no coverage. Real attacks all have power >= 10.
+      if (info && info.power > 1) attackTypes.add(info.type);
     }
   }
   const out = new Map<number, number>();

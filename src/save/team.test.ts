@@ -27,4 +27,18 @@ describe("healParty", () => {
     expect(healed.mon.pp[2]).toBe(0); // empty slot untouched
     expect(healed.nickname).toBe("LEAFY"); // names untouched
   });
+
+  it("never rewrites raw name bytes, even undecodable ones", () => {
+    const bytes = new Uint8Array(0x8000);
+    const mon = createMon(BULBASAUR, 20);
+    mon.currentHp = 3;
+    setPartyMon(bytes, 0, mon, { nickname: "LEAFY", otName: "VIPRO" });
+    // Simulate a save whose nickname field holds a byte our charmap can't
+    // decode; healing must leave the whole name region alone.
+    const nickOffset = 0x307e;
+    bytes[nickOffset] = 0xff;
+    healParty(bytes);
+    expect(bytes[nickOffset]).toBe(0xff);
+    expect(getParty(bytes)[0].mon.currentHp).toBeGreaterThan(3);
+  });
 });

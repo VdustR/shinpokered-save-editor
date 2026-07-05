@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { createMon } from "../save/derive";
 import { DEX_SPECIES, speciesByInternalId } from "../save/gamedata";
 import type { MonRecord } from "../save/pokemon";
@@ -25,6 +25,8 @@ import { Sprite } from "../components/Sprite";
 import { useDragReorder } from "../components/useDragReorder";
 import { TeamCoverage } from "../components/TeamCoverage";
 import { healParty } from "../save/team";
+import { exportPk1, importPk1 } from "../save/pk1";
+import { recalcDerivedFields } from "../save/derive";
 
 const BULBASAUR = DEX_SPECIES[0]?.internalId ?? 0x99;
 
@@ -33,6 +35,8 @@ export function PartyPage() {
   const mutate = useSaveStore((s) => s.mutate);
   const [selected, setSelected] = useState(0);
   const [tab, setTab] = useState<MonEditorTab>("summary");
+  const [importError, setImportError] = useState<string | null>(null);
+  const pk1InputRef = useRef<HTMLInputElement>(null);
 
   const party = getParty(bytes);
   const active = party[selected];
@@ -65,6 +69,46 @@ export function PartyPage() {
 
   const drag = useDragReorder(reorder, party.length);
 
+  function exportActivePk1() {
+    if (!active) return;
+    const name = active.nickname || speciesByInternalId(active.mon.species)?.name || "mon";
+    const data = exportPk1(active.mon, { nickname: active.nickname, otName: active.otName });
+    const url = URL.createObjectURL(new Blob([data], { type: "application/octet-stream" }));
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${name.toLowerCase()}.pk1`;
+    a.click();
+    // Deferred so slower browsers finish initiating the download first.
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  async function importPk1File(file: File) {
+    try {
+      const { mon, names } = importPk1(new Uint8Array(await file.arrayBuffer()));
+      // Fill derived fields for the party format and default blank names.
+      recalcDerivedFields(mon);
+      const nickname = names.nickname.trim() || speciesByInternalId(mon.species)?.name || "MON";
+      const otName = names.otName.trim() || "TRAINER";
+      // The party may have changed while the file was being read, so pick the
+      // slot from the live buffer inside the mutation, not from render state.
+      let placed = -1;
+      mutate((b) => {
+        const count = getParty(b).length;
+        if (count >= PARTY_LENGTH) return; // leaves the buffer untouched (no-op)
+        setPartyMon(b, count, mon, { nickname, otName });
+        placed = count;
+      });
+      if (placed < 0) {
+        setImportError("The party is already full.");
+        return;
+      }
+      setSelected(placed);
+      setImportError(null);
+    } catch (e) {
+      setImportError(e instanceof Error ? e.message : String(e));
+    }
+  }
+
   return (
     <div className="page">
       <PageHeader
@@ -72,6 +116,25 @@ export function PartyPage() {
         subtitle="Up to six Pokémon. Editing level, DVs, or stat EXP recalculates stats automatically."
         actions={
           <>
+            <input
+              ref={pk1InputRef}
+              data-testid="pk1-input"
+              type="file"
+              accept=".pk1,.bin"
+              hidden
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) void importPk1File(f);
+                e.target.value = "";
+              }}
+            />
+            <Button
+              size="sm"
+              onClick={() => pk1InputRef.current?.click()}
+              disabled={party.length >= PARTY_LENGTH}
+            >
+              Import .pk1
+            </Button>
             <Button
               size="sm"
               onClick={() => mutate(healParty)}
@@ -86,6 +149,12 @@ export function PartyPage() {
           </>
         }
       />
+
+      {importError && (
+        <p className="hint-line hint-line--warn" data-testid="pk1-error" role="alert">
+          Import failed: {importError}
+        </p>
+      )}
 
       {party.length === 0 ? (
         <EmptyLine
@@ -123,6 +192,9 @@ export function PartyPage() {
             <div className="detail-main">
               <div className="detail-main__toolbar">
                 <span className="detail-main__title">Slot {selected + 1}</span>
+                <Button size="sm" variant="ghost" onClick={exportActivePk1} data-testid="pk1-export">
+                  Export .pk1
+                </Button>
                 <Button variant="danger" size="sm" onClick={() => remove(selected)}>
                   Remove
                 </Button>
