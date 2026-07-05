@@ -6,7 +6,7 @@ import { makePpByte, maxPp, ppCurrent, ppUps, type Dvs, type MonRecord } from ".
 import { moveInArray } from "../save/reorder";
 import { legalityReport } from "../save/report";
 import { genderOf, isShinyDvs, makeShinyDvs } from "../save/shin";
-import type { MonNames } from "../save/savefile";
+import { isEncodableName, type MonNames } from "../save/savefile";
 import { Button, Field, NumberInput, PickerTrigger, Segmented, Select, TextInput } from "./ui/ui";
 import { MovePicker } from "./MovePicker";
 import { ReorderControls } from "./ReorderControls";
@@ -176,6 +176,29 @@ export function MonEditor({
             </Field>
             <Field label="EXP" hint="Auto-set from level; edit to fine-tune.">
               <NumberInput value={mon.exp} min={0} max={0xffffff} onValue={(n) => patch((d) => (d.exp = n), false)} />
+            </Field>
+            <Field
+              label="OT ID"
+              hint="Matching your Trainer ID counts as your own catch: no traded-mon boost, always obeys."
+            >
+              <NumberInput
+                value={mon.otId}
+                min={0}
+                max={0xffff}
+                onValue={(n) => patch((d) => (d.otId = n), false)}
+              />
+            </Field>
+            <Field label="OT name" hint="The game enters at most 7 characters.">
+              <TextInput
+                value={names.otName}
+                maxLength={7}
+                onChange={(e) => {
+                  // Ignore keystrokes outside the Gen 1 charset; committing
+                  // them would throw in encodeText.
+                  const next = e.target.value.toUpperCase();
+                  if (isEncodableName(next)) onChange(mon, { ...names, otName: next });
+                }}
+              />
             </Field>
           </div>
         </div>

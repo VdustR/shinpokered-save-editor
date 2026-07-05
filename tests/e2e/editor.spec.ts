@@ -136,6 +136,36 @@ test("adding a party Pokémon updates the party count and stays exportable", asy
   expect(exported[MAIN_CKSUM]).toBe(gen1MainChecksum(exported));
 });
 
+test("new party mon carries the save's trainer ID as OT, and OT fields edit", async ({ page }) => {
+  await loadFixture(page);
+  await page.locator(".sidenav__item", { hasText: "Party" }).click();
+  await page.getByRole("button", { name: "Add Pok\u00e9mon" }).first().click();
+
+  // The header shows the OT the new mon was created with.
+  const header = page.locator(".mon-editor__ot");
+  const shown = (await header.innerText()).match(/OT (\d{5})/);
+  expect(shown).not.toBeNull();
+  const createdOtId = Number(shown![1]);
+
+  // Both OT fields are editable from the Summary tab.
+  const otId = page.locator(".field", { hasText: "OT ID" }).locator("input");
+  await otId.fill("12345");
+  await otId.blur();
+  await expect(header).toContainText("12345");
+  const otName = page.locator(".field", { hasText: "OT name" }).locator("input");
+  await otName.fill("ASH");
+  await otName.blur();
+  await expect(header).toContainText("ASH");
+
+  const exported = await exportBytes(page);
+  // The mon was created with the save's own trainer ID (offset 0x2605, BE)...
+  const playerId = (exported[0x2605] << 8) | exported[0x2606];
+  expect(createdOtId).toBe(playerId);
+  // ...and the edited OT ID landed in party mon 1's record (OT ID at +12, BE).
+  const monOtId = (exported[0x2f34 + 12] << 8) | exported[0x2f34 + 13];
+  expect(monOtId).toBe(12345);
+});
+
 test("party DV edits persist and one-click Max fills values", async ({ page }) => {
   await loadFixture(page);
   await page.locator(".sidenav__item", { hasText: "Party" }).click();
