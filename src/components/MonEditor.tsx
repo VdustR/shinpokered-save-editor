@@ -134,7 +134,7 @@ export function MonEditor({
           {gender && (
             <span
               className={`gender-tag gender-tag--${gender}`}
-              title="Shin derives gender from the Attack DV (Gen 2 rule)"
+              title="Shin derives gender from the Attack DV (Gen 2 rule). In-game symbols only appear once the Oak-aide 'Caught & gender indicators' toggle is on (see Trainer → Shin features) and the Pokédex is obtained."
             >
               {gender === "male" ? "♂" : "♀"}
             </span>

@@ -41,6 +41,10 @@ import {
   setShinFlag,
   setWinStreak,
 } from "../save/shin";
+import { getEventFlag, setEventFlag } from "../save/events";
+
+/** EVENT_90E — the Oak-aide "gender/caught indicators" toggle. */
+const GENDER_INDICATOR_EVENT = 0x90e;
 import { isEncodable } from "../save/text";
 import { useNav } from "../state/nav";
 import { useSaveStore } from "../state/store";
@@ -203,17 +207,25 @@ export function TrainerPage() {
               />
             </Field>
             <div className="toggle-row">
+              {/* The save stores "animations off" (wOptions bit 7 = 1); present
+                  it positively so checked always means the feature is on. */}
               <Toggle
-                checked={options.battleAnimationOff}
-                label="Battle animations off"
-                onChange={(v) => mutate((b) => setOptions(b, { ...options, battleAnimationOff: v }))}
-              />
-              <Toggle
-                checked={options.battleStyleSet}
-                label="Battle style: Set"
-                onChange={(v) => mutate((b) => setOptions(b, { ...options, battleStyleSet: v }))}
+                checked={!options.battleAnimationOff}
+                label="Battle animations"
+                onChange={(v) => mutate((b) => setOptions(b, { ...options, battleAnimationOff: !v }))}
               />
             </div>
+            <Field label="Battle style" hint="Set skips the switch prompt after enemy KOs.">
+              <Segmented
+                ariaLabel="Battle style"
+                options={[
+                  { value: "shift", label: "Shift" },
+                  { value: "set", label: "Set" },
+                ]}
+                value={options.battleStyleSet ? "set" : "shift"}
+                onChange={(v) => mutate((b) => setOptions(b, { ...options, battleStyleSet: v === "set" }))}
+              />
+            </Field>
           </div>
         </Panel>
 
@@ -244,6 +256,14 @@ export function TrainerPage() {
                 checked={shinFlags.nuzlocke}
                 label="Nuzlocke mode"
                 onChange={(v) => mutate((b) => setShinFlag(b, "nuzlocke", v))}
+              />
+              {/* Oak-aide toggle (EVENT_90E): shows caught-ball and gender
+                  symbols on the status screen and battle HUD once the player
+                  has the Pokédex. */}
+              <Toggle
+                checked={getEventFlag(bytes, GENDER_INDICATOR_EVENT)}
+                label="Caught & gender indicators"
+                onChange={(v) => mutate((b) => setEventFlag(b, GENDER_INDICATOR_EVENT, v))}
               />
             </div>
             <div className="form-grid form-grid--2">
