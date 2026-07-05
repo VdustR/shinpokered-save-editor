@@ -307,9 +307,9 @@ export function TestDrivePage() {
             in-game first (START → SAVE).
           </p>
           <p className="hint-line">
-            Shin’s title menu runs a hardware-accuracy self-check; this lightweight browser core fails
-            its mode-3 VRAM test, so “Emulator ERROR!” may appear there. It is informational — the game
-            plays on.
+            Shin’s title menu runs hardware-accuracy self-checks; this lightweight browser core fails
+            the mode-3 VRAM and memory-timing tests, so up to two “Emulator ERROR!” lines may appear
+            there. Per the romhack’s FAQ they are informational — the game plays and saves normally.
           </p>
           <dl className="testdrive__keys">
             {KEYS.map(([key, label]) => (
