@@ -88,6 +88,10 @@ export function TestDrivePage() {
       });
     return () => {
       cancelled = true;
+      // Also invalidates an in-flight boot() still awaiting the wasm core,
+      // so its continuation bails instead of running a loop on a dead page.
+      // oxlint-disable-next-line react-hooks/exhaustive-deps -- counter ref, not a DOM node; the latest value is the point
+      bootIdRef.current++;
       driveRef.current?.stop();
       driveRef.current = null;
     };

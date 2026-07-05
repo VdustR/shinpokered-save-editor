@@ -65,8 +65,12 @@ export async function startTestDrive({
   sound,
   onSramWrite,
 }: TestDriveOptions): Promise<TestDrive> {
-  // Created on the boot click, so autoplay policies allow it to start.
+  // Created on the boot click, so autoplay policies allow it to start. The
+  // first boot awaits the code-split wasm load before reaching this point,
+  // which can outlive the click activation on some browsers — resume() then
+  // and on later pushes until the context actually runs.
   const audioCtx = sound ? new AudioContext() : null;
+  if (audioCtx?.state === "suspended") void audioCtx.resume().catch(() => {});
   const core = await BinjgbCore.create(rom, {
     sampleRate: audioCtx?.sampleRate ?? 44100,
     audioFrames: AUDIO_FRAMES,
@@ -91,6 +95,11 @@ export async function startTestDrive({
 
   function pushAudio() {
     if (!audioCtx) return;
+    if (audioCtx.state === "suspended") {
+      // Nothing would be heard; retry activation instead of queueing audio.
+      void audioCtx.resume().catch(() => {});
+      return;
+    }
     const nowSec = audioCtx.currentTime;
     audioStartSec ||= nowSec + AUDIO_LATENCY_SEC;
     if (audioStartSec < nowSec) {
@@ -146,6 +155,9 @@ export async function startTestDrive({
     if (!button) return;
     // Don't steal keys from form fields (e.g. editing while the game runs).
     if (e.target instanceof HTMLElement && /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
+    // Consumed by the game: keep Enter from activating a focused page
+    // button (restart/stop) and arrows from scrolling.
+    e.preventDefault();
     core.setButton(button, e.type === "keydown");
   }
 
@@ -166,6 +178,12 @@ export async function startTestDrive({
     setButton: (button, pressed) => {
       if (!stopped) core.setButton(button, pressed);
     },
-    readSram: () => (stopped ? null : core.readExtRam()),
+    readSram: () => {
+      if (stopped) return null;
+      const sram = core.readExtRam();
+      // A warned-but-bootable cartridge can have a different ext-RAM size;
+      // that is not a Gen 1 battery save, so don't offer it to the editor.
+      return sram.length === 0x8000 ? sram : null;
+    },
   };
 }
