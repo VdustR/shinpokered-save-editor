@@ -8,6 +8,7 @@ export type PageId =
   | "items"
   | "pokedex"
   | "flags"
+  | "hof"
   | "encyclopedia"
   | "hex";
 
