@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.1](https://github.com/VdustR/shinpokered-save-editor/compare/v1.7.0...v1.7.1) (2026-07-05)
+
+
+### Bug Fixes
+
+* ignore nickname keystrokes outside the Gen 1 charset ([#63](https://github.com/VdustR/shinpokered-save-editor/issues/63)) ([a96ed11](https://github.com/VdustR/shinpokered-save-editor/commit/a96ed1139c5777d3dee7d3cb26edd358121176df))
+
 ## [1.7.0](https://github.com/VdustR/shinpokered-save-editor/compare/v1.6.1...v1.7.0) (2026-07-05)
 
 
