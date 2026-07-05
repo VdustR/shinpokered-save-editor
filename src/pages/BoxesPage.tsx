@@ -52,6 +52,9 @@ export function BoxesPage() {
   const [tab, setTab] = useState<MonEditorTab>("summary");
   const [pk1Error, setPk1Error] = useState<string | null>(null);
   const pk1InputRef = useRef<HTMLInputElement>(null);
+  // Live view of the selected box, for async work that outlives a box switch.
+  const boxRef = useRef(box);
+  boxRef.current = box;
 
   const contents = readBox(bytes, box);
   const active = contents.mons[slot];
@@ -61,37 +64,46 @@ export function BoxesPage() {
     // Box records carry no derived stats; fill them for the party-format file.
     const mon = structuredClone(active.mon);
     mon.level = mon.boxLevel;
+    // recalcDerivedFields treats a record without maxHp as fully healed;
+    // keep the real current HP so injured box mons export as-is.
+    const currentHp = mon.currentHp;
     recalcDerivedFields(mon);
+    mon.currentHp = Math.min(currentHp, mon.maxHp ?? currentHp);
     const name = active.nickname || speciesByInternalId(mon.species)?.name || "mon";
     const data = exportPk1(mon, { nickname: active.nickname, otName: active.otName });
     const url = URL.createObjectURL(new Blob([data], { type: "application/octet-stream" }));
     const a = document.createElement("a");
     a.href = url;
     a.download = `${name.toLowerCase()}.pk1`;
+    // Attached to the DOM for the click: some browsers ignore detached anchors.
+    document.body.appendChild(a);
     a.click();
+    a.remove();
     // Deferred so slower browsers finish initiating the download first.
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
 
   async function importPk1File(file: File) {
+    // Import into the box the user was viewing when they picked the file,
+    // even if they switch boxes while it is being read.
+    const targetBox = box;
     try {
       const { mon, names } = importPk1(new Uint8Array(await file.arrayBuffer()));
       const nickname = names.nickname.trim() || speciesByInternalId(mon.species)?.name || "MON";
       const otName = names.otName.trim() || "TRAINER";
-      // The box may have changed while the file was read; take the slot from
-      // the live buffer inside the mutation.
       let placed = -1;
       mutate((b) => {
-        const count = readBox(b, box).mons.length;
+        const count = readBox(b, targetBox).mons.length;
         if (count >= MONS_PER_BOX) return; // no-op mutate
-        writeBoxMon(b, box, count, mon, { nickname, otName });
+        writeBoxMon(b, targetBox, count, mon, { nickname, otName });
         placed = count;
       });
       if (placed < 0) {
-        setPk1Error("This box is already full.");
+        setPk1Error(`Box ${targetBox + 1} is already full.`);
         return;
       }
-      setSlot(placed);
+      // Only move the selection if the user is still looking at that box.
+      if (boxRef.current === targetBox) setSlot(placed);
       setPk1Error(null);
     } catch (e) {
       setPk1Error(e instanceof Error ? e.message : String(e));
@@ -205,7 +217,16 @@ export function BoxesPage() {
                   ? "No Pokémon stored here."
                   : "The game hasn't used this box yet (raw uninitialized data); it will be set up properly on the first write."
               }
-              action={<Button variant="primary" size="sm" onClick={addMon}>Add Pokémon</Button>}
+              action={
+                <>
+                  <Button variant="primary" size="sm" onClick={addMon}>
+                    Add Pokémon
+                  </Button>
+                  <Button size="sm" onClick={() => pk1InputRef.current?.click()}>
+                    Import .pk1
+                  </Button>
+                </>
+              }
             />
           ) : (
             <>
