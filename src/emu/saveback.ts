@@ -9,6 +9,7 @@ const MAIN_START = 0x2598;
 const MAIN_END = 0x3523; // inclusive: sMainDataCheckSum
 
 export function mainSaveRegionChanged(a: Uint8Array, b: Uint8Array): boolean {
+  if (a.length <= MAIN_END || b.length <= MAIN_END) return false;
   for (let i = MAIN_START; i <= MAIN_END; i++) {
     if (a[i] !== b[i]) return true;
   }

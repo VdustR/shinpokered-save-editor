@@ -65,8 +65,14 @@ export function TestDrivePage() {
     if (!cssFullscreen) return;
     const prev = document.documentElement.style.overflow;
     document.documentElement.style.overflow = "hidden";
+    // Match native fullscreen: Escape leaves the overlay fallback too.
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") setCssFullscreen(false);
+    }
+    window.addEventListener("keydown", onKeyDown);
     return () => {
       document.documentElement.style.overflow = prev;
+      window.removeEventListener("keydown", onKeyDown);
     };
   }, [cssFullscreen]);
 
@@ -161,6 +167,8 @@ export function TestDrivePage() {
       canvas: canvasRef.current,
       sound,
       onSramWrite: (sram) => {
+        // A stopped session's debounced callback may still fire; ignore it.
+        if (myBootId !== bootIdRef.current) return;
         // Bank-0 sprite scratch fires this constantly; only a rewrite of the
         // bank-1 main region means the player used SAVE in-game.
         if (baselineRef.current && mainSaveRegionChanged(baselineRef.current, sram)) {
@@ -303,7 +311,7 @@ export function TestDrivePage() {
               </div>
             ))}
           </dl>
-          {saveDetected && (
+          {running && saveDetected && (
             <p className="save-detected" data-testid="save-detected" role="status">
               The game saved. Pull it into the editor?
               <Button size="sm" variant="primary" onClick={pullSave}>

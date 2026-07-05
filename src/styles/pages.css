@@ -1070,6 +1070,7 @@
   position: fixed;
   inset: 0;
   z-index: 1000;
+  touch-action: none;
   border-radius: 0;
   background: #0b0e14;
   display: grid;
@@ -1115,6 +1116,7 @@
   margin: var(--space-3) auto 0;
   user-select: none;
   -webkit-user-select: none;
+  touch-action: none;
 }
 
 .vpad button {
