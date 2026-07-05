@@ -20,6 +20,31 @@ import { TrainerPage } from "./pages/TrainerPage";
 import { useNav } from "./state/nav";
 import { useSaveStore } from "./state/store";
 
+/**
+ * Global Cmd/Ctrl+Z (undo) and Cmd/Ctrl+Shift+Z / Ctrl+Y (redo).
+ * Skipped while an editable element has focus so native text editing
+ * inside inputs keeps its own undo behavior.
+ */
+function useUndoRedoShortcuts() {
+  useEffect(() => {
+    function onKeyDown(e: KeyboardEvent) {
+      if (!(e.metaKey || e.ctrlKey) || e.altKey) return;
+      const key = e.key.toLowerCase();
+      const isUndo = key === "z" && !e.shiftKey;
+      const isRedo = (key === "z" && e.shiftKey) || key === "y";
+      if (!isUndo && !isRedo) return;
+      const t = e.target as HTMLElement | null;
+      if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
+      e.preventDefault();
+      const store = useSaveStore.getState();
+      if (isUndo) store.undo();
+      else store.redo();
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
+}
+
 function useThemeClass() {
   const theme = useSaveStore((s) => s.theme);
   useEffect(() => {
@@ -60,6 +85,7 @@ function ActivePage() {
 
 export default function App() {
   useThemeClass();
+  useUndoRedoShortcuts();
   const fileName = useSaveStore((s) => s.fileName);
   const [exportOpen, setExportOpen] = useState(false);
 

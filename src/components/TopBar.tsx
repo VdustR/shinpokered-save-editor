@@ -10,6 +10,10 @@ export function TopBar({ onExport }: { onExport: () => void }) {
   const original = useSaveStore((s) => s.original);
   const revert = useSaveStore((s) => s.revert);
   const closeFile = useSaveStore((s) => s.closeFile);
+  const undo = useSaveStore((s) => s.undo);
+  const redo = useSaveStore((s) => s.redo);
+  const canUndo = useSaveStore((s) => s.past.length > 0);
+  const canRedo = useSaveStore((s) => s.future.length > 0);
 
   const summary = useMemo(
     () => (bytes && original ? summarize(bytes, original) : null),
@@ -47,6 +51,26 @@ export function TopBar({ onExport }: { onExport: () => void }) {
             {dirty ? `${dirty} byte${dirty === 1 ? "" : "s"} changed` : "No changes"}
           </span>
           <div className="topbar__divider" />
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={undo}
+            disabled={!canUndo}
+            aria-label="Undo"
+            title={`Undo (${MOD_LABEL}Z)`}
+          >
+            <Icon.Undo />
+          </Button>
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={redo}
+            disabled={!canRedo}
+            aria-label="Redo"
+            title={`Redo (${MOD_LABEL}⇧Z)`}
+          >
+            <Icon.Redo />
+          </Button>
           <Button size="sm" variant="ghost" onClick={revert} disabled={!dirty}>
             Revert
           </Button>
@@ -85,7 +109,35 @@ function ChecksumStatus({ mismatchCount }: { mismatchCount: number }) {
   );
 }
 
+/** Shortcut hint for the tooltip; ⌘ on Apple platforms, Ctrl+ elsewhere. */
+const MOD_LABEL =
+  typeof navigator !== "undefined" && /Mac|iP(hone|ad|od)/.test(navigator.platform)
+    ? "⌘"
+    : "Ctrl+";
+
 const Icon = {
+  Undo: () => (
+    <svg viewBox="0 0 14 14" width="13" height="13" fill="none" aria-hidden>
+      <path
+        d="M4.5 2.5 2 5l2.5 2.5M2 5h6a4 4 0 0 1 0 8H6"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  ),
+  Redo: () => (
+    <svg viewBox="0 0 14 14" width="13" height="13" fill="none" aria-hidden>
+      <path
+        d="M9.5 2.5 12 5 9.5 7.5M12 5H6a4 4 0 0 0 0 8h2"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  ),
   Check: () => (
     <svg viewBox="0 0 14 14" width="13" height="13" fill="none" aria-hidden>
       <path d="M2.5 7.5 6 11l5.5-8" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />

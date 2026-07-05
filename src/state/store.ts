@@ -17,15 +17,23 @@ interface SaveState {
   /** Bumped on every mutation so selectors that read raw bytes recompute. */
   revision: number;
   theme: ThemePreference;
+  /** Snapshots for undo (past) and redo (future); capped at HISTORY_LIMIT. */
+  past: Uint8Array[];
+  future: Uint8Array[];
 
   loadFile: (name: string, data: Uint8Array) => void;
   closeFile: () => void;
   dismissAssessment: () => void;
   /** Apply an in-place mutation to a fresh clone of the working buffer. */
   mutate: (fn: (bytes: Uint8Array) => void) => void;
+  undo: () => void;
+  redo: () => void;
   revert: () => void;
   setTheme: (theme: ThemePreference) => void;
 }
+
+/** 32 KiB per snapshot; 200 steps is ~6.4 MB, comfortably cheap. */
+const HISTORY_LIMIT = 200;
 
 const THEME_KEY = "spse.theme";
 
@@ -43,6 +51,8 @@ export const useSaveStore = create<SaveState>((set, get) => ({
   assessment: null,
   revision: 0,
   theme: initialTheme(),
+  past: [],
+  future: [],
 
   loadFile: (name, data) => {
     const { bytes, warnings } = parseSave(data);
@@ -53,6 +63,8 @@ export const useSaveStore = create<SaveState>((set, get) => ({
       bytes,
       warnings,
       assessment: assessment.verdict === "valid" ? null : assessment,
+      past: [],
+      future: [],
       revision: get().revision + 1,
     });
   },
@@ -64,23 +76,58 @@ export const useSaveStore = create<SaveState>((set, get) => ({
       bytes: null,
       warnings: [],
       assessment: null,
+      past: [],
+      future: [],
       revision: get().revision + 1,
     }),
 
   dismissAssessment: () => set({ assessment: null }),
 
   mutate: (fn) => {
-    const current = get().bytes;
+    const { bytes: current, past } = get();
     if (!current) return;
     const next = Uint8Array.from(current);
     fn(next);
-    set({ bytes: next, revision: get().revision + 1 });
+    set({
+      bytes: next,
+      past: [...past.slice(-(HISTORY_LIMIT - 1)), current],
+      future: [],
+      revision: get().revision + 1,
+    });
+  },
+
+  undo: () => {
+    const { bytes, past, future } = get();
+    if (!bytes || past.length === 0) return;
+    set({
+      bytes: past[past.length - 1],
+      past: past.slice(0, -1),
+      future: [...future, bytes],
+      revision: get().revision + 1,
+    });
+  },
+
+  redo: () => {
+    const { bytes, past, future } = get();
+    if (!bytes || future.length === 0) return;
+    set({
+      bytes: future[future.length - 1],
+      future: future.slice(0, -1),
+      past: [...past, bytes],
+      revision: get().revision + 1,
+    });
   },
 
   revert: () => {
-    const { original } = get();
-    if (!original) return;
-    set({ bytes: Uint8Array.from(original), revision: get().revision + 1 });
+    const { original, bytes, past } = get();
+    if (!original || !bytes) return;
+    // Revert is itself undoable: the pre-revert state joins the past.
+    set({
+      bytes: Uint8Array.from(original),
+      past: [...past.slice(-(HISTORY_LIMIT - 1)), bytes],
+      future: [],
+      revision: get().revision + 1,
+    });
   },
 
   setTheme: (theme) => {

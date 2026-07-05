@@ -547,3 +547,45 @@ test("switching the current box persists cache and updates the box number", asyn
   expect(bytes[0x30c0]).toBe(0); // cache is now the empty box 5
   expect(bytes[MAIN_CKSUM]).toBe(gen1MainChecksum(bytes));
 });
+
+test("undo/redo works via keyboard and toolbar buttons", async ({ page }) => {
+  await loadFixture(page);
+  await page.locator(".sidenav__item", { hasText: "Trainer" }).click();
+  const money = page.getByTestId("money-input");
+  await money.fill("1111");
+  await money.blur();
+  await money.fill("2222");
+  await money.blur();
+  await expect(money).toHaveValue("2222");
+
+  // Keyboard undo steps back through both edits (blur left focus on <body>).
+  await page.keyboard.press("ControlOrMeta+z");
+  await expect(money).toHaveValue("1111");
+  await page.keyboard.press("ControlOrMeta+z");
+  await expect(money).toHaveValue("3000");
+  await expect(page.locator(".dirty")).toContainText("No changes");
+
+  // Keyboard redo, then toolbar buttons for the rest.
+  await page.keyboard.press("ControlOrMeta+Shift+z");
+  await expect(money).toHaveValue("1111");
+  const undoBtn = page.getByRole("button", { name: "Undo" });
+  const redoBtn = page.getByRole("button", { name: "Redo" });
+  await redoBtn.click();
+  await expect(money).toHaveValue("2222");
+  await expect(redoBtn).toBeDisabled();
+  await undoBtn.click();
+  await undoBtn.click();
+  await expect(money).toHaveValue("3000");
+  await expect(undoBtn).toBeDisabled();
+
+  // A fresh edit after undo clears the redo branch.
+  await money.fill("5555");
+  await money.blur();
+  await expect(redoBtn).toBeDisabled();
+
+  // The undone-then-redone state exports correctly.
+  await page.keyboard.press("ControlOrMeta+z");
+  const exported = await exportBytes(page);
+  expect(decodeBcd3(exported, MONEY_OFFSET)).toBe(3000);
+  expect(exported[MAIN_CKSUM]).toBe(gen1MainChecksum(exported));
+});
