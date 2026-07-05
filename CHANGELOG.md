@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.3.0](https://github.com/VdustR/shinpokered-save-editor/compare/v1.2.0...v1.3.0) (2026-07-05)
+
+
+### Features
+
+* in-browser test drive — boot your ROM with edited save injected ([#32](https://github.com/VdustR/shinpokered-save-editor/issues/32)) ([834918f](https://github.com/VdustR/shinpokered-save-editor/commit/834918f4ac0397ac0b2facc39443d30174906f84))
+* living-dex box filler ([#37](https://github.com/VdustR/shinpokered-save-editor/issues/37)) ([f56a0a0](https://github.com/VdustR/shinpokered-save-editor/commit/f56a0a09b047ddc6e67d07b09db81b20b3cf4490))
+* per-mon legality report tab ([#33](https://github.com/VdustR/shinpokered-save-editor/issues/33)) ([201ce98](https://github.com/VdustR/shinpokered-save-editor/commit/201ce98e3b4078955512b7545acb5d1712d547c3))
+* PKHeX-compatible .pk1 import/export for party mons ([#34](https://github.com/VdustR/shinpokered-save-editor/issues/34)) ([4ae5674](https://github.com/VdustR/shinpokered-save-editor/commit/4ae5674b33155735fde542f5febd447fb93d0348))
+* semantic save compare page ([#36](https://github.com/VdustR/shinpokered-save-editor/issues/36)) ([9807e7f](https://github.com/VdustR/shinpokered-save-editor/commit/9807e7fac0e31e502ec2e08f8a05f67b7f888f34))
+* team coverage panel and one-click heal ([#35](https://github.com/VdustR/shinpokered-save-editor/issues/35)) ([dc4065c](https://github.com/VdustR/shinpokered-save-editor/commit/dc4065c74ecade217954d90c3e33be2438881f8c))
+* undo/redo history with keyboard shortcuts and toolbar buttons ([#30](https://github.com/VdustR/shinpokered-save-editor/issues/30)) ([a5e3d36](https://github.com/VdustR/shinpokered-save-editor/commit/a5e3d36fdb01525173575fe1df7b1b05fa15e526))
+
+
+### Bug Fixes
+
+* battle-options polarity UX + in-game gender indicator toggle ([#29](https://github.com/VdustR/shinpokered-save-editor/issues/29)) ([18c30c7](https://github.com/VdustR/shinpokered-save-editor/commit/18c30c7ac1c7c5b7988080c0bd22137ea90f104f))
+
 ## [1.2.0](https://github.com/VdustR/shinpokered-save-editor/compare/v1.1.0...v1.2.0) (2026-07-05)
 
 
