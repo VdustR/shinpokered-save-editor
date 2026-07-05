@@ -603,3 +603,22 @@ test("battle options polarity: unchecking animations sets wOptions bit 7", async
   expect(bytes[0x29f3 + (0x90e >> 3)] & (1 << (0x90e & 7))).not.toBe(0); // EVENT_90E on
   expect(bytes[MAIN_CKSUM]).toBe(gen1MainChecksum(bytes));
 });
+
+test("legality tab reports a clean mon and flags EXP drift", async ({ page }) => {
+  await loadFixture(page);
+  await page.locator(".sidenav__item", { hasText: "Party" }).click();
+  await page.getByRole("button", { name: "Add Pokémon" }).first().click();
+
+  await page.getByRole("button", { name: "Legality" }).click();
+  await expect(page.getByTestId("legality-ok")).toBeVisible();
+
+  // Push EXP out of sync with the level; the report should call it out.
+  await page.getByRole("button", { name: "Summary" }).click();
+  const exp = page.locator(".field", { hasText: "EXP" }).locator("input");
+  await exp.fill("5");
+  await exp.blur();
+  await page.getByRole("button", { name: "Legality" }).click();
+  const list = page.getByTestId("legality-list");
+  await expect(list).toContainText("EXP");
+  await expect(list).toContainText("level 1");
+});

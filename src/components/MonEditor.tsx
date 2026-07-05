@@ -4,6 +4,7 @@ import { baseStatsOf, moveInfo, moveName, speciesByInternalId, typeName } from "
 import { moveLegality } from "../save/legality";
 import { makePpByte, maxPp, ppCurrent, ppUps, type Dvs, type MonRecord } from "../save/pokemon";
 import { moveInArray } from "../save/reorder";
+import { legalityReport } from "../save/report";
 import { genderOf, isShinyDvs, makeShinyDvs } from "../save/shin";
 import type { MonNames } from "../save/savefile";
 import { Button, Field, NumberInput, PickerTrigger, Segmented, Select, TextInput } from "./ui/ui";
@@ -14,7 +15,8 @@ import { Sprite } from "./Sprite";
 import { StatBars } from "./StatBars";
 import { useDragReorder } from "./useDragReorder";
 
-type Tab = "summary" | "moves" | "dvs";
+export type MonEditorTab = "summary" | "moves" | "dvs" | "legality";
+type Tab = MonEditorTab;
 
 export function MonEditor({
   mon,
@@ -156,6 +158,7 @@ export function MonEditor({
           { value: "summary", label: "Summary" },
           { value: "moves", label: "Moves" },
           { value: "dvs", label: "DVs & EXP" },
+          { value: "legality", label: "Legality" },
         ]}
       />
 
@@ -347,6 +350,34 @@ export function MonEditor({
           </div>
         </div>
       )}
+
+      {tab === "legality" && <LegalitySection mon={mon} names={names} />}
+    </div>
+  );
+}
+
+function LegalitySection({ mon, names }: { mon: MonRecord; names: MonNames }) {
+  const findings = legalityReport(mon, names);
+  return (
+    <div className="mon-editor__section">
+      {findings.length === 0 ? (
+        <p className="legality-ok" data-testid="legality-ok">
+          No issues found — this mon is consistent with normal play.
+        </p>
+      ) : (
+        <ul className="legality-list" data-testid="legality-list">
+          {findings.map((f) => (
+            <li key={`${f.area}:${f.message}`} className={`legality-item legality-item--${f.severity}`}>
+              <span className="legality-item__tag">{f.area}</span>
+              <span className="legality-item__msg">{f.message}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+      <p className="hint-line">
+        Red entries are impossible in normal play (glitch/hacked territory); amber ones the game may
+        rewrite on its own (e.g. when depositing into a box); grey notes are informational.
+      </p>
     </div>
   );
 }
