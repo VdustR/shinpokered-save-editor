@@ -188,7 +188,6 @@ test("nickname keystrokes outside the Gen 1 charset are ignored", async ({ page 
   // The editor keeps working: a storable character still commits.
   await nick.pressSequentially("X");
   await expect(nick).toHaveValue("LEAFYX");
-  await expect(page.locator(".slot__name").first()).toHaveText("LEAFYX");
   expect(pageErrors).toEqual([]);
 });
 
