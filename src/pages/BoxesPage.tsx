@@ -15,7 +15,7 @@ import {
 import { useSaveStore } from "../state/store";
 import { Badge, Button } from "../components/ui/ui";
 import { EmptyLine } from "../components/EmptyLine";
-import { MonEditor } from "../components/MonEditor";
+import { MonEditor, type MonEditorTab } from "../components/MonEditor";
 import { PageHeader } from "../components/PageHeader";
 import { ReorderControls } from "../components/ReorderControls";
 import { Sprite } from "../components/Sprite";
@@ -29,7 +29,7 @@ export function BoxesPage() {
   const current = getCurrentBoxIndex(bytes);
   const [box, setBox] = useState(current);
   const [slot, setSlot] = useState(0);
-  const [tab, setTab] = useState<"summary" | "moves" | "dvs">("summary");
+  const [tab, setTab] = useState<MonEditorTab>("summary");
 
   const contents = readBox(bytes, box);
   const active = contents.mons[slot];

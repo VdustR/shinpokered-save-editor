@@ -685,3 +685,22 @@ test("test drive boots a real ROM and paints frames", async ({ page }) => {
   await page.getByRole("button", { name: "Stop", exact: true }).click();
   await expect(page.getByTestId("pull-save")).toBeDisabled();
 });
+
+test("legality tab reports a clean mon and flags EXP drift", async ({ page }) => {
+  await loadFixture(page);
+  await page.locator(".sidenav__item", { hasText: "Party" }).click();
+  await page.getByRole("button", { name: "Add Pokémon" }).first().click();
+
+  await page.getByRole("button", { name: "Legality" }).click();
+  await expect(page.getByTestId("legality-ok")).toBeVisible();
+
+  // Push EXP out of sync with the level; the report should call it out.
+  await page.getByRole("button", { name: "Summary" }).click();
+  const exp = page.locator(".field", { hasText: "EXP" }).locator("input");
+  await exp.fill("5");
+  await exp.blur();
+  await page.getByRole("button", { name: "Legality" }).click();
+  const list = page.getByTestId("legality-list");
+  await expect(list).toContainText("EXP");
+  await expect(list).toContainText("level 1");
+});

@@ -18,7 +18,7 @@ import { useNav } from "../state/nav";
 import { useSaveStore } from "../state/store";
 import { Button, OffsetChip, Panel } from "../components/ui/ui";
 import { EmptyLine } from "../components/EmptyLine";
-import { MonEditor } from "../components/MonEditor";
+import { MonEditor, type MonEditorTab } from "../components/MonEditor";
 import { PageHeader } from "../components/PageHeader";
 import { ReorderControls } from "../components/ReorderControls";
 import { Sprite } from "../components/Sprite";
@@ -30,7 +30,7 @@ export function PartyPage() {
   const bytes = useSaveStore((s) => s.bytes)!;
   const mutate = useSaveStore((s) => s.mutate);
   const [selected, setSelected] = useState(0);
-  const [tab, setTab] = useState<"summary" | "moves" | "dvs">("summary");
+  const [tab, setTab] = useState<MonEditorTab>("summary");
 
   const party = getParty(bytes);
   const active = party[selected];
@@ -136,7 +136,7 @@ export function PartyPage() {
 function DayCarePanel() {
   const bytes = useSaveStore((s) => s.bytes)!;
   const mutate = useSaveStore((s) => s.mutate);
-  const [tab, setTab] = useState<"summary" | "moves" | "dvs">("summary");
+  const [tab, setTab] = useState<MonEditorTab>("summary");
 
   const dayCare = getDayCare(bytes);
   const playerName = getPlayerName(bytes);
