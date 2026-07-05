@@ -5,6 +5,7 @@ import { MONS_PER_BOX, NUM_BOXES } from "../save/layout";
 import type { MonRecord } from "../save/pokemon";
 import {
   getCurrentBoxIndex,
+  getPlayerId,
   getPlayerName,
   readBox,
   removeBoxMon,
@@ -119,7 +120,14 @@ export function BoxesPage() {
     if (contents.mons.length >= MONS_PER_BOX) return;
     const index = contents.mons.length;
     const mon = createMon(BULBASAUR, 5);
-    mutate((b) => writeBoxMon(b, box, index, mon, { nickname: speciesByInternalId(BULBASAUR)?.name ?? "", otName: "RED" }));
+    // Your own ID, so the game treats it as caught (normal EXP, obedient).
+    mon.otId = getPlayerId(bytes);
+    mutate((b) =>
+      writeBoxMon(b, box, index, mon, {
+        nickname: speciesByInternalId(BULBASAUR)?.name ?? "",
+        otName: getPlayerName(bytes) || "RED",
+      }),
+    );
     setSlot(index);
   }
 

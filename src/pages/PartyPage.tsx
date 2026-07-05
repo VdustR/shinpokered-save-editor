@@ -6,6 +6,7 @@ import {
   clearDayCare,
   getDayCare,
   getParty,
+  getPlayerId,
   getPlayerName,
   removePartyMon,
   reorderParty,
@@ -52,8 +53,15 @@ export function PartyPage() {
   function addMon() {
     if (party.length >= PARTY_LENGTH) return;
     const mon = createMon(BULBASAUR, 5);
+    // Your own ID, so the game treats it as caught (normal EXP, obedient).
+    mon.otId = getPlayerId(bytes);
     const index = party.length;
-    mutate((b) => setPartyMon(b, index, mon, { nickname: speciesByInternalId(BULBASAUR)?.name ?? "", otName: "RED" }));
+    mutate((b) =>
+      setPartyMon(b, index, mon, {
+        nickname: speciesByInternalId(BULBASAUR)?.name ?? "",
+        otName: getPlayerName(bytes) || "RED",
+      }),
+    );
     setSelected(index);
   }
 
@@ -245,6 +253,7 @@ function DayCarePanel() {
 
   function board() {
     const mon = createMon(BULBASAUR, 5);
+    mon.otId = getPlayerId(bytes);
     mutate((b) =>
       setDayCareMon(b, mon, {
         nickname: speciesByInternalId(BULBASAUR)?.name ?? "",

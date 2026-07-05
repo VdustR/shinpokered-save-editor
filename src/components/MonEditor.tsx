@@ -177,6 +177,24 @@ export function MonEditor({
             <Field label="EXP" hint="Auto-set from level; edit to fine-tune.">
               <NumberInput value={mon.exp} min={0} max={0xffffff} onValue={(n) => patch((d) => (d.exp = n), false)} />
             </Field>
+            <Field
+              label="OT ID"
+              hint="Matching your Trainer ID counts as your own catch: no traded-mon boost, always obeys."
+            >
+              <NumberInput
+                value={mon.otId}
+                min={0}
+                max={0xffff}
+                onValue={(n) => patch((d) => (d.otId = n), false)}
+              />
+            </Field>
+            <Field label="OT name" hint="The game enters at most 7 characters.">
+              <TextInput
+                value={names.otName}
+                maxLength={7}
+                onChange={(e) => onChange(mon, { ...names, otName: e.target.value.toUpperCase() })}
+              />
+            </Field>
           </div>
         </div>
       )}
