@@ -61,8 +61,14 @@ export function TestDrivePage() {
     if (!cssFullscreen) return;
     const prev = document.documentElement.style.overflow;
     document.documentElement.style.overflow = "hidden";
+    // Match native fullscreen: Escape leaves the overlay fallback too.
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") setCssFullscreen(false);
+    }
+    window.addEventListener("keydown", onKeyDown);
     return () => {
       document.documentElement.style.overflow = prev;
+      window.removeEventListener("keydown", onKeyDown);
     };
   }, [cssFullscreen]);
 

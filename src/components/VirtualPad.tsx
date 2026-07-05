@@ -1,5 +1,8 @@
+import { useEffect, useRef } from "react";
 import type { PointerEvent } from "react";
 import type { GbButton } from "../emu/testdrive";
+
+const ALL_BUTTONS: GbButton[] = ["up", "down", "left", "right", "a", "b", "start", "select"];
 
 /**
  * Touch gamepad for the Test Drive. Pointer events (not click) so presses
@@ -8,6 +11,17 @@ import type { GbButton } from "../emu/testdrive";
  * finger slides off.
  */
 export function VirtualPad({ onButton }: { onButton: (button: GbButton, pressed: boolean) => void }) {
+  const onButtonRef = useRef(onButton);
+  onButtonRef.current = onButton;
+
+  // Release everything if the pad unmounts (toggle off, page change) while a
+  // button is held, so no input stays stuck in the emulator.
+  useEffect(() => {
+    return () => {
+      for (const b of ALL_BUTTONS) onButtonRef.current(b, false);
+    };
+  }, []);
+
   function bind(button: GbButton) {
     return {
       onPointerDown: (e: PointerEvent<HTMLButtonElement>) => {
@@ -20,6 +34,7 @@ export function VirtualPad({ onButton }: { onButton: (button: GbButton, pressed:
         onButton(button, false);
       },
       onPointerCancel: () => onButton(button, false),
+      onLostPointerCapture: () => onButton(button, false),
       onContextMenu: (e: PointerEvent<HTMLButtonElement>) => e.preventDefault(),
     };
   }
