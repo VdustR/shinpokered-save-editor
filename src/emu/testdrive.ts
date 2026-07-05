@@ -172,6 +172,9 @@ export async function startTestDrive({
       cancelAnimationFrame(rafId);
       window.removeEventListener("keydown", onKey);
       window.removeEventListener("keyup", onKey);
+      // The glue's button state is module-global: a button still held here
+      // would carry into the next booted core as an eternal press.
+      for (const button of Object.values(KEY_TO_BUTTON)) core.setButton(button, false);
       void audioCtx?.close().catch(() => {});
       core.delete();
     },
