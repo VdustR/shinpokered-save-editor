@@ -790,3 +790,26 @@ test("compare page reports semantic changes against the loaded file", async ({ p
   await page.setInputFiles('[data-testid="compare-input"]', fixturePath);
   await expect(page.getByTestId("compare-Trainer")).toContainText("Money");
 });
+
+test("living dex filler populates boxes and marks the dex", async ({ page }) => {
+  await loadFixture(page);
+  await page.locator(".sidenav__item", { hasText: "Boxes" }).click();
+  await page.getByTestId("fill-living-dex").click();
+  await expect(page.getByTestId("living-dex-notice")).toContainText("Added 151 species");
+
+  // Box 1 fills with the first 20 dex entries.
+  await expect(page.locator(".box-cell")).toHaveCount(20);
+  await expect(page.locator(".box-cell__btn").first()).toHaveAttribute("title", /BULBASAUR · Lv5/);
+
+  // Running it again adds nothing.
+  await page.getByTestId("fill-living-dex").click();
+  await expect(page.getByTestId("living-dex-notice")).toContainText("Nothing to add");
+
+  // Exported save has valid box checksums and a full dex.
+  const exported = await exportBytes(page);
+  expect(exported[MAIN_CKSUM]).toBe(gen1MainChecksum(exported));
+  let owned = 0;
+  for (let i = 0; i < 19; i++)
+    for (let b = 0; b < 8; b++) if (exported[0x25a3 + i] & (1 << b)) owned++;
+  expect(owned).toBe(151);
+});

@@ -546,6 +546,22 @@ export function switchCurrentBox(bytes: Uint8Array, newIndex: number): void {
   bytes[OFFSETS.currentBoxNum] = 0x80 | newIndex;
 }
 
+/**
+ * Mark the SRAM boxes as initialized (wCurrentBoxNum bit 7). Until the first
+ * in-game box switch the game treats stored boxes as raw and its ChangeBox
+ * runs EmptyAllSRAMBoxes, wiping anything the editor wrote there. Call this
+ * after writing stored boxes to a save that has never switched; untouched
+ * slots become valid empty boxes so the game reads them cleanly.
+ */
+export function markBoxesInitialized(bytes: Uint8Array): void {
+  if (bytes[OFFSETS.currentBoxNum] & 0x80) return;
+  for (let i = 0; i < NUM_BOXES; i++) {
+    const base = storedBoxOffset(i);
+    if (!isBoxInitialized(bytes, base)) initializeBox(bytes, base);
+  }
+  bytes[OFFSETS.currentBoxNum] |= 0x80;
+}
+
 /** Move a stored Pokémon within a box, keeping records/species/names aligned. */
 export function reorderBoxMon(bytes: Uint8Array, boxIndex: number, from: number, to: number): void {
   const bases = boxBases(bytes, boxIndex);

@@ -5,6 +5,7 @@ import { MONS_PER_BOX, NUM_BOXES } from "../save/layout";
 import type { MonRecord } from "../save/pokemon";
 import {
   getCurrentBoxIndex,
+  getPlayerName,
   readBox,
   removeBoxMon,
   reorderBoxMon,
@@ -12,6 +13,7 @@ import {
   writeBoxMon,
   type MonNames,
 } from "../save/savefile";
+import { fillLivingDex } from "../save/livingdex";
 import { useSaveStore } from "../state/store";
 import { Badge, Button } from "../components/ui/ui";
 import { EmptyLine } from "../components/EmptyLine";
@@ -28,6 +30,23 @@ export function BoxesPage() {
   const mutate = useSaveStore((s) => s.mutate);
   const current = getCurrentBoxIndex(bytes);
   const [box, setBox] = useState(current);
+  const [dexNotice, setDexNotice] = useState<string | null>(null);
+
+  function fillDex() {
+    let result = { added: 0, skippedForSpace: 0 };
+    mutate((b) => {
+      result = fillLivingDex(b, getPlayerName(b) || "TRAINER");
+    });
+    setDexNotice(
+      result.added === 0 && result.skippedForSpace > 0
+        ? `No space left in the boxes — ${result.skippedForSpace} species could not be added.`
+        : result.added === 0
+          ? "Nothing to add — every species is already in this save."
+          : `Added ${result.added} species at Lv5 in dex order${
+              result.skippedForSpace ? `; ${result.skippedForSpace} did not fit` : ""
+            }. Undo (Ctrl/⌘Z) reverts the whole fill.`,
+    );
+  }
   const [slot, setSlot] = useState(0);
   const [tab, setTab] = useState<MonEditorTab>("summary");
 
@@ -64,7 +83,17 @@ export function BoxesPage() {
       <PageHeader
         title="Boxes"
         subtitle="12 storage boxes of 20. The current box is mirrored in the bank-1 cache; edits here keep both in sync."
+        actions={
+          <Button size="sm" onClick={fillDex} data-testid="fill-living-dex">
+            Fill living dex
+          </Button>
+        }
       />
+      {dexNotice && (
+        <p className="hint-line" data-testid="living-dex-notice" role="status">
+          {dexNotice}
+        </p>
+      )}
 
       <div className="box-tabs" role="tablist" aria-label="Boxes">
         {Array.from({ length: NUM_BOXES }, (_, i) => (
