@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.4.0](https://github.com/VdustR/shinpokered-save-editor/compare/v1.3.0...v1.4.0) (2026-07-05)
+
+
+### Features
+
+* box-side .pk1 import/export ([#39](https://github.com/VdustR/shinpokered-save-editor/issues/39)) ([9dd2c35](https://github.com/VdustR/shinpokered-save-editor/commit/9dd2c35653863f644ca700a6b502e221916ce066))
+* detect in-game saves and offer pulling them back ([#43](https://github.com/VdustR/shinpokered-save-editor/issues/43)) ([9f76b08](https://github.com/VdustR/shinpokered-save-editor/commit/9f76b08fbc35ac9026340bc5d81befe5bf876750))
+* legality badges on party slots ([#41](https://github.com/VdustR/shinpokered-save-editor/issues/41)) ([87e203b](https://github.com/VdustR/shinpokered-save-editor/commit/87e203b04b134966a74806e958e421b63bb3871a))
+* mobile test drive — virtual gamepad and fullscreen play ([#38](https://github.com/VdustR/shinpokered-save-editor/issues/38)) ([40e1ffc](https://github.com/VdustR/shinpokered-save-editor/commit/40e1ffcc655f4965bd6bf445322dea6c6e467a5a))
+
 ## [1.3.0](https://github.com/VdustR/shinpokered-save-editor/compare/v1.2.0...v1.3.0) (2026-07-05)
 
 
