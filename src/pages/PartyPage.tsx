@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { createMon } from "../save/derive";
 import { DEX_SPECIES, speciesByInternalId } from "../save/gamedata";
 import type { MonRecord } from "../save/pokemon";
@@ -23,6 +23,8 @@ import { PageHeader } from "../components/PageHeader";
 import { ReorderControls } from "../components/ReorderControls";
 import { Sprite } from "../components/Sprite";
 import { useDragReorder } from "../components/useDragReorder";
+import { exportPk1, importPk1 } from "../save/pk1";
+import { recalcDerivedFields } from "../save/derive";
 
 const BULBASAUR = DEX_SPECIES[0]?.internalId ?? 0x99;
 
@@ -31,6 +33,8 @@ export function PartyPage() {
   const mutate = useSaveStore((s) => s.mutate);
   const [selected, setSelected] = useState(0);
   const [tab, setTab] = useState<MonEditorTab>("summary");
+  const [importError, setImportError] = useState<string | null>(null);
+  const pk1InputRef = useRef<HTMLInputElement>(null);
 
   const party = getParty(bytes);
   const active = party[selected];
@@ -63,17 +67,72 @@ export function PartyPage() {
 
   const drag = useDragReorder(reorder, party.length);
 
+  function exportActivePk1() {
+    if (!active) return;
+    const name = active.nickname || speciesByInternalId(active.mon.species)?.name || "mon";
+    const data = exportPk1(active.mon, { nickname: active.nickname, otName: active.otName });
+    const url = URL.createObjectURL(new Blob([data.buffer as ArrayBuffer], { type: "application/octet-stream" }));
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${name.toLowerCase()}.pk1`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  async function importPk1File(file: File) {
+    try {
+      const { mon, names } = importPk1(new Uint8Array(await file.arrayBuffer()));
+      // Fill derived fields for the party format and default blank names.
+      recalcDerivedFields(mon);
+      const nickname = names.nickname.trim() || speciesByInternalId(mon.species)?.name || "MON";
+      const otName = names.otName.trim() || "TRAINER";
+      const index = party.length;
+      mutate((b) => setPartyMon(b, index, mon, { nickname, otName }));
+      setSelected(index);
+      setImportError(null);
+    } catch (e) {
+      setImportError(e instanceof Error ? e.message : String(e));
+    }
+  }
+
   return (
     <div className="page">
       <PageHeader
         title="Party"
         subtitle="Up to six Pokémon. Editing level, DVs, or stat EXP recalculates stats automatically."
         actions={
-          <Button variant="primary" size="sm" onClick={addMon} disabled={party.length >= PARTY_LENGTH}>
-            Add Pokémon
-          </Button>
+          <>
+            <input
+              ref={pk1InputRef}
+              data-testid="pk1-input"
+              type="file"
+              accept=".pk1,.bin"
+              hidden
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) void importPk1File(f);
+                e.target.value = "";
+              }}
+            />
+            <Button
+              size="sm"
+              onClick={() => pk1InputRef.current?.click()}
+              disabled={party.length >= PARTY_LENGTH}
+            >
+              Import .pk1
+            </Button>
+            <Button variant="primary" size="sm" onClick={addMon} disabled={party.length >= PARTY_LENGTH}>
+              Add Pokémon
+            </Button>
+          </>
         }
       />
+
+      {importError && (
+        <p className="hint-line hint-line--warn" data-testid="pk1-error" role="alert">
+          Import failed: {importError}
+        </p>
+      )}
 
       {party.length === 0 ? (
         <EmptyLine
@@ -111,6 +170,9 @@ export function PartyPage() {
             <div className="detail-main">
               <div className="detail-main__toolbar">
                 <span className="detail-main__title">Slot {selected + 1}</span>
+                <Button size="sm" variant="ghost" onClick={exportActivePk1} data-testid="pk1-export">
+                  Export .pk1
+                </Button>
                 <Button variant="danger" size="sm" onClick={() => remove(selected)}>
                   Remove
                 </Button>
