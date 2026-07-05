@@ -28,6 +28,9 @@ export function TestDrivePage() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const driveRef = useRef<TestDrive | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  // Bumped on every stop/boot so a boot that was superseded while awaiting
+  // the code-split emulator import bails out instead of double-starting.
+  const bootIdRef = useRef(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -50,7 +53,8 @@ export function TestDrivePage() {
   useEffect(() => {
     if (!running) return;
     function onKeyDown(e: KeyboardEvent) {
-      if (e.target instanceof HTMLElement && /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
+      if (e.target instanceof HTMLElement && /^(INPUT|TEXTAREA|SELECT|BUTTON)$/.test(e.target.tagName))
+        return;
       if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", " "].includes(e.key)) e.preventDefault();
     }
     window.addEventListener("keydown", onKeyDown);
@@ -74,6 +78,7 @@ export function TestDrivePage() {
   }
 
   function stopDrive() {
+    bootIdRef.current++;
     driveRef.current?.stop();
     driveRef.current = null;
     setRunning(false);
@@ -82,9 +87,10 @@ export function TestDrivePage() {
   async function boot() {
     if (!rom || !canvasRef.current) return;
     stopDrive();
+    const myBootId = bootIdRef.current;
     // The emulator core is code-split; it loads on first boot only.
     const { startTestDrive } = await import("../emu/testdrive");
-    if (!canvasRef.current) return;
+    if (myBootId !== bootIdRef.current || !canvasRef.current) return;
     // Boot with export-quality bytes so in-game checksum validation passes.
     const save = exportSave(bytes, original ?? undefined);
     driveRef.current = startTestDrive({ rom: rom.bytes, save, canvas: canvasRef.current, sound });

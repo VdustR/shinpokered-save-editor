@@ -86,5 +86,5 @@ export function assessRom(rom: Uint8Array): RomAssessment {
  * buffer it is given, so views into larger buffers must not be passed).
  */
 export function toTightBuffer(u8: Uint8Array): ArrayBuffer {
-  return u8.buffer.slice(u8.byteOffset, u8.byteOffset + u8.byteLength) as ArrayBuffer;
+  return new Uint8Array(u8).buffer as ArrayBuffer;
 }
