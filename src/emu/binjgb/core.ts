@@ -20,7 +20,12 @@ let modulePromise: Promise<BinjgbModule> | null = null;
  * the URL fetch; the browser resolves the wasm through Vite's asset graph.
  */
 export function loadBinjgb(init?: BinjgbInit): Promise<BinjgbModule> {
-  modulePromise ??= Binjgb({ locateFile: () => wasmUrl, ...init });
+  modulePromise ??= Binjgb({ locateFile: () => wasmUrl, ...init }).catch((err: unknown) => {
+    // Don't cache a rejection (e.g. transient wasm fetch failure) forever;
+    // let the next call retry.
+    modulePromise = null;
+    throw err;
+  });
   return modulePromise;
 }
 
@@ -58,6 +63,10 @@ export class BinjgbCore {
     // binjgb requires the ROM buffer size to be a multiple of 32 KiB.
     const size = (rom.length + 0x7fff) & ~0x7fff;
     const romPtr = module._malloc(size);
+    if (romPtr === 0) {
+      // Writing through a 0-based view would clobber the wasm runtime.
+      throw new Error("binjgb heap allocation failed");
+    }
     this.heap(romPtr, size).fill(0).set(rom);
     this.e = module._emulator_new_simple(
       romPtr,
@@ -85,6 +94,11 @@ export class BinjgbCore {
 
   /** Run until `untilTicks`, reporting each frame/audio event as it happens. */
   runUntil(untilTicks: number, onEvent?: (event: number) => void): void {
+    // A NaN target would make the emulator's ticks>=until comparison always
+    // false and spin this loop forever, freezing the tab.
+    if (!Number.isFinite(untilTicks)) {
+      throw new Error(`runUntil: non-finite tick target (${untilTicks})`);
+    }
     for (;;) {
       const event = this.module._emulator_run_until_f64(this.e, untilTicks);
       onEvent?.(event);
@@ -120,6 +134,11 @@ export class BinjgbCore {
 
   private withExtRamFileData<T>(cb: (fileDataPtr: number, buffer: Uint8Array) => T): T {
     const fileDataPtr = this.module._ext_ram_file_data_new(this.e);
+    if (fileDataPtr === 0) {
+      // Never observed (binjgb's xmalloc aborts instead of returning NULL),
+      // but dereferencing 0 would kill the wasm instance for good.
+      throw new Error("binjgb ext-RAM file data allocation failed");
+    }
     try {
       const buffer = this.heap(
         this.module._get_file_data_ptr(fileDataPtr),

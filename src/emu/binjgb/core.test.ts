@@ -72,6 +72,9 @@ describe("BinjgbCore", () => {
       core.takeExtRamUpdated();
       core.runUntil(core.ticks + CPU_TICKS_PER_SECOND / 10);
       expect(core.takeExtRamUpdated()).toBe(false);
+
+      // A non-finite target would spin the run loop forever; it must throw.
+      expect(() => core.runUntil(Number.NaN)).toThrow(/non-finite/);
     } finally {
       core.delete();
     }
