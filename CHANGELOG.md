@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.4.1](https://github.com/VdustR/shinpokered-save-editor/compare/v1.4.0...v1.4.1) (2026-07-05)
+
+
+### Bug Fixes
+
+* cover both emulator self-check warnings in the Test Drive note ([#46](https://github.com/VdustR/shinpokered-save-editor/issues/46)) ([c6f2bde](https://github.com/VdustR/shinpokered-save-editor/commit/c6f2bdee9f5efaafbc69265be4e0f0c9b8e743b5))
+* virtual pad no longer overflows narrow phone viewports ([#45](https://github.com/VdustR/shinpokered-save-editor/issues/45)) ([443cdc2](https://github.com/VdustR/shinpokered-save-editor/commit/443cdc2698eb481925a3d9f6a86dd5028f3812f8))
+
 ## [1.4.0](https://github.com/VdustR/shinpokered-save-editor/compare/v1.3.0...v1.4.0) (2026-07-05)
 
 
