@@ -17,7 +17,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: "prompt",
-      includeAssets: ["favicon.png", "favicon.svg", "icons/apple-touch-icon.png"],
+      includeAssets: ["favicon.png", "icons/apple-touch-icon.png"],
       manifest: {
         name: "Shin Pokémon Save Editor",
         short_name: "Shin Save",
