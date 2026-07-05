@@ -704,3 +704,42 @@ test("legality tab reports a clean mon and flags EXP drift", async ({ page }) =>
   await expect(list).toContainText("EXP");
   await expect(list).toContainText("level 1");
 });
+
+test("pk1 export and re-import round-trips a party mon", async ({ page }) => {
+  await loadFixture(page);
+  await page.locator(".sidenav__item", { hasText: "Party" }).click();
+  await page.getByRole("button", { name: "Add Pokémon" }).first().click();
+
+  // Give it a distinctive nickname, then export the slot as .pk1.
+  const nick = page.locator(".field", { hasText: "Nickname" }).locator("input");
+  await nick.fill("LEAFY");
+  await nick.blur();
+  const [download] = await Promise.all([
+    page.waitForEvent("download"),
+    page.getByTestId("pk1-export").click(),
+  ]);
+  expect(download.suggestedFilename()).toBe("leafy.pk1");
+  const file = await download.path();
+  const pk1 = new Uint8Array(await readFile(file));
+  expect(pk1).toHaveLength(69);
+  expect(pk1[0]).toBe(1);
+
+  // Import it back: the party grows to two identical mons.
+  await page.setInputFiles('[data-testid="pk1-input"]', file);
+  await expect(page.locator(".slot")).toHaveCount(2);
+  await expect(page.locator(".slot__name").nth(1)).toHaveText("LEAFY");
+
+  // Garbage import surfaces a readable error and adds nothing.
+  await page.setInputFiles('[data-testid="pk1-input"]', {
+    name: "junk.pk1",
+    mimeType: "application/octet-stream",
+    buffer: Buffer.alloc(50),
+  });
+  await expect(page.getByTestId("pk1-error")).toContainText("Unrecognized");
+  await expect(page.locator(".slot")).toHaveCount(2);
+
+  // The imported copy exports into a valid save.
+  const exported = await exportBytes(page);
+  expect(exported[0x2f2c]).toBe(2);
+  expect(exported[MAIN_CKSUM]).toBe(gen1MainChecksum(exported));
+});
