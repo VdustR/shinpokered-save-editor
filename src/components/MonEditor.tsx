@@ -6,7 +6,7 @@ import { makePpByte, maxPp, ppCurrent, ppUps, type Dvs, type MonRecord } from ".
 import { moveInArray } from "../save/reorder";
 import { legalityReport } from "../save/report";
 import { genderOf, isShinyDvs, makeShinyDvs } from "../save/shin";
-import type { MonNames } from "../save/savefile";
+import { isEncodableName, type MonNames } from "../save/savefile";
 import { Button, Field, NumberInput, PickerTrigger, Segmented, Select, TextInput } from "./ui/ui";
 import { MovePicker } from "./MovePicker";
 import { ReorderControls } from "./ReorderControls";
@@ -111,7 +111,12 @@ export function MonEditor({
               value={isCustomNickname ? names.nickname : ""}
               placeholder={species?.name ?? ""}
               maxLength={10}
-              onChange={(e) => onChange(mon, { ...names, nickname: e.target.value.toUpperCase() })}
+              onChange={(e) => {
+                // Ignore keystrokes outside the Gen 1 charset; committing
+                // them would throw in encodeText.
+                const next = e.target.value.toUpperCase();
+                if (isEncodableName(next)) onChange(mon, { ...names, nickname: next });
+              }}
             />
           </Field>
           <Field label="Level" hint="1 – 100">

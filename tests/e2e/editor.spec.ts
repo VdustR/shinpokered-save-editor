@@ -173,6 +173,25 @@ test("changing species on a non-nicknamed mon does not leak the old species name
   await expect(page.locator(".slot__name").first()).toHaveText("CHARMANDER");
 });
 
+test("nickname keystrokes outside the Gen 1 charset are ignored", async ({ page }) => {
+  const pageErrors: string[] = [];
+  page.on("pageerror", (e) => pageErrors.push(String(e)));
+  await loadFixture(page);
+  await page.locator(".sidenav__item", { hasText: "Party" }).click();
+  await page.getByRole("button", { name: "Add Pokémon" }).first().click();
+
+  const nick = page.locator(".field", { hasText: "Nickname" }).locator("input");
+  await nick.fill("LEAFY");
+  // "木" has no Gen 1 text encoding; the keystroke must be a no-op, not a crash.
+  await nick.pressSequentially("木");
+  await expect(nick).toHaveValue("LEAFY");
+  // The editor keeps working: a storable character still commits.
+  await nick.pressSequentially("X");
+  await expect(nick).toHaveValue("LEAFYX");
+  await expect(page.locator(".slot__name").first()).toHaveText("LEAFYX");
+  expect(pageErrors).toEqual([]);
+});
+
 test("encyclopedia fuzzy-searches moves and filters by type", async ({ page }) => {
   await loadFixture(page);
   await page.locator(".sidenav__item", { hasText: "Encyclopedia" }).click();
