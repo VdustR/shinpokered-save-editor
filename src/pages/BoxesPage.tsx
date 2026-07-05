@@ -8,6 +8,7 @@ import {
   readBox,
   removeBoxMon,
   reorderBoxMon,
+  switchCurrentBox,
   writeBoxMon,
   type MonNames,
 } from "../save/savefile";
@@ -89,8 +90,20 @@ export function BoxesPage() {
             <span>
               Box {box + 1} {box === current && <Badge tone="primary">Current</Badge>}
             </span>
-            <span className="mono muted">
-              {contents.mons.length} / {MONS_PER_BOX}
+            <span className="box-panel__head-actions">
+              {box !== current && (
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  title="Persist the current box to storage and make this one active, like the in-game PC"
+                  onClick={() => mutate((b) => switchCurrentBox(b, box))}
+                >
+                  Set as current
+                </Button>
+              )}
+              <span className="mono muted">
+                {contents.mons.length} / {MONS_PER_BOX}
+              </span>
             </span>
           </div>
           {contents.mons.length === 0 ? (

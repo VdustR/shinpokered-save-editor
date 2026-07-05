@@ -516,6 +516,36 @@ export function removeBoxMon(bytes: Uint8Array, boxIndex: number, slot: number):
   }
 }
 
+/**
+ * Change which box is current, mirroring the game's ChangeBox routine:
+ * on the first ever switch (wCurrentBoxNum bit 7 clear) every stored box is
+ * initialized like EmptyAllSRAMBoxes, then the cache is written to the old
+ * box's stored slot, the new box's stored slot is loaded into the cache, and
+ * the number byte gets the new index with bit 7 set.
+ */
+export function switchCurrentBox(bytes: Uint8Array, newIndex: number): void {
+  if (newIndex < 0 || newIndex >= NUM_BOXES) throw new RangeError(`Invalid box index: ${newIndex}`);
+  const old = getCurrentBoxIndex(bytes);
+  if (old === newIndex) return;
+
+  if ((bytes[OFFSETS.currentBoxNum] & 0x80) === 0) {
+    // The game's EmptyAllSRAMBoxes wipes everything here, but the editor can
+    // have written real boxes before the first switch; only raw-fill slots
+    // get initialized so those edits survive.
+    for (let i = 0; i < NUM_BOXES; i++) {
+      const base = storedBoxOffset(i);
+      if (!isBoxInitialized(bytes, base)) initializeBox(bytes, base);
+    }
+  }
+  // Persist the cache into the old box's stored slot.
+  bytes.copyWithin(storedBoxOffset(old), OFFSETS.currentBox, OFFSETS.currentBox + BOX_DATA_SIZE);
+  // Load the new box; a never-written slot becomes a valid empty cache.
+  const source = storedBoxOffset(newIndex);
+  if (!isBoxInitialized(bytes, source)) initializeBox(bytes, source);
+  bytes.copyWithin(OFFSETS.currentBox, source, source + BOX_DATA_SIZE);
+  bytes[OFFSETS.currentBoxNum] = 0x80 | newIndex;
+}
+
 /** Move a stored Pokémon within a box, keeping records/species/names aligned. */
 export function reorderBoxMon(bytes: Uint8Array, boxIndex: number, from: number, to: number): void {
   const bases = boxBases(bytes, boxIndex);
