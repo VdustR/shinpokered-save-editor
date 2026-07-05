@@ -366,8 +366,8 @@ function LegalitySection({ mon, names }: { mon: MonRecord; names: MonNames }) {
         </p>
       ) : (
         <ul className="legality-list" data-testid="legality-list">
-          {findings.map((f) => (
-            <li key={`${f.area}:${f.message}`} className={`legality-item legality-item--${f.severity}`}>
+          {findings.map((f, i) => (
+            <li key={`${f.area}:${f.message}:${i}`} className={`legality-item legality-item--${f.severity}`}>
               <span className="legality-item__tag">{f.area}</span>
               <span className="legality-item__msg">{f.message}</span>
             </li>

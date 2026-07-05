@@ -9,7 +9,7 @@
 import { SPECIES, baseStatsOf, moveInfo, moveName, speciesByInternalId, speciesName } from "./gamedata";
 import { moveLegality, type LearnSource } from "./legality";
 import { calcStat, levelForExp } from "./stats";
-import { maxPp, ppCurrent, ppUps, type MonRecord } from "./pokemon";
+import { hpDvOf, maxPp, ppCurrent, ppUps, type MonRecord } from "./pokemon";
 import type { MonNames } from "./savefile";
 import { isEncodable } from "./text";
 
@@ -167,7 +167,7 @@ export function legalityReport(mon: MonRecord, names?: MonNames): Finding[] {
 
   if (mon.stats && mon.maxHp !== undefined && mon.level >= 1 && mon.level <= 100) {
     const expect = {
-      hp: calcStat({ base: base.hp, dv: hpDv(mon), statExp: mon.statExp.hp, level: mon.level, isHp: true }),
+      hp: calcStat({ base: base.hp, dv: hpDvOf(mon.dvs), statExp: mon.statExp.hp, level: mon.level, isHp: true }),
       atk: calcStat({ base: base.atk, dv: mon.dvs.atk, statExp: mon.statExp.atk, level: mon.level, isHp: false }),
       def: calcStat({ base: base.def, dv: mon.dvs.def, statExp: mon.statExp.def, level: mon.level, isHp: false }),
       spd: calcStat({ base: base.spd, dv: mon.dvs.spd, statExp: mon.statExp.spd, level: mon.level, isHp: false }),
@@ -213,11 +213,4 @@ export function legalityReport(mon: MonRecord, names?: MonNames): Finding[] {
   }
 
   return findings;
-}
-
-/** HP DV from the LSBs of the four stored DVs. */
-function hpDv(mon: MonRecord): number {
-  return (
-    ((mon.dvs.atk & 1) << 3) | ((mon.dvs.def & 1) << 2) | ((mon.dvs.spd & 1) << 1) | (mon.dvs.spc & 1)
-  );
 }
