@@ -814,6 +814,87 @@ test("living dex filler populates boxes and marks the dex", async ({ page }) => 
   expect(owned).toBe(151);
 });
 
+test("test drive virtual pad is opt-in on desktop and fullscreen toggles", async ({ page }) => {
+  await loadFixture(page);
+  await page.locator(".sidenav__item", { hasText: "Test Drive" }).click();
+
+  // No touch on desktop chromium: the pad hides behind the toggle.
+  await expect(page.getByTestId("virtual-pad")).toHaveCount(0);
+  await page.getByRole("switch", { name: "Virtual gamepad" }).click();
+  const pad = page.getByTestId("virtual-pad");
+  await expect(pad).toBeVisible();
+  for (const name of ["Up", "Down", "Left", "Right", "A", "B", "Start", "Select"]) {
+    await expect(pad.getByRole("button", { name, exact: true })).toBeVisible();
+  }
+
+  // Fullscreen: native API or the CSS overlay fallback must engage.
+  await page.getByTestId("fullscreen-toggle").click();
+  await expect
+    .poll(() =>
+      page.evaluate(() => {
+        const stage = document.querySelector('[data-testid="stage"]');
+        return document.fullscreenElement === stage || stage?.classList.contains("testdrive__stage--overlay");
+      }),
+    )
+    .toBe(true);
+  await expect(page.getByTestId("fullscreen-toggle")).toHaveText("Exit full screen");
+  // In native fullscreen only the stage subtree is clickable; use its exit button.
+  await page.getByTestId("stage").getByRole("button", { name: "Exit full screen" }).click();
+  await expect
+    .poll(() =>
+      page.evaluate(() => {
+        const stage = document.querySelector('[data-testid="stage"]');
+        return !document.fullscreenElement && !stage?.classList.contains("testdrive__stage--overlay");
+      }),
+    )
+    .toBe(true);
+});
+
+test.describe("touch device", () => {
+  test.use({ hasTouch: true, viewport: { width: 390, height: 844 } });
+
+  test("test drive shows the virtual pad automatically", async ({ page }) => {
+    await loadFixture(page);
+    await page.locator(".sidenav__item", { hasText: "Test Drive" }).click();
+    await expect(page.getByTestId("virtual-pad")).toBeVisible();
+  });
+});
+
+test("box pk1 export/import round-trips through the current box", async ({ page }) => {
+  await loadFixture(page);
+  await page.locator(".sidenav__item", { hasText: "Boxes" }).click();
+  await page.getByRole("button", { name: "Add Pokémon" }).first().click();
+
+  const nick = page.locator(".field", { hasText: "Nickname" }).locator("input");
+  await nick.fill("BOXY");
+  await nick.blur();
+
+  const [download] = await Promise.all([
+    page.waitForEvent("download"),
+    page.getByTestId("box-pk1-export").click(),
+  ]);
+  expect(download.suggestedFilename()).toBe("boxy.pk1");
+  const file = await download.path();
+  const pk1 = new Uint8Array(await readFile(file));
+  expect(pk1).toHaveLength(69);
+
+  // Import back into the same box: two mons now.
+  await page.setInputFiles('[data-testid="box-pk1-input"]', file);
+  await expect(page.locator(".box-cell")).toHaveCount(2);
+
+  // Garbage import errors without adding.
+  await page.setInputFiles('[data-testid="box-pk1-input"]', {
+    name: "junk.pk1",
+    mimeType: "application/octet-stream",
+    buffer: Buffer.alloc(50),
+  });
+  await expect(page.getByTestId("box-pk1-error")).toContainText("Unrecognized");
+  await expect(page.locator(".box-cell")).toHaveCount(2);
+
+  const exported = await exportBytes(page);
+  expect(exported[MAIN_CKSUM]).toBe(gen1MainChecksum(exported));
+});
+
 test("party slots show a legality badge when findings exist", async ({ page }) => {
   await loadFixture(page);
   await page.locator(".sidenav__item", { hasText: "Party" }).click();

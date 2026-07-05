@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { createMon } from "../save/derive";
+import { useRef, useState } from "react";
+import { createMon, recalcDerivedFields } from "../save/derive";
 import { DEX_SPECIES, speciesByInternalId } from "../save/gamedata";
 import { MONS_PER_BOX, NUM_BOXES } from "../save/layout";
 import type { MonRecord } from "../save/pokemon";
@@ -14,6 +14,7 @@ import {
   type MonNames,
 } from "../save/savefile";
 import { fillLivingDex } from "../save/livingdex";
+import { exportPk1, importPk1 } from "../save/pk1";
 import { useSaveStore } from "../state/store";
 import { Badge, Button } from "../components/ui/ui";
 import { EmptyLine } from "../components/EmptyLine";
@@ -49,9 +50,65 @@ export function BoxesPage() {
   }
   const [slot, setSlot] = useState(0);
   const [tab, setTab] = useState<MonEditorTab>("summary");
+  const [pk1Error, setPk1Error] = useState<string | null>(null);
+  const pk1InputRef = useRef<HTMLInputElement>(null);
+  // Live view of the selected box, for async work that outlives a box switch.
+  const boxRef = useRef(box);
+  boxRef.current = box;
 
   const contents = readBox(bytes, box);
   const active = contents.mons[slot];
+
+  function exportActivePk1() {
+    if (!active) return;
+    // Box records carry no derived stats; fill them for the party-format file.
+    const mon = structuredClone(active.mon);
+    mon.level = mon.boxLevel;
+    // recalcDerivedFields treats a record without maxHp as fully healed;
+    // keep the real current HP so injured box mons export as-is.
+    const currentHp = mon.currentHp;
+    recalcDerivedFields(mon);
+    mon.currentHp = Math.min(currentHp, mon.maxHp ?? currentHp);
+    const name = active.nickname || speciesByInternalId(mon.species)?.name || "mon";
+    const data = exportPk1(mon, { nickname: active.nickname, otName: active.otName });
+    const url = URL.createObjectURL(new Blob([data], { type: "application/octet-stream" }));
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${name.toLowerCase()}.pk1`;
+    // Attached to the DOM for the click: some browsers ignore detached anchors.
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    // Deferred so slower browsers finish initiating the download first.
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  async function importPk1File(file: File) {
+    // Import into the box the user was viewing when they picked the file,
+    // even if they switch boxes while it is being read.
+    const targetBox = box;
+    try {
+      const { mon, names } = importPk1(new Uint8Array(await file.arrayBuffer()));
+      const nickname = names.nickname.trim() || speciesByInternalId(mon.species)?.name || "MON";
+      const otName = names.otName.trim() || "TRAINER";
+      let placed = -1;
+      mutate((b) => {
+        const count = readBox(b, targetBox).mons.length;
+        if (count >= MONS_PER_BOX) return; // no-op mutate
+        writeBoxMon(b, targetBox, count, mon, { nickname, otName });
+        placed = count;
+      });
+      if (placed < 0) {
+        setPk1Error(`Box ${targetBox + 1} is already full.`);
+        return;
+      }
+      // Only move the selection if the user is still looking at that box.
+      if (boxRef.current === targetBox) setSlot(placed);
+      setPk1Error(null);
+    } catch (e) {
+      setPk1Error(e instanceof Error ? e.message : String(e));
+    }
+  }
 
   function commit(index: number, mon: MonRecord, names: MonNames) {
     const nickname = names.nickname.trim() || speciesByInternalId(mon.species)?.name || "";
@@ -89,6 +146,23 @@ export function BoxesPage() {
           </Button>
         }
       />
+      <input
+        ref={pk1InputRef}
+        data-testid="box-pk1-input"
+        type="file"
+        accept=".pk1,.bin"
+        hidden
+        onChange={(e) => {
+          const f = e.target.files?.[0];
+          if (f) void importPk1File(f);
+          e.target.value = "";
+        }}
+      />
+      {pk1Error && (
+        <p className="hint-line hint-line--warn" data-testid="box-pk1-error" role="alert">
+          Import failed: {pk1Error}
+        </p>
+      )}
       {dexNotice && (
         <p className="hint-line" data-testid="living-dex-notice" role="status">
           {dexNotice}
@@ -143,7 +217,16 @@ export function BoxesPage() {
                   ? "No Pokémon stored here."
                   : "The game hasn't used this box yet (raw uninitialized data); it will be set up properly on the first write."
               }
-              action={<Button variant="primary" size="sm" onClick={addMon}>Add Pokémon</Button>}
+              action={
+                <>
+                  <Button variant="primary" size="sm" onClick={addMon}>
+                    Add Pokémon
+                  </Button>
+                  <Button size="sm" onClick={() => pk1InputRef.current?.click()}>
+                    Import .pk1
+                  </Button>
+                </>
+              }
             />
           ) : (
             <>
@@ -182,6 +265,14 @@ export function BoxesPage() {
                 >
                   Add Pokémon
                 </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => pk1InputRef.current?.click()}
+                  disabled={contents.mons.length >= MONS_PER_BOX}
+                >
+                  Import .pk1
+                </Button>
               </div>
             </>
           )}
@@ -193,6 +284,9 @@ export function BoxesPage() {
               <span className="detail-main__title">
                 Box {box + 1} · Slot {slot + 1}
               </span>
+              <Button size="sm" variant="ghost" onClick={exportActivePk1} data-testid="box-pk1-export">
+                Export .pk1
+              </Button>
               <Button variant="danger" size="sm" onClick={() => remove(slot)}>
                 Remove
               </Button>
