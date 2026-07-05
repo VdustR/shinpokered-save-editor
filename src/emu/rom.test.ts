@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { assessRom, parseRomHeader, toTightBuffer } from "./rom";
+import { assessRom, parseRomHeader } from "./rom";
 
 /** Build a minimal 32 KiB ROM with a valid header. */
 function fakeRom({ title = "POKEMON RED", type = 0x13 } = {}): Uint8Array {
@@ -62,16 +62,5 @@ describe("assessRom", () => {
     const a = assessRom(fakeRom({ type: 0x1b }));
     expect(a.verdict).toBe("warn");
     expect(a.reasons.join(" ")).toMatch(/MBC5\+RAM\+BATTERY/);
-  });
-});
-
-describe("toTightBuffer", () => {
-  it("copies a view into a standalone buffer of exactly its length", () => {
-    const backing = new Uint8Array(100).fill(7);
-    const view = backing.subarray(10, 20);
-    const buf = toTightBuffer(view);
-    expect(buf.byteLength).toBe(10);
-    backing[10] = 99; // the copy must not alias the original
-    expect(new Uint8Array(buf)[0]).toBe(7);
   });
 });

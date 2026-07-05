@@ -317,9 +317,8 @@ export function TestDrivePage() {
             in-game first (START → SAVE).
           </p>
           <p className="hint-line">
-            Shin’s title menu runs hardware-accuracy self-checks; this lightweight browser core fails
-            the mode-3 VRAM and memory-timing tests, so up to two “Emulator ERROR!” lines may appear
-            there. Per the romhack’s FAQ they are informational — the game plays and saves normally.
+            The emulator core is binjgb (MIT) — accurate enough to pass Shin’s title-menu hardware
+            self-checks, and it renders the romhack’s Game Boy Color palette.
           </p>
           <dl className="testdrive__keys">
             {KEYS.map(([key, label]) => (
