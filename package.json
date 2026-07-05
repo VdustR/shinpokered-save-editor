@@ -18,7 +18,6 @@
     "make:fixture": "node scripts/make-fixture.mjs"
   },
   "dependencies": {
-    "@neil-morrison44/gameboy-emulator": "1.3.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "zustand": "^5.0.14"
