@@ -860,6 +860,21 @@ test.describe("touch device", () => {
   });
 });
 
+test.describe("narrow window", () => {
+  // Narrow enough that the brand and the action cluster used to collide
+  // (real-device report; the threshold shifts with device font scaling).
+  test.use({ viewport: { width: 400, height: 800 } });
+
+  test("topbar brand never overlaps the action cluster", async ({ page }) => {
+    await loadFixture(page);
+    const brand = await page.locator(".brand").boundingBox();
+    const undo = await page.getByRole("button", { name: "Undo" }).boundingBox();
+    expect(brand).not.toBeNull();
+    expect(undo).not.toBeNull();
+    expect(brand!.x + brand!.width).toBeLessThanOrEqual(undo!.x);
+  });
+});
+
 test.describe("narrow touch device", () => {
   test.use({ hasTouch: true, viewport: { width: 360, height: 740 } });
 

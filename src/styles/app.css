@@ -24,6 +24,9 @@
   gap: var(--space-4);
   min-width: 0;
   flex: 1 1 auto;
+  /* The action cluster never shrinks; clip the brand instead of letting it
+     paint underneath the buttons when the bar runs out of room. */
+  overflow: hidden;
 }
 .topbar__right {
   display: flex;
@@ -32,9 +35,8 @@
   flex: 0 0 auto;
 }
 .brand {
-  flex: 0 0 auto;
-}
-.brand {
+  flex: 0 1 auto;
+  min-width: 0;
   display: flex;
   align-items: baseline;
   gap: var(--space-2);
@@ -47,6 +49,9 @@
 .brand__name {
   font-weight: 600;
   letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .brand__sub {
   color: var(--ink-faint);
@@ -206,6 +211,10 @@
 @media (max-width: 560px) {
   /* Close is non-essential on mobile (reload works); drop it to fit the row. */
   .topbar__close {
+    display: none;
+  }
+  /* The bottom nav carries context; the wordmark can go before the actions do. */
+  .brand__name {
     display: none;
   }
   .app__body {
