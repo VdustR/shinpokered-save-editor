@@ -77,7 +77,10 @@ export function PartyPage() {
     const a = document.createElement("a");
     a.href = url;
     a.download = `${name.toLowerCase()}.pk1`;
+    // Attached to the DOM for the click: some browsers ignore detached anchors.
+    document.body.appendChild(a);
     a.click();
+    a.remove();
     // Deferred so slower browsers finish initiating the download first.
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
