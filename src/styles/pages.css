@@ -815,3 +815,88 @@
   align-items: center;
   gap: var(--space-3);
 }
+
+/* ---------- Test Drive ---------- */
+
+.hint-line--warn {
+  color: var(--warning);
+}
+
+.testdrive__romrow {
+  display: flex;
+  gap: var(--space-2);
+  margin-block: var(--space-2);
+}
+
+.testdrive__rominfo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+  font-size: var(--text-sm);
+  margin-block: var(--space-2);
+}
+
+.testdrive__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+  margin-bottom: var(--space-2);
+}
+
+.testdrive__keys {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  margin: var(--space-2) 0 0;
+}
+
+.testdrive__key {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-1);
+}
+
+.testdrive__key dt {
+  font-size: var(--text-sm);
+  padding: 0.05rem 0.4rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface-inset);
+}
+
+.testdrive__key dd {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--ink-muted);
+}
+
+.testdrive__stage {
+  position: relative;
+  display: grid;
+  place-items: center;
+  padding: var(--space-4);
+  border-radius: var(--radius-panel);
+  background: var(--surface-inset);
+}
+
+.testdrive__stage canvas {
+  width: min(100%, 480px);
+  aspect-ratio: 160 / 144;
+  image-rendering: pixelated;
+  border-radius: var(--radius-control);
+  background: #9bbc0f;
+  opacity: 0.35;
+  transition: opacity 0.2s ease;
+}
+
+.testdrive__stage--on canvas {
+  opacity: 1;
+}
+
+.testdrive__stage-hint {
+  position: absolute;
+  font-size: var(--text-sm);
+  color: var(--ink-muted);
+}

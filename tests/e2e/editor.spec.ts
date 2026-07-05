@@ -603,3 +603,85 @@ test("battle options polarity: unchecking animations sets wOptions bit 7", async
   expect(bytes[0x29f3 + (0x90e >> 3)] & (1 << (0x90e & 7))).not.toBe(0); // EVENT_90E on
   expect(bytes[MAIN_CKSUM]).toBe(gen1MainChecksum(bytes));
 });
+
+test("test drive validates ROM files and gates the boot button", async ({ page }) => {
+  await loadFixture(page);
+  await page.locator(".sidenav__item", { hasText: "Test Drive" }).click();
+  await expect(page.locator(".page-header__title")).toHaveText("Test Drive");
+  await expect(page.getByText("never uploaded")).toBeVisible();
+  const boot = page.getByTestId("boot-button");
+  await expect(boot).toBeDisabled();
+
+  // Garbage of the right size is rejected by the header checksum.
+  const garbage = Buffer.alloc(0x8000);
+  for (let i = 0; i < garbage.length; i++) garbage[i] = (i * 37 + 11) & 0xff;
+  await page.setInputFiles('[data-testid="rom-input"]', {
+    name: "garbage.gb",
+    mimeType: "application/octet-stream",
+    buffer: garbage,
+  });
+  await expect(page.getByTestId("rom-info")).toContainText("Not a GB ROM");
+  await expect(boot).toBeDisabled();
+
+  // A well-formed MBC3+RAM+BATTERY header unlocks boot.
+  const fake = Buffer.alloc(0x8000);
+  const title = "POKEMON RED";
+  for (let i = 0; i < title.length; i++) fake[0x134 + i] = title.charCodeAt(i);
+  fake[0x147] = 0x13;
+  let x = 0;
+  for (let i = 0x134; i <= 0x14c; i++) x = (x - fake[i] - 1) & 0xff;
+  fake[0x14d] = x;
+  await page.setInputFiles('[data-testid="rom-input"]', {
+    name: "fake.gb",
+    mimeType: "application/octet-stream",
+    buffer: fake,
+  });
+  await expect(page.getByTestId("rom-info")).toContainText("Looks bootable");
+  await expect(page.getByTestId("rom-info")).toContainText("POKEMON RED");
+  await expect(boot).toBeEnabled();
+
+  // The ROM persists in IndexedDB across a reload.
+  await page.reload();
+  await page.setInputFiles('[data-testid="file-input"]', fixturePath);
+  await page.locator(".sidenav__item", { hasText: "Test Drive" }).click();
+  await expect(page.getByTestId("rom-info")).toContainText("fake.gb");
+  await page.getByRole("button", { name: "Forget ROM" }).click();
+  await expect(page.getByTestId("rom-info")).toHaveCount(0);
+});
+
+test("test drive boots a real ROM and paints frames", async ({ page }) => {
+  test.skip(!process.env.SHINPOKERED_ROM, "set SHINPOKERED_ROM to run the real-ROM boot test");
+  await loadFixture(page);
+  await page.locator(".sidenav__item", { hasText: "Test Drive" }).click();
+  await page.setInputFiles('[data-testid="rom-input"]', process.env.SHINPOKERED_ROM!);
+  await expect(page.getByTestId("rom-info")).toContainText("Looks bootable");
+
+  await page.getByTestId("boot-button").click();
+  await expect(page.getByTestId("pull-save")).toBeEnabled();
+
+  // The screen must not stay a single flat color once the ROM is running.
+  await expect
+    .poll(
+      () =>
+        page.evaluate(() => {
+          const canvas = document.querySelector<HTMLCanvasElement>('[data-testid="gb-canvas"]');
+          const ctx = canvas?.getContext("2d");
+          if (!ctx) return 0;
+          const { data } = ctx.getImageData(0, 0, 160, 144);
+          const colors = new Set<number>();
+          for (let i = 0; i < data.length; i += 4)
+            colors.add((data[i] << 16) | (data[i + 1] << 8) | data[i + 2]);
+          return colors.size;
+        }),
+      { timeout: 15_000 },
+    )
+    .toBeGreaterThan(1);
+
+  // Pull the emulator SRAM back into the editor: byte-identical injection
+  // means zero dirty bytes (boot uses the already checksum-valid fixture).
+  await page.getByTestId("pull-save").click();
+  await expect(page.getByTestId("testdrive-notice")).toContainText("Pulled the emulator save");
+
+  await page.getByRole("button", { name: "Stop", exact: true }).click();
+  await expect(page.getByTestId("pull-save")).toBeDisabled();
+});
