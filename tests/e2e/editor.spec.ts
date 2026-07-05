@@ -704,3 +704,28 @@ test("legality tab reports a clean mon and flags EXP drift", async ({ page }) =>
   await expect(list).toContainText("EXP");
   await expect(list).toContainText("level 1");
 });
+
+test("team coverage panel updates and heal team restores the party", async ({ page }) => {
+  await loadFixture(page);
+  await page.locator(".sidenav__item", { hasText: "Party" }).click();
+  await page.getByRole("button", { name: "Add Pokémon" }).first().click();
+
+  // Fresh Bulbasaur: Tackle/Growl only -> Ghost is immune to Normal (×0).
+  const offense = page.getByTestId("offense-coverage");
+  await expect(offense).toBeVisible();
+  await expect(offense.locator(".coverage-cell", { hasText: "GHOST" })).toContainText("×0");
+  // Grass/Poison Bulbasaur is weak to Fire on defense.
+  await expect(
+    page.getByTestId("defense-list").locator(".cov--weak", { hasText: "FIRE" }),
+  ).toBeVisible();
+
+  // Hurt the mon, then heal the team: HP returns to max.
+  const hp = page.locator(".field", { hasText: "Current HP" }).locator("input");
+  await hp.fill("1");
+  await hp.blur();
+  await page.getByTestId("heal-team").click();
+  await expect(hp).not.toHaveValue("1");
+
+  const exported = await exportBytes(page);
+  expect(exported[MAIN_CKSUM]).toBe(gen1MainChecksum(exported));
+});

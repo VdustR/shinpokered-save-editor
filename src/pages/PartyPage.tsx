@@ -23,6 +23,8 @@ import { PageHeader } from "../components/PageHeader";
 import { ReorderControls } from "../components/ReorderControls";
 import { Sprite } from "../components/Sprite";
 import { useDragReorder } from "../components/useDragReorder";
+import { TeamCoverage } from "../components/TeamCoverage";
+import { healParty } from "../save/team";
 
 const BULBASAUR = DEX_SPECIES[0]?.internalId ?? 0x99;
 
@@ -69,9 +71,19 @@ export function PartyPage() {
         title="Party"
         subtitle="Up to six Pokémon. Editing level, DVs, or stat EXP recalculates stats automatically."
         actions={
-          <Button variant="primary" size="sm" onClick={addMon} disabled={party.length >= PARTY_LENGTH}>
-            Add Pokémon
-          </Button>
+          <>
+            <Button
+              size="sm"
+              onClick={() => mutate(healParty)}
+              disabled={party.length === 0}
+              data-testid="heal-team"
+            >
+              Heal team
+            </Button>
+            <Button variant="primary" size="sm" onClick={addMon} disabled={party.length >= PARTY_LENGTH}>
+              Add Pokémon
+            </Button>
+          </>
         }
       />
 
@@ -126,6 +138,8 @@ export function PartyPage() {
           )}
         </div>
       )}
+
+      <TeamCoverage party={party} />
 
       <DayCarePanel />
     </div>
