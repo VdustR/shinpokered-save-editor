@@ -2,13 +2,14 @@ import { describe, expect, it } from "vitest";
 import { createMon } from "./derive";
 import { DEX_SPECIES } from "./gamedata";
 import { fillLivingDex } from "./livingdex";
-import { isDexOwned, isDexSeen, readBox, setPartyMon, writeBoxMon } from "./savefile";
+import { isDexOwned, isDexSeen, readBox, setPartyMon, setPlayerId, writeBoxMon } from "./savefile";
 
 const BULBASAUR = 153;
 
 describe("fillLivingDex", () => {
   it("adds every missing species in dex order and marks the dex", () => {
     const bytes = new Uint8Array(0x8000);
+    setPlayerId(bytes, 0x1234);
     const result = fillLivingDex(bytes, "VIPRO");
     expect(result.added).toBe(DEX_SPECIES.length); // 151
     expect(result.skippedForSpace).toBe(0);
@@ -18,6 +19,7 @@ describe("fillLivingDex", () => {
     expect(box1.mons[0].mon.species).toBe(BULBASAUR); // dex #001
     expect(box1.mons[0].mon.level).toBe(5);
     expect(box1.mons[0].nickname).toBe("BULBASAUR");
+    expect(box1.mons[0].mon.otId).toBe(0x1234); // not an outsider mon
     // 151 = 7 full boxes + 11 in box 8.
     expect(readBox(bytes, 7).mons).toHaveLength(11);
     expect(readBox(bytes, 8).mons).toHaveLength(0);

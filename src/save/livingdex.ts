@@ -7,6 +7,7 @@ import { MONS_PER_BOX } from "./layout";
 import {
   getDayCare,
   getParty,
+  getPlayerId,
   readBox,
   setDexOwned,
   setDexSeen,
@@ -42,6 +43,9 @@ function presentSpecies(bytes: Uint8Array): Set<number> {
 export function fillLivingDex(bytes: Uint8Array, otName: string): LivingDexResult {
   const present = presentSpecies(bytes);
   const missing = DEX_SPECIES.filter((sp) => !present.has(sp.internalId));
+  // Match the save's trainer ID; a mismatched OT id/name makes Gen 1 treat
+  // the mon as traded (boosted EXP, possible disobedience).
+  const otId = getPlayerId(bytes);
 
   let added = 0;
   let box = 0;
@@ -53,6 +57,7 @@ export function fillLivingDex(bytes: Uint8Array, otName: string): LivingDexResul
     }
     if (box >= BOX_COUNT) break;
     const mon = createMon(sp.internalId, LIVING_DEX_LEVEL);
+    mon.otId = otId;
     writeBoxMon(bytes, box, slot, mon, { nickname: sp.name, otName });
     setDexSeen(bytes, sp.dexNo, true);
     setDexOwned(bytes, sp.dexNo, true);
