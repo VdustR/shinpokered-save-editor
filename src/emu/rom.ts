@@ -91,11 +91,3 @@ export function assessRom(rom: Uint8Array): RomAssessment {
   }
   return { verdict: "ok", info, reasons };
 }
-
-/**
- * Copy a Uint8Array into a standalone ArrayBuffer (the emulator wraps the
- * buffer it is given, so views into larger buffers must not be passed).
- */
-export function toTightBuffer(u8: Uint8Array): ArrayBuffer {
-  return new Uint8Array(u8).buffer as ArrayBuffer;
-}

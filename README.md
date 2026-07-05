@@ -27,7 +27,7 @@ repaired only where your edits made them stale.
 | **Story Flags** | 500+ named event flags with search, visited towns (Fly unlocks), hidden items/coins, missable item balls. |
 | **Hall of Fame** | View and clear recorded teams; win-count handling. |
 | **Encyclopedia** | Searchable move/item/species reference with type filters and legality info. |
-| **Test Drive** | Boot **your own ROM** (stored only in IndexedDB) with your edits injected as battery SRAM — playable in-browser with keyboard or an on-screen **virtual gamepad** on touch devices, fullscreen mode, and **in-game save detection** that offers to pull the game's save back into the editor. |
+| **Test Drive** | Boot **your own ROM** (stored only in IndexedDB) with your edits injected as battery SRAM — playable in-browser in **GBC color** with keyboard or an on-screen **virtual gamepad** on touch devices, fullscreen mode, and **in-game save detection** that offers to pull the game's save back into the editor. |
 | **Compare** | Semantic diff against the loaded file or any other save — changes described in game terms (money, badges, party slots, box contents, flags), not byte offsets. |
 | **Raw Hex** | Full hex view with edit highlighting and jump-from-field links. |
 
@@ -99,6 +99,8 @@ The correctness strategy has four layers, from cheapest to strongest:
   [pret/pokered](https://github.com/pret/pokered) disassembly.
 - Gen 1 save layout cross-referenced with
   [Bulbapedia: Save data structure (Generation I)](https://bulbapedia.bulbagarden.net/wiki/Save_data_structure_(Generation_I)).
+- The Test Drive emulator core is [binjgb](https://github.com/binji/binjgb)
+  by Ben Smith (MIT), vendored as a WebAssembly build.
 - This project does not distribute ROMs. Pokémon is © Nintendo / Creatures
   Inc. / GAME FREAK inc. This is an unofficial fan tool.
 

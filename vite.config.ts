@@ -17,7 +17,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: "prompt",
-      includeAssets: ["favicon.svg", "icons/apple-touch-icon.png"],
+      includeAssets: ["favicon.png", "favicon.svg", "icons/apple-touch-icon.png"],
       manifest: {
         name: "Shin Pokémon Save Editor",
         short_name: "Shin Save",
@@ -36,7 +36,7 @@ export default defineConfig({
       },
       workbox: {
         // Precache the app shell plus the Gen 1 sprites so it works fully offline.
-        globPatterns: ["**/*.{js,css,html,svg,png,woff2}"],
+        globPatterns: ["**/*.{js,css,html,svg,png,woff2,wasm}"],
         // 151 sprites + bundle stay well under the default file-count budget,
         // but raise the size cap so nothing is silently skipped.
         maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
