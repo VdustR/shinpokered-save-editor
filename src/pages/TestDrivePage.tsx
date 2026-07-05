@@ -65,6 +65,8 @@ export function TestDrivePage() {
   const bootable = assessment !== null && assessment.verdict !== "invalid";
 
   async function pickRom(file: File) {
+    // Invalidates any in-flight boot so it cannot start with the old ROM.
+    stopDrive();
     const data = new Uint8Array(await file.arrayBuffer());
     const a = assessRom(data);
     if (a.verdict === "invalid") {

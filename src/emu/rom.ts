@@ -14,6 +14,8 @@ export interface RomInfo {
   headerChecksumOk: boolean;
   /** MBC3+RAM+BATTERY — the mapper Pokémon Red (and Shin) uses. */
   mbc3Battery: boolean;
+  /** Actual file length matches the ROM size the header (0x148) advertises. */
+  declaredSizeOk: boolean;
 }
 
 const CARTRIDGE_TYPES: Record<number, string> = {
@@ -36,6 +38,7 @@ export function parseRomHeader(rom: Uint8Array): RomInfo {
   let title = "";
   let cartridgeType = -1;
   let headerChecksumOk = false;
+  let declaredSizeOk = false;
   if (rom.length >= 0x150) {
     for (let i = 0x134; i <= 0x143; i++) {
       const c = rom[i];
@@ -46,6 +49,10 @@ export function parseRomHeader(rom: Uint8Array): RomInfo {
     let x = 0;
     for (let i = 0x134; i <= 0x14c; i++) x = (x - rom[i] - 1) & 0xff;
     headerChecksumOk = x === rom[0x14d];
+    // 0x148 advertises the ROM size as 32 KiB << code; a truncated dump can
+    // keep a valid header checksum, so compare against the actual length.
+    const sizeCode = rom[0x148];
+    declaredSizeOk = sizeCode <= 8 && rom.length === 0x8000 << sizeCode;
   }
   return {
     title: title.trim(),
@@ -54,6 +61,7 @@ export function parseRomHeader(rom: Uint8Array): RomInfo {
     sizeOk,
     headerChecksumOk,
     mbc3Battery: cartridgeType === 0x13,
+    declaredSizeOk,
   };
 }
 
@@ -71,7 +79,10 @@ export function assessRom(rom: Uint8Array): RomAssessment {
   const reasons: string[] = [];
   if (!info.sizeOk) reasons.push("File size is not a multiple of 32 KiB — not a Game Boy ROM.");
   if (!info.headerChecksumOk) reasons.push("Header checksum does not match — not a valid Game Boy ROM.");
-  if (!info.sizeOk || !info.headerChecksumOk) return { verdict: "invalid", info, reasons };
+  if (info.sizeOk && info.headerChecksumOk && !info.declaredSizeOk)
+    reasons.push("File length does not match the ROM size the header declares — truncated or padded dump.");
+  if (!info.sizeOk || !info.headerChecksumOk || !info.declaredSizeOk)
+    return { verdict: "invalid", info, reasons };
   if (!info.mbc3Battery) {
     reasons.push(
       `Cartridge type is ${info.cartridgeTypeName}; save injection expects MBC3+RAM+BATTERY (Pokémon Red).`,

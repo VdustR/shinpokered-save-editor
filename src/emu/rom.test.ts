@@ -47,6 +47,17 @@ describe("assessRom", () => {
     expect(assessRom(garbage).verdict).toBe("invalid");
   });
 
+  it("rejects a truncated dump whose header claims a larger ROM", () => {
+    const rom = fakeRom();
+    rom[0x148] = 0x05; // header says 1 MiB, file is 32 KiB
+    let x = 0;
+    for (let i = 0x134; i <= 0x14c; i++) x = (x - rom[i] - 1) & 0xff;
+    rom[0x14d] = x;
+    const a = assessRom(rom);
+    expect(a.verdict).toBe("invalid");
+    expect(a.reasons.join(" ")).toMatch(/truncated/);
+  });
+
   it("warns on a valid ROM with a non-MBC3 mapper", () => {
     const a = assessRom(fakeRom({ type: 0x1b }));
     expect(a.verdict).toBe("warn");
