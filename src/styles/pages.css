@@ -1240,3 +1240,18 @@
 .slot__legality--bad {
   background: var(--danger);
 }
+
+/* ---------- Test Drive: in-game save detection ---------- */
+
+.save-detected {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: var(--space-2) 0 0;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-control);
+  border: 1px solid var(--success);
+  background: var(--success-soft);
+  font-size: var(--text-sm);
+}

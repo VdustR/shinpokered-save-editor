@@ -915,3 +915,47 @@ test("party slots show a legality badge when findings exist", async ({ page }) =
   await page.keyboard.press("ControlOrMeta+z");
   await expect(page.getByTestId("slot-legality")).toHaveCount(0);
 });
+
+test("in-game SAVE is detected and offered for pull-back", async ({ page }) => {
+  test.skip(!process.env.SHINPOKERED_ROM, "set SHINPOKERED_ROM to run the real-ROM save test");
+  test.setTimeout(180_000);
+  await loadFixture(page);
+  await page.locator(".sidenav__item", { hasText: "Test Drive" }).click();
+  await page.setInputFiles('[data-testid="rom-input"]', process.env.SHINPOKERED_ROM!);
+  await page.getByTestId("boot-button").click();
+
+  /** Hold a key long enough for the emulator to sample it, then settle. */
+  async function press(key: string, settle: number) {
+    await page.keyboard.down(key);
+    await page.waitForTimeout(160);
+    await page.keyboard.up(key);
+    await page.waitForTimeout(settle);
+  }
+
+  // Verified interactively: inputs during screen transitions are eaten, so
+  // the intro gets a full settle and extra presses along the way are no-ops.
+  await page.waitForTimeout(20000); // boot + GAME FREAK intro
+  await press("Enter", 3500); // -> title
+  await press("Enter", 3500); // START -> main menu
+  await press("KeyX", 3000); // A: CONTINUE (save summary opens)
+  await press("KeyX", 3500); // A: enter the overworld
+  await press("Enter", 2500);
+  await press("ArrowDown", 800);
+  await press("KeyX", 2500);
+  await press("KeyX", 5000); // noise absorbed by transitions; ends in overworld
+
+  // Long gameplay so far, plenty of sprite-scratch SRAM writes: no banner.
+  await expect(page.getByTestId("save-detected")).toHaveCount(0);
+
+  await press("Enter", 2500); // START menu: POKeMON/ITEM/RED/SAVE/OPTION/EXIT
+  await press("ArrowDown", 900);
+  await press("ArrowDown", 900);
+  await press("ArrowDown", 900); // cursor on SAVE
+  await press("KeyX", 2500); // A: SAVE prompt
+  await press("KeyX", 7000); // A: YES -> "SAVING..."
+
+  await expect(page.getByTestId("save-detected")).toBeVisible({ timeout: 20_000 });
+  await page.getByTestId("save-detected").getByRole("button", { name: "Pull save" }).click();
+  await expect(page.getByTestId("testdrive-notice")).toContainText("Pulled the emulator save");
+  await expect(page.getByTestId("save-detected")).toHaveCount(0);
+});

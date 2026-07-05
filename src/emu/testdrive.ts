@@ -28,6 +28,13 @@ export interface TestDriveOptions {
   save: Uint8Array;
   canvas: HTMLCanvasElement;
   sound: boolean;
+  /**
+   * Called (debounced ~500 ms by the emulator) after the game writes
+   * cartridge RAM, with a copy of the current 32 KiB SRAM. Note Gen 1 also
+   * uses SRAM bank 0 as sprite scratch, so a callback does not imply an
+   * in-game save — filter with mainSaveRegionChanged.
+   */
+  onSramWrite?: (sram: Uint8Array) => void;
 }
 
 /**
@@ -39,7 +46,7 @@ export interface TestDriveOptions {
  * cartridge, setCartridgeSaveRam replaces its RAM, run() resets only the
  * 64 KB address space and leaves cartridge RAM alone.
  */
-export function startTestDrive({ rom, save, canvas, sound }: TestDriveOptions): TestDrive {
+export function startTestDrive({ rom, save, canvas, sound, onSramWrite }: TestDriveOptions): TestDrive {
   const gameboy = new Gameboy({ sound });
   gameboy.loadGame(toTightBuffer(rom));
   gameboy.setCartridgeSaveRam(toTightBuffer(save));
@@ -54,6 +61,10 @@ export function startTestDrive({ rom, save, canvas, sound }: TestDriveOptions): 
   gameboy.keyboardManager.b = "KeyZ";
   gameboy.keyboardManager.start = "Enter";
   gameboy.keyboardManager.select = "ShiftRight";
+
+  if (onSramWrite) {
+    gameboy.setOnWriteToCartridgeRam((ram: ArrayBuffer) => onSramWrite(new Uint8Array(ram).slice(0, 0x8000)));
+  }
 
   if (sound) gameboy.apu?.enableSound();
   gameboy.run();
