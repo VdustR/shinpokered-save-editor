@@ -41,6 +41,7 @@ export class BinjgbCore {
   private readonly module: BinjgbModule;
   private readonly romPtr: number;
   private readonly e: number;
+  private readonly joypadPtr: number;
   private deleted = false;
 
   static async create(rom: Uint8Array, opts: BinjgbCoreOptions): Promise<BinjgbCore> {
@@ -64,6 +65,10 @@ export class BinjgbCore {
       module._free(this.romPtr);
       throw new Error("binjgb rejected the ROM");
     }
+    // Without the default joypad callback installed, the emulator never
+    // reads the state the _set_joyp_* setters write and input is dead.
+    this.joypadPtr = module._joypad_new();
+    module._emulator_set_default_joypad_callback(this.e, this.joypadPtr);
   }
 
   private heap(ptr: number, size: number): Uint8Array {
@@ -164,6 +169,7 @@ export class BinjgbCore {
   delete(): void {
     if (this.deleted) return;
     this.deleted = true;
+    this.module._joypad_delete(this.joypadPtr);
     this.module._emulator_delete(this.e);
     this.module._free(this.romPtr);
   }

@@ -24,6 +24,9 @@ export interface BinjgbModule {
   _get_frame_buffer_size(e: number): number;
   _get_audio_buffer_ptr(e: number): number;
   _get_audio_buffer_capacity(e: number): number;
+  _joypad_new(): number;
+  _joypad_delete(joypadBufferPtr: number): void;
+  _emulator_set_default_joypad_callback(e: number, joypadBufferPtr: number): void;
   _set_joyp_up(e: number, set: boolean): void;
   _set_joyp_down(e: number, set: boolean): void;
   _set_joyp_left(e: number, set: boolean): void;
