@@ -33,10 +33,13 @@ function useUndoRedoShortcuts() {
       const isUndo = key === "z" && !e.shiftKey;
       const isRedo = (key === "z" && e.shiftKey) || key === "y";
       if (!isUndo && !isRedo) return;
-      const t = e.target as HTMLElement | null;
-      if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
-      e.preventDefault();
+      const t = e.target;
+      if (t instanceof HTMLElement && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)))
+        return;
+      // Leave the shortcut to the browser when there is nothing to do.
       const store = useSaveStore.getState();
+      if (isUndo ? store.past.length === 0 : store.future.length === 0) return;
+      e.preventDefault();
       if (isUndo) store.undo();
       else store.redo();
     }
