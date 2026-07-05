@@ -2,7 +2,7 @@
  * Rasterize the app icon source PNG to the sizes the PWA manifest needs, using
  * the Chromium that Playwright already installed (no image library required).
  */
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import pw from "@playwright/test";
@@ -12,12 +12,6 @@ const outDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", 
 mkdirSync(outDir, { recursive: true });
 const sourceFile = path.join(outDir, "favicon-source.png");
 const sourceHref = `data:image/png;base64,${readFileSync(sourceFile, "base64")}`;
-
-function faviconSvg() {
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
-  <image href="icons/favicon-source.png" width="512" height="512" preserveAspectRatio="xMidYMid meet" style="image-rendering:pixelated"/>
-</svg>`;
-}
 
 const browser = await chromium.launch();
 const page = await browser.newPage();
@@ -52,5 +46,4 @@ await render(512, "pwa-maskable-512.png", { padding: 64 });
 await render(180, "apple-touch-icon.png");
 
 await browser.close();
-writeFileSync(path.resolve(outDir, "..", "favicon.svg"), `${faviconSvg()}\n`);
-console.log("Icons written to public/icons and public/favicon.svg");
+console.log("PNG icons written to public/icons and public/favicon.png");
