@@ -1055,3 +1055,166 @@
 .compare-table__to {
   color: var(--ink);
 }
+
+/* ---------- Test Drive: virtual pad + fullscreen ---------- */
+
+.testdrive__screenbox {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+}
+
+.testdrive__stage--overlay,
+.testdrive__stage:fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  border-radius: 0;
+  background: #0b0e14;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  padding: max(var(--space-3), env(safe-area-inset-top)) max(var(--space-3), env(safe-area-inset-right))
+    max(var(--space-3), env(safe-area-inset-bottom)) max(var(--space-3), env(safe-area-inset-left));
+}
+
+.testdrive__stage--overlay .testdrive__screenbox,
+.testdrive__stage:fullscreen .testdrive__screenbox {
+  align-self: center;
+}
+
+.testdrive__stage--overlay .testdrive__screenbox canvas,
+.testdrive__stage:fullscreen .testdrive__screenbox canvas {
+  /* As large as fits: full width, capped by the height left above the pad. */
+  width: min(100%, calc((100dvh - 13rem) * 160 / 144));
+  max-width: none;
+  opacity: 1;
+}
+
+.testdrive__exit-fs {
+  position: absolute;
+  top: max(var(--space-3), env(safe-area-inset-top));
+  right: max(var(--space-3), env(safe-area-inset-right));
+  z-index: 2;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(0, 0, 0, 0.45);
+  color: #fff;
+  font-size: 1rem;
+}
+
+.vpad {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  width: 100%;
+  max-width: 560px;
+  margin: var(--space-3) auto 0;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.vpad button {
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.vpad__dpad {
+  display: grid;
+  grid-template-columns: repeat(3, 2.75rem);
+  grid-template-rows: repeat(3, 2.75rem);
+  grid-template-areas: ". up ." "left center right" ". down .";
+}
+
+.vpad__key {
+  border: 1px solid var(--border-strong);
+  background: var(--surface-2);
+  color: var(--ink);
+  font-size: 0.9rem;
+  display: grid;
+  place-items: center;
+}
+
+.vpad__key--up { grid-area: up; border-radius: 8px 8px 0 0; }
+.vpad__key--down { grid-area: down; border-radius: 0 0 8px 8px; }
+.vpad__key--left { grid-area: left; border-radius: 8px 0 0 8px; }
+.vpad__key--right { grid-area: right; border-radius: 0 8px 8px 0; }
+.vpad__key--center { grid-area: center; border-block: 1px solid var(--border-strong); background: var(--surface-2); }
+
+.vpad__key:active {
+  background: var(--surface-inset);
+}
+
+.vpad__middle {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.vpad__pill {
+  border: 1px solid var(--border-strong);
+  background: var(--surface-2);
+  color: var(--ink-muted);
+  border-radius: 999px;
+  padding: 0.35rem 0.8rem;
+  font-size: var(--text-xs);
+  letter-spacing: 0.05em;
+}
+
+.vpad__pill:active {
+  background: var(--surface-inset);
+}
+
+.vpad__actions {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+}
+
+.vpad__round {
+  width: 3.25rem;
+  height: 3.25rem;
+  border-radius: 999px;
+  border: 1px solid var(--border-strong);
+  background: var(--surface-2);
+  color: var(--ink);
+  font-weight: 700;
+  font-size: var(--text-md);
+}
+
+.vpad__round:active {
+  background: var(--surface-inset);
+}
+
+.vpad__round--b {
+  margin-top: 1.25rem;
+}
+
+.testdrive__stage--overlay .vpad,
+.testdrive__stage:fullscreen .vpad {
+  max-width: 640px;
+}
+
+.testdrive__stage--overlay .vpad__key,
+.testdrive__stage:fullscreen .vpad__key,
+.testdrive__stage--overlay .vpad__round,
+.testdrive__stage:fullscreen .vpad__round,
+.testdrive__stage--overlay .vpad__pill,
+.testdrive__stage:fullscreen .vpad__pill {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.28);
+  color: #fff;
+}
+
+@media (max-width: 480px) {
+  .vpad__dpad {
+    grid-template-columns: repeat(3, 2.4rem);
+    grid-template-rows: repeat(3, 2.4rem);
+  }
+  .vpad__round {
+    width: 2.9rem;
+    height: 2.9rem;
+  }
+}
