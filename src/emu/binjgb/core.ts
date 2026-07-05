@@ -36,10 +36,15 @@ export interface BinjgbCoreOptions {
  * Thin lifetime wrapper around one emulator instance. Heap views are
  * recreated on each access because Emscripten may replace the backing
  * ArrayBuffer when its memory grows.
+ *
+ * Ownership note: emulator_new stores the ROM buffer pointer and
+ * emulator_delete frees it (via file_data_delete), including on
+ * emulator_new's own error path. This wrapper must therefore never free the
+ * ROM allocation itself — doing so double-frees and corrupts the wasm heap,
+ * crashing an unrelated later malloc. (binjgb's own demo has that bug.)
  */
 export class BinjgbCore {
   private readonly module: BinjgbModule;
-  private readonly romPtr: number;
   private readonly e: number;
   private readonly joypadPtr: number;
   private deleted = false;
@@ -52,17 +57,16 @@ export class BinjgbCore {
     this.module = module;
     // binjgb requires the ROM buffer size to be a multiple of 32 KiB.
     const size = (rom.length + 0x7fff) & ~0x7fff;
-    this.romPtr = module._malloc(size);
-    this.heap(this.romPtr, size).fill(0).set(rom);
+    const romPtr = module._malloc(size);
+    this.heap(romPtr, size).fill(0).set(rom);
     this.e = module._emulator_new_simple(
-      this.romPtr,
+      romPtr,
       size,
       opts.sampleRate,
       opts.audioFrames ?? 4096,
       CGB_COLOR_CURVE,
     );
     if (this.e === 0) {
-      module._free(this.romPtr);
       throw new Error("binjgb rejected the ROM");
     }
     // Without the default joypad callback installed, the emulator never
@@ -170,7 +174,7 @@ export class BinjgbCore {
     if (this.deleted) return;
     this.deleted = true;
     this.module._joypad_delete(this.joypadPtr);
+    // Also frees the ROM buffer (see the ownership note on the class).
     this.module._emulator_delete(this.e);
-    this.module._free(this.romPtr);
   }
 }
