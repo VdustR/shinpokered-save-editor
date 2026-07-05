@@ -21,8 +21,7 @@ export default defineConfig({
       manifest: {
         name: "Shin Pokémon Save Editor",
         short_name: "Shin Save",
-        description:
-          "Local-first save editor for the Shin Pokémon series (Red/Blue/Green) and vanilla Gen 1 battery saves.",
+        description: "Local-first browser editor for Shin Pokémon and Gen 1 Game Boy save files.",
         theme_color: "#c62d1f",
         background_color: "#111417",
         display: "standalone",

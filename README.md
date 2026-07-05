@@ -1,9 +1,6 @@
 # Shin Pokémon Save Editor
 
-A local-first, offline-capable web save editor for the
-[Shin Pokémon](https://github.com/jojobear13/shinpokered) series
-(Red, Blue, and the Green/JP-styled builds — they share one save layout)
-and vanilla Gen 1 Red/Blue battery saves (`.sav` / `.srm`).
+Local-first browser editor for Shin Pokémon and Gen 1 Game Boy save files.
 
 **Live:** <https://vdustr.dev/shinpokered-save-editor/>
 
