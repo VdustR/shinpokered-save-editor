@@ -1007,3 +1007,8 @@
   flex-wrap: wrap;
   gap: var(--space-1);
 }
+
+.defense-row__none {
+  color: var(--ink-muted);
+  font-size: var(--text-sm);
+}

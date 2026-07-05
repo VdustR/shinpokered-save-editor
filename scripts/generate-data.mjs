@@ -579,7 +579,7 @@ typePointerOrder.forEach((label, index) => {
 // Rows: attacking type, defending type, fixed-point multiplier (20 = x2, 05 = x0.5, 00 = x0).
 const typeEffects = [];
 for (const line of asmLines("data/type_effects.asm")) {
-  const match = line.match(/^db\s+([A-Z_]+),([A-Z_]+),([0-9]+)$/);
+  const match = line.match(/^db\s+([A-Z_]+)\s*,\s*([A-Z_]+)\s*,\s*([0-9]+)$/);
   if (!match) continue;
   typeEffects.push({
     atk: resolveToken(match[1], typeConsts),

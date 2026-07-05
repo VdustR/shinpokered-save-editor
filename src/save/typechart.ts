@@ -17,11 +17,14 @@ const EFFECTS = gamedata.typeEffects as TypeEffect[];
 const byPair = new Map<number, number>();
 for (const e of EFFECTS) byPair.set((e.atk << 8) | e.def, e.mult);
 
-/** All type ids that appear in the chart or on species, sorted by id. */
-export const CHART_TYPES: number[] = Object.keys(
-  gamedata.typeNames as Record<number, string>,
-)
-  .map(Number)
+/**
+ * Playable type ids, sorted. TYPELESS is an internal marker type (used by
+ * Struggle-style mechanics), never a species or chart type, so it is
+ * excluded from coverage displays.
+ */
+export const CHART_TYPES: number[] = Object.entries(gamedata.typeNames as Record<number, string>)
+  .filter(([, name]) => name !== "TYPELESS")
+  .map(([id]) => Number(id))
   .sort((a, b) => a - b);
 
 function single(atk: number, def: number): number {

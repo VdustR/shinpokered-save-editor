@@ -62,7 +62,7 @@ export function TeamCoverage({ party }: { party: MonSlot[] }) {
                   </span>
                 ))}
                 {profile.weak.length === 0 && profile.immune.length === 0 && (
-                  <span className="hint-line">No weaknesses or immunities.</span>
+                  <span className="defense-row__none">No weaknesses or immunities.</span>
                 )}
               </span>
             </li>
