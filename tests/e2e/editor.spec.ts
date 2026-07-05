@@ -813,3 +813,24 @@ test("living dex filler populates boxes and marks the dex", async ({ page }) => 
     for (let b = 0; b < 8; b++) if (exported[0x25a3 + i] & (1 << b)) owned++;
   expect(owned).toBe(151);
 });
+
+test("party slots show a legality badge when findings exist", async ({ page }) => {
+  await loadFixture(page);
+  await page.locator(".sidenav__item", { hasText: "Party" }).click();
+  await page.getByRole("button", { name: "Add Pokémon" }).first().click();
+
+  // A fresh mon is clean: no badge.
+  await expect(page.getByTestId("slot-legality")).toHaveCount(0);
+
+  // Break the EXP/level consistency; the slot gains a warning badge.
+  const exp = page.locator(".field", { hasText: "EXP" }).locator("input");
+  await exp.fill("5");
+  await exp.blur();
+  const badge = page.getByTestId("slot-legality");
+  await expect(badge).toBeVisible();
+  await expect(badge).toHaveText("1");
+
+  // Undo clears it again.
+  await page.keyboard.press("ControlOrMeta+z");
+  await expect(page.getByTestId("slot-legality")).toHaveCount(0);
+});
