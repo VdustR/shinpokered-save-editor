@@ -27,6 +27,7 @@ import { TeamCoverage } from "../components/TeamCoverage";
 import { healParty } from "../save/team";
 import { exportPk1, importPk1 } from "../save/pk1";
 import { recalcDerivedFields } from "../save/derive";
+import { legalityReport } from "../save/report";
 
 const BULBASAUR = DEX_SPECIES[0]?.internalId ?? 0x99;
 
@@ -170,6 +171,9 @@ export function PartyPage() {
           <aside className="slot-list" aria-label="Party slots">
             {party.map((slot, i) => {
               const sp = speciesByInternalId(slot.mon.species);
+              const findings = legalityReport(slot.mon, { nickname: slot.nickname, otName: slot.otName });
+              const bad = findings.filter((f) => f.severity === "bad").length;
+              const warn = findings.filter((f) => f.severity === "warn").length;
               return (
                 <div key={i} className={`slot ${i === selected ? "slot--active" : ""}`} {...drag.rowProps(i)}>
                   <ReorderControls
@@ -185,6 +189,15 @@ export function PartyPage() {
                       <span className="slot__name">{slot.nickname || sp?.name}</span>
                       <span className="slot__meta mono">Lv{slot.mon.level} · {sp?.name}</span>
                     </span>
+                    {(bad > 0 || warn > 0) && (
+                      <span
+                        className={`slot__legality ${bad ? "slot__legality--bad" : ""}`}
+                        title={`${bad + warn} legality finding(s) — see the Legality tab`}
+                        data-testid="slot-legality"
+                      >
+                        {bad + warn}
+                      </span>
+                    )}
                   </button>
                 </div>
               );
