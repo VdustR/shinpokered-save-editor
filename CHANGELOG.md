@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.7.0](https://github.com/VdustR/shinpokered-save-editor/compare/v1.6.1...v1.7.0) (2026-07-05)
+
+
+### Features
+
+* new mons carry your trainer ID, and OT ID/name are editable ([#61](https://github.com/VdustR/shinpokered-save-editor/issues/61)) ([6a3c37a](https://github.com/VdustR/shinpokered-save-editor/commit/6a3c37a089f750ef100767f70ecf1aef7924a80c))
+
+
+### Bug Fixes
+
+* keep segmented tab labels on one line ([#60](https://github.com/VdustR/shinpokered-save-editor/issues/60)) ([99d7c78](https://github.com/VdustR/shinpokered-save-editor/commit/99d7c783450852b1bdaeaf8238aa6fc1f3741176))
+* keep the topbar brand from overlapping the action cluster ([#58](https://github.com/VdustR/shinpokered-save-editor/issues/58)) ([6a7caaf](https://github.com/VdustR/shinpokered-save-editor/commit/6a7caafc5482f06d7dc101b6d6fe406a477a385e))
+
 ## [1.6.1](https://github.com/VdustR/shinpokered-save-editor/compare/v1.6.0...v1.6.1) (2026-07-05)
 
 
