@@ -150,6 +150,15 @@ export function setCoins(bytes: Uint8Array, value: number): void {
   bytes.set(encodeBcd(value, 2), OFFSETS.coins);
 }
 
+/**
+ * The player's name as a safe OT default. A corrupted or never-set name can
+ * decode to placeholders like "<$ff>" that encodeText would throw on.
+ */
+export function getOwnOtName(bytes: Uint8Array): string {
+  const name = getPlayerName(bytes);
+  return name && isEncodableName(name) ? name : "RED";
+}
+
 export function getPlayerId(bytes: Uint8Array): number {
   return (bytes[OFFSETS.playerId] << 8) | bytes[OFFSETS.playerId + 1];
 }

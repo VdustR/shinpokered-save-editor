@@ -6,8 +6,8 @@ import {
   clearDayCare,
   getDayCare,
   getParty,
+  getOwnOtName,
   getPlayerId,
-  getPlayerName,
   removePartyMon,
   reorderParty,
   setDayCareMon,
@@ -59,7 +59,7 @@ export function PartyPage() {
     mutate((b) =>
       setPartyMon(b, index, mon, {
         nickname: speciesByInternalId(BULBASAUR)?.name ?? "",
-        otName: getPlayerName(bytes) || "RED",
+        otName: getOwnOtName(bytes),
       }),
     );
     setSelected(index);
@@ -249,7 +249,6 @@ function DayCarePanel() {
   const [tab, setTab] = useState<MonEditorTab>("summary");
 
   const dayCare = getDayCare(bytes);
-  const playerName = getPlayerName(bytes);
 
   function board() {
     const mon = createMon(BULBASAUR, 5);
@@ -257,7 +256,7 @@ function DayCarePanel() {
     mutate((b) =>
       setDayCareMon(b, mon, {
         nickname: speciesByInternalId(BULBASAUR)?.name ?? "",
-        otName: playerName || "RED",
+        otName: getOwnOtName(bytes),
       }),
     );
   }

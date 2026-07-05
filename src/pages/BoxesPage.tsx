@@ -5,8 +5,8 @@ import { MONS_PER_BOX, NUM_BOXES } from "../save/layout";
 import type { MonRecord } from "../save/pokemon";
 import {
   getCurrentBoxIndex,
+  getOwnOtName,
   getPlayerId,
-  getPlayerName,
   readBox,
   removeBoxMon,
   reorderBoxMon,
@@ -37,7 +37,7 @@ export function BoxesPage() {
   function fillDex() {
     let result = { added: 0, skippedForSpace: 0 };
     mutate((b) => {
-      result = fillLivingDex(b, getPlayerName(b) || "TRAINER");
+      result = fillLivingDex(b, getOwnOtName(b));
     });
     setDexNotice(
       result.added === 0 && result.skippedForSpace > 0
@@ -125,7 +125,7 @@ export function BoxesPage() {
     mutate((b) =>
       writeBoxMon(b, box, index, mon, {
         nickname: speciesByInternalId(BULBASAUR)?.name ?? "",
-        otName: getPlayerName(bytes) || "RED",
+        otName: getOwnOtName(bytes),
       }),
     );
     setSlot(index);
