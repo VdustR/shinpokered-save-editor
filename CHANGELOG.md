@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.5.0](https://github.com/VdustR/shinpokered-save-editor/compare/v1.4.1...v1.5.0) (2026-07-05)
+
+
+### Features
+
+* run the Test Drive on the binjgb core ([#49](https://github.com/VdustR/shinpokered-save-editor/issues/49)) ([45ac321](https://github.com/VdustR/shinpokered-save-editor/commit/45ac3212b80655dfb177d7003bcb8b747db160e0))
+* vendor binjgb wasm core with a typed wrapper ([#48](https://github.com/VdustR/shinpokered-save-editor/issues/48)) ([fbba9ac](https://github.com/VdustR/shinpokered-save-editor/commit/fbba9ac5611a960f656d234d5b646d085bd2d6df))
+
 ## [1.4.1](https://github.com/VdustR/shinpokered-save-editor/compare/v1.4.0...v1.4.1) (2026-07-05)
 
 
