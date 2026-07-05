@@ -875,8 +875,8 @@ test.describe("narrow touch device", () => {
         () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
       );
       expect(overflow).toBeLessThanOrEqual(0);
-      // …and the rightmost pad buttons and the screen end inside the viewport.
-      for (const name of ["A", "Start", "Right"]) {
+      // …and every pad button and the screen sit fully inside the viewport.
+      for (const name of ["Up", "Down", "Left", "Right", "A", "B", "Start", "Select"]) {
         const box = await pad.getByRole("button", { name, exact: true }).boundingBox();
         expect(box).not.toBeNull();
         expect(box!.x).toBeGreaterThanOrEqual(0);
@@ -884,6 +884,7 @@ test.describe("narrow touch device", () => {
       }
       const canvas = await page.getByTestId("gb-canvas").boundingBox();
       expect(canvas).not.toBeNull();
+      expect(canvas!.x).toBeGreaterThanOrEqual(0);
       expect(canvas!.x + canvas!.width).toBeLessThanOrEqual(360);
     };
 
