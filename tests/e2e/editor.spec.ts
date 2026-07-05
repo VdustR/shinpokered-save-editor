@@ -860,6 +860,62 @@ test.describe("touch device", () => {
   });
 });
 
+test("box pk1 export/import round-trips through the current box", async ({ page }) => {
+  await loadFixture(page);
+  await page.locator(".sidenav__item", { hasText: "Boxes" }).click();
+  await page.getByRole("button", { name: "Add Pokémon" }).first().click();
+
+  const nick = page.locator(".field", { hasText: "Nickname" }).locator("input");
+  await nick.fill("BOXY");
+  await nick.blur();
+
+  const [download] = await Promise.all([
+    page.waitForEvent("download"),
+    page.getByTestId("box-pk1-export").click(),
+  ]);
+  expect(download.suggestedFilename()).toBe("boxy.pk1");
+  const file = await download.path();
+  const pk1 = new Uint8Array(await readFile(file));
+  expect(pk1).toHaveLength(69);
+
+  // Import back into the same box: two mons now.
+  await page.setInputFiles('[data-testid="box-pk1-input"]', file);
+  await expect(page.locator(".box-cell")).toHaveCount(2);
+
+  // Garbage import errors without adding.
+  await page.setInputFiles('[data-testid="box-pk1-input"]', {
+    name: "junk.pk1",
+    mimeType: "application/octet-stream",
+    buffer: Buffer.alloc(50),
+  });
+  await expect(page.getByTestId("box-pk1-error")).toContainText("Unrecognized");
+  await expect(page.locator(".box-cell")).toHaveCount(2);
+
+  const exported = await exportBytes(page);
+  expect(exported[MAIN_CKSUM]).toBe(gen1MainChecksum(exported));
+});
+
+test("party slots show a legality badge when findings exist", async ({ page }) => {
+  await loadFixture(page);
+  await page.locator(".sidenav__item", { hasText: "Party" }).click();
+  await page.getByRole("button", { name: "Add Pokémon" }).first().click();
+
+  // A fresh mon is clean: no badge.
+  await expect(page.getByTestId("slot-legality")).toHaveCount(0);
+
+  // Break the EXP/level consistency; the slot gains a warning badge.
+  const exp = page.locator(".field", { hasText: "EXP" }).locator("input");
+  await exp.fill("5");
+  await exp.blur();
+  const badge = page.getByTestId("slot-legality");
+  await expect(badge).toBeVisible();
+  await expect(badge).toHaveText("1");
+
+  // Undo clears it again.
+  await page.keyboard.press("ControlOrMeta+z");
+  await expect(page.getByTestId("slot-legality")).toHaveCount(0);
+});
+
 test("in-game SAVE is detected and offered for pull-back", async ({ page }) => {
   test.skip(!process.env.SHINPOKERED_ROM, "set SHINPOKERED_ROM to run the real-ROM save test");
   test.setTimeout(180_000);
