@@ -35,6 +35,12 @@ interface SaveState {
 /** 32 KiB per snapshot; 200 steps is ~6.4 MB, comfortably cheap. */
 const HISTORY_LIMIT = 200;
 
+function buffersEqual(a: Uint8Array, b: Uint8Array): boolean {
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return false;
+  return true;
+}
+
 const THEME_KEY = "spse.theme";
 
 function initialTheme(): ThemePreference {
@@ -88,6 +94,8 @@ export const useSaveStore = create<SaveState>((set, get) => ({
     if (!current) return;
     const next = Uint8Array.from(current);
     fn(next);
+    // A no-op edit must not pollute history or discard the redo branch.
+    if (buffersEqual(next, current)) return;
     set({
       bytes: next,
       past: [...past.slice(-(HISTORY_LIMIT - 1)), current],

@@ -87,6 +87,20 @@ describe("undo/redo history", () => {
     expect(useSaveStore.getState().bytes![0x100]).toBe(9);
   });
 
+  it("a no-op mutation records no history and keeps the redo branch", () => {
+    load();
+    poke(0x100, 0x11);
+    useSaveStore.getState().undo();
+    expect(useSaveStore.getState().future).toHaveLength(1);
+
+    // Writing the same bytes (e.g. re-clicking a selected option) is a no-op.
+    poke(0x100, 0x00);
+    expect(useSaveStore.getState().past).toHaveLength(0);
+    expect(useSaveStore.getState().future).toHaveLength(1);
+    useSaveStore.getState().redo();
+    expect(useSaveStore.getState().bytes![0x100]).toBe(0x11);
+  });
+
   it("undo does not mutate the shared snapshot buffers", () => {
     load();
     poke(0x100, 0x11);
