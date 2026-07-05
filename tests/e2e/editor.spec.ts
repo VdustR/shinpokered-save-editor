@@ -476,7 +476,9 @@ test("item-ball toggle persists into the exported save", async ({ page }) => {
   await page.getByRole("switch", { name: "Route 2 — MOON STONE" }).click();
   const bytes = await exportBytes(page);
   expect(bytes[0x2852 + 3] & 0b10).toBe(0b10);
-||||||| parent of c3742d5 (feat: hall of fame viewer with win counter and clear)
+  expect(bytes[MAIN_CKSUM]).toBe(gen1MainChecksum(bytes));
+});
+
 test("hall of fame counts wins and clears records", async ({ page }) => {
   await loadFixture(page);
   await page.locator(".sidenav__item", { hasText: "Hall of Fame" }).click();
