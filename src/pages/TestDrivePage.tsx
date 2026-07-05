@@ -4,6 +4,7 @@ import { VirtualPad } from "../components/VirtualPad";
 import { Badge, Button, Panel, Toggle } from "../components/ui/ui";
 import { assessRom, type RomAssessment } from "../emu/rom";
 import { clearRom, loadRom, saveRom, type StoredRom } from "../emu/romstore";
+import { mainSaveRegionChanged } from "../emu/saveback";
 import type { GbButton, TestDrive } from "../emu/testdrive";
 import { exportSave, parseSave } from "../save/savefile";
 import { useSaveStore } from "../state/store";
@@ -37,6 +38,9 @@ export function TestDrivePage() {
   const [sound, setSound] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
   const [padOn, setPadOn] = useState(detectTouch);
+  const [saveDetected, setSaveDetected] = useState(false);
+  /** SRAM as last injected or pulled; the baseline for save detection. */
+  const baselineRef = useRef<Uint8Array | null>(null);
   const [fullscreen, setFullscreen] = useState(false);
   /** True when the Fullscreen API is unavailable and a fixed overlay fills in. */
   const [cssFullscreen, setCssFullscreen] = useState(false);
@@ -149,7 +153,21 @@ export function TestDrivePage() {
     if (myBootId !== bootIdRef.current || !canvasRef.current) return;
     // Boot with export-quality bytes so in-game checksum validation passes.
     const save = exportSave(bytes, original ?? undefined);
-    driveRef.current = startTestDrive({ rom: rom.bytes, save, canvas: canvasRef.current, sound });
+    baselineRef.current = Uint8Array.from(save);
+    setSaveDetected(false);
+    driveRef.current = startTestDrive({
+      rom: rom.bytes,
+      save,
+      canvas: canvasRef.current,
+      sound,
+      onSramWrite: (sram) => {
+        // Bank-0 sprite scratch fires this constantly; only a rewrite of the
+        // bank-1 main region means the player used SAVE in-game.
+        if (baselineRef.current && mainSaveRegionChanged(baselineRef.current, sram)) {
+          setSaveDetected(true);
+        }
+      },
+    });
     setRunning(true);
     setNotice(null);
     canvasRef.current.focus();
@@ -160,6 +178,8 @@ export function TestDrivePage() {
     if (!sram) return;
     const { warnings } = parseSave(sram);
     mutate((b) => b.set(sram));
+    baselineRef.current = Uint8Array.from(sram);
+    setSaveDetected(false);
     setNotice(
       warnings.length
         ? `Pulled the emulator save into the editor with warnings: ${warnings.join("; ")}`
@@ -283,6 +303,17 @@ export function TestDrivePage() {
               </div>
             ))}
           </dl>
+          {saveDetected && (
+            <p className="save-detected" data-testid="save-detected" role="status">
+              The game saved. Pull it into the editor?
+              <Button size="sm" variant="primary" onClick={pullSave}>
+                Pull save
+              </Button>
+              <Button size="sm" variant="ghost" onClick={() => setSaveDetected(false)}>
+                Ignore
+              </Button>
+            </p>
+          )}
           {notice && (
             <p className="hint-line" data-testid="testdrive-notice">
               {notice}
