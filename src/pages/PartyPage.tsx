@@ -71,12 +71,13 @@ export function PartyPage() {
     if (!active) return;
     const name = active.nickname || speciesByInternalId(active.mon.species)?.name || "mon";
     const data = exportPk1(active.mon, { nickname: active.nickname, otName: active.otName });
-    const url = URL.createObjectURL(new Blob([data.buffer as ArrayBuffer], { type: "application/octet-stream" }));
+    const url = URL.createObjectURL(new Blob([data], { type: "application/octet-stream" }));
     const a = document.createElement("a");
     a.href = url;
     a.download = `${name.toLowerCase()}.pk1`;
     a.click();
-    URL.revokeObjectURL(url);
+    // Deferred so slower browsers finish initiating the download first.
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
 
   async function importPk1File(file: File) {
@@ -86,9 +87,20 @@ export function PartyPage() {
       recalcDerivedFields(mon);
       const nickname = names.nickname.trim() || speciesByInternalId(mon.species)?.name || "MON";
       const otName = names.otName.trim() || "TRAINER";
-      const index = party.length;
-      mutate((b) => setPartyMon(b, index, mon, { nickname, otName }));
-      setSelected(index);
+      // The party may have changed while the file was being read, so pick the
+      // slot from the live buffer inside the mutation, not from render state.
+      let placed = -1;
+      mutate((b) => {
+        const count = getParty(b).length;
+        if (count >= PARTY_LENGTH) return; // leaves the buffer untouched (no-op)
+        setPartyMon(b, count, mon, { nickname, otName });
+        placed = count;
+      });
+      if (placed < 0) {
+        setImportError("The party is already full.");
+        return;
+      }
+      setSelected(placed);
       setImportError(null);
     } catch (e) {
       setImportError(e instanceof Error ? e.message : String(e));

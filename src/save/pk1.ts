@@ -31,7 +31,7 @@ export interface Pk1 {
   names: MonNames;
 }
 
-export function exportPk1(mon: MonRecord, names: MonNames): Uint8Array {
+export function exportPk1(mon: MonRecord, names: MonNames): Uint8Array<ArrayBuffer> {
   const out = new Uint8Array(PK1_SIZE);
   out[0] = 1;
   out[1] = mon.species === 0 ? 0xff : mon.species;
