@@ -42,9 +42,6 @@ import {
   setWinStreak,
 } from "../save/shin";
 import { getEventFlag, setEventFlag } from "../save/events";
-
-/** EVENT_90E — the Oak-aide "gender/caught indicators" toggle. */
-const GENDER_INDICATOR_EVENT = 0x90e;
 import { isEncodable } from "../save/text";
 import { useNav } from "../state/nav";
 import { useSaveStore } from "../state/store";
@@ -59,6 +56,9 @@ import {
   Toggle,
 } from "../components/ui/ui";
 import { PageHeader } from "../components/PageHeader";
+
+/** EVENT_90E — the Oak-aide "gender/caught indicators" toggle. */
+const GENDER_INDICATOR_EVENT = 0x90e;
 
 const TEXT_SPEEDS = [
   { value: "1", label: "Fast" },
