@@ -589,3 +589,17 @@ test("undo/redo works via keyboard and toolbar buttons", async ({ page }) => {
   expect(decodeBcd3(exported, MONEY_OFFSET)).toBe(3000);
   expect(exported[MAIN_CKSUM]).toBe(gen1MainChecksum(exported));
 });
+
+test("battle options polarity: unchecking animations sets wOptions bit 7", async ({ page }) => {
+  await loadFixture(page);
+  await page.locator(".sidenav__item", { hasText: "Trainer" }).click();
+  // Positive toggle: on-screen ON = bit clear. Turn animations off.
+  await page.getByRole("switch", { name: "Battle animations" }).click();
+  await page.locator(".field", { hasText: "Battle style" }).getByRole("button", { name: "Set", exact: true }).click();
+  await page.getByRole("switch", { name: "Caught & gender indicators" }).click();
+  const bytes = await exportBytes(page);
+  expect(bytes[0x2601] & 0x80).toBe(0x80); // animations off
+  expect(bytes[0x2601] & 0x40).toBe(0x40); // battle style Set
+  expect(bytes[0x29f3 + (0x90e >> 3)] & (1 << (0x90e & 7))).not.toBe(0); // EVENT_90E on
+  expect(bytes[MAIN_CKSUM]).toBe(gen1MainChecksum(bytes));
+});
