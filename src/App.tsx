@@ -8,6 +8,7 @@ import { SideNav } from "./components/SideNav";
 import { TopBar } from "./components/TopBar";
 import { UpdatePrompt } from "./components/UpdatePrompt";
 import { BoxesPage } from "./pages/BoxesPage";
+import { ComparePage } from "./pages/ComparePage";
 import { EncyclopediaPage } from "./pages/EncyclopediaPage";
 import { FlagsPage } from "./pages/FlagsPage";
 import { HallOfFamePage } from "./pages/HallOfFamePage";
@@ -82,6 +83,8 @@ function ActivePage() {
       return <EncyclopediaPage />;
     case "testdrive":
       return <TestDrivePage />;
+    case "compare":
+      return <ComparePage />;
     case "hex":
       return <HexView />;
     default:
