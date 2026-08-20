@@ -2,7 +2,7 @@
 
 Local-first browser editor for Shin Pokémon and Gen 1 Game Boy save files.
 
-**Live:** <https://vdustr.dev/shinpokered-save-editor/>
+**Live:** <https://vdustr.github.io/shinpokered-save-editor/>
 
 Your save file never leaves the browser: no upload, no account, no backend.
 
