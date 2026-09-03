@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.2](https://github.com/VdustR/shinpokered-save-editor/compare/v1.7.1...v1.7.2) (2026-09-03)
+
+
+### Bug Fixes
+
+* **deps:** patch vulnerable transitive dependencies ([#65](https://github.com/VdustR/shinpokered-save-editor/issues/65)) ([09ff546](https://github.com/VdustR/shinpokered-save-editor/commit/09ff546ae289cdb2ff249c076b0bba5708e00f80))
+
 ## [1.7.1](https://github.com/VdustR/shinpokered-save-editor/compare/v1.7.0...v1.7.1) (2026-07-05)
 
 
