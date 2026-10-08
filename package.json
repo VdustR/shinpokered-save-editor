@@ -1,7 +1,7 @@
 {
   "name": "shinpokered-save-editor",
   "private": true,
-  "version": "1.7.2",
+  "version": "1.7.3",
   "description": "Local-first browser editor for Shin Pokémon and Gen 1 Game Boy save files.",
   "type": "module",
   "scripts": {
