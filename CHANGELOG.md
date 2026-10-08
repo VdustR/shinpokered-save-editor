@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.3](https://github.com/VdustR/shinpokered-save-editor/compare/v1.7.2...v1.7.3) (2026-10-08)
+
+
+### Bug Fixes
+
+* **deps:** patch Vitest and fast-uri security advisories ([#68](https://github.com/VdustR/shinpokered-save-editor/issues/68)) ([e1dcfc5](https://github.com/VdustR/shinpokered-save-editor/commit/e1dcfc5f83b8b7860189d576e40475647fc2ee33))
+
 ## [1.7.2](https://github.com/VdustR/shinpokered-save-editor/compare/v1.7.1...v1.7.2) (2026-09-03)
 
 
