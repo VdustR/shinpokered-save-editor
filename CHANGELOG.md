@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.4](https://github.com/VdustR/shinpokered-save-editor/compare/v1.7.3...v1.7.4) (2026-10-08)
+
+
+### Bug Fixes
+
+* **deps:** patch brace-expansion and source-map-js advisories ([#70](https://github.com/VdustR/shinpokered-save-editor/issues/70)) ([549d27a](https://github.com/VdustR/shinpokered-save-editor/commit/549d27a617533c577c51c33dd91acbeab9d20f6a))
+
 ## [1.7.3](https://github.com/VdustR/shinpokered-save-editor/compare/v1.7.2...v1.7.3) (2026-10-08)
 
 
