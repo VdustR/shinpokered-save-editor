@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.7.5](https://github.com/VdustR/shinpokered-save-editor/compare/v1.7.4...v1.7.5) (2026-10-25)
+
+
+### Bug Fixes
+
+* **deps:** patch build dependency security advisories ([#76](https://github.com/VdustR/shinpokered-save-editor/issues/76)) ([9b372b6](https://github.com/VdustR/shinpokered-save-editor/commit/9b372b64ac4a9679917f20339422d2ef750e9053))
+* **deps:** patch Vitest mocker security advisories ([#74](https://github.com/VdustR/shinpokered-save-editor/issues/74)) ([7701a1d](https://github.com/VdustR/shinpokered-save-editor/commit/7701a1d403ddd831d1fe69451344e1bb8e73a482))
+
 ## [1.7.4](https://github.com/VdustR/shinpokered-save-editor/compare/v1.7.3...v1.7.4) (2026-10-08)
 
 
